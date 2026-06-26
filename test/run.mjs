@@ -27,6 +27,8 @@ ok(C.detect("Cállate, eres basura, idiota.", "fr") === "es", "detect ES");
 ok(C.detect("Halt die Klappe, du Versager.", "fr") === "de", "detect DE");
 ok(C.detect("Sei uno stupido, taci.", "fr") === "it", "detect IT");
 ok(C.detect("Hou je mond, mislukkeling.", "fr") === "nl", "detect NL");
+ok(C.detect("Zamknij się, ty frajerze.", "fr") === "pl", "detect PL");
+ok(C.detect("Ładny dzień, gratulacje dla wszystkich!", "fr") === null, "gentil PL -> null");
 ok(C.detect("C'est joli, bravo !", "fr") === null, "gentil -> null");
 
 // ---- anti-obfuscation ----

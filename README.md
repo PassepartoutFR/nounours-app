@@ -7,7 +7,7 @@ commentaires méchants par des messages de mascottes** trolls et ironiques.
 
 📖 Livre blanc ([FR](docs/LIVRE-BLANC.md) · [EN](docs/WHITE-PAPER.md)) · 🌐 [Multi-navigateur](docs/BROWSERS.md) · 🚀 [Releases](docs/RELEASE.md) · 🤝 [Contribuer](CONTRIBUTING.md)
 
-**Multilingue (7 langues)** : FR, EN, ES, IT, DE, PT, NL. La détection ET la
+**Multilingue (8 langues)** : FR, EN, ES, IT, DE, PT, NL, PL. La détection ET la
 réponse se font dans la langue du commentaire — un troll espagnol se fait
 répondre en espagnol, un allemand en allemand. (La langue de la page,
 `<html lang>`, est prioritaire pour lever l'ambiguïté des mots partagés comme

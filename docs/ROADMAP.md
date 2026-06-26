@@ -30,7 +30,6 @@ sections = la priorité.
 
 ## ▶️ Ensuite
 - [ ] Soumettre sur **Firefox** (`scripts/build-firefox.cjs` + web-ext).
-- [ ] **Mode « surligner sans remplacer »** (option) pour comparer avant/après.
 - [ ] **Stats par langue** dans le popup (mini répartition).
 - [ ] **Armer l'auto-publication** (secrets OAuth → release auto au tag).
 - [ ] Élargir le harnais de **tests** (mirror, content — via jsdom léger).
@@ -48,6 +47,7 @@ sections = la priorité.
   intensité, cœurs animés, miroir gentil.
 - Classement « compte sans compte » (serveur Python) + **export/import d'identité**.
 - 🌟 **Nounours Légendaire** (easter egg doré) · 🛡️ **anti-obfuscation** (leetspeak / lettres répétées) · 🏅 **succès & badges** (10) + 🔥 **séries quotidiennes** · 🖼️ **carte sociale partageable** dans le popup · `CHANGELOG.md`.
+- 🇵🇱 **Polonais** (8ᵉ langue) · 🖍️ **mode surligner sans remplacer** · 📄 **README EN + FAQ**.
 - 📊 **Tableau des gentils** : données vivantes sur le site (visiteurs en direct +
   stats agrégées), respect total de la vie privée — **déployé + live 2026-06-26**.
 - Site **nounours.app** multilingue + page vie privée.

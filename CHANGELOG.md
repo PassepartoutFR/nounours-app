@@ -21,6 +21,10 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
   (jour UTC, +1 si consécutif, reset après un trou) + 2 badges de série.
 - 🖼️ **Carte sociale partageable** : génère en 1 clic une image (pseudo, rang,
   niveau, série, badges) prête à poster, depuis le popup.
+- 🇵🇱 **Polonais** : 8ᵉ langue — détection ET réponses des mascottes en polonais.
+- 🖍️ **Mode « surligner sans remplacer »** : option pour marquer le commentaire
+  (texte d'origine atténué + souligné) et révéler la mascotte au clic.
+- 📄 **README anglais** (`README.en.md`) + **FAQ** (`docs/FAQ.md`) pour l'open source.
 
 ## [0.6.0] — non publié
 ### Ajouté

@@ -21,6 +21,17 @@
   font-style: normal;
 }
 
+/* --- Mode surlignage : on garde le texte mechant mais on le SIGNALE ---
+   (attenue + souligne en pointilles ; clic = revele le mot doux du nounours) */
+.uwg-msg.uwg-flag {
+  color: #b59a78 !important;
+  opacity: 0.78;
+  text-decoration: none !important;
+  border-bottom: 1px dashed #d8a55a;
+  padding-bottom: 1px;
+  cursor: pointer;
+}
+
 /* --- Nounours Légendaire (rare, doré) --- */
 .uwg-soft.uwg-legendary {
   background: linear-gradient(110deg, #ffe9a8, #ffd25e, #fff4cf, #ffd25e, #ffe9a8) !important;

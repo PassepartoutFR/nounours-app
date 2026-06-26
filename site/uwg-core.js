@@ -16,7 +16,7 @@
       .replace(/[013457@$]/g, (c) => LEET[c])
       .replace(/(.)\1+/g, "$1");
 
-  const LANGS = ["fr", "en", "es", "it", "de", "pt", "nl"];
+  const LANGS = ["fr", "en", "es", "it", "de", "pt", "nl", "pl"];
 
   // --- lexiques "mechants" par langue ----------------------------------------
   const LEX = {
@@ -61,6 +61,12 @@
       "idioot", "stommerik", "hou je mond", "verdwijn", "loser", "lelijk",
       "tuig", "walgelijk", "niemand houdt van je", "sterf", "mislukkeling",
       "eikel", "klootzak", "dom"
+    ],
+    pl: [
+      "idiota", "kretyn", "debil", "glupek", "glupia", "zamknij sie",
+      "spadaj", "wynocha", "brzydki", "brzydka", "frajer", "przegrany",
+      "smiec", "obrzydliwy", "nikt cie nie lubi", "zdychaj", "matol",
+      "tepak", "glupi"
     ]
   };
 
@@ -146,6 +152,16 @@
         "🧸 Wat een schattige driftbui.",
         "🧸 Iemand heeft een dutje en een persoonlijkheid nodig.",
         "🧸 Kijk, de troll praat. Geef hem snel een pinda."
+      ],
+      pl: [
+        "🧸 Aww, ktoś pominął drzemkę ORAZ dobre maniery?",
+        "🧸 Ile odwagi za ekranem. Masz ciasteczko.",
+        "🧸 Twój komentarz został przytulony aż zniknął.",
+        "🧸 Tyle złości, a nikt nie pytał. Masz misia.",
+        "🧸 Uspokój się, wojowniku klawiatury, i wypij sok.",
+        "🧸 Najsłodszy mały humorek, jaki dziś widziałem.",
+        "🧸 Ktoś potrzebuje drzemki i osobowości.",
+        "🧸 O, troll przemówił. Szybko, dajcie mu orzeszka."
       ]
     },
 
@@ -188,6 +204,11 @@
         "🐱 Miauw. Vertaling: jij hebt een knuffel en een dutje nodig.",
         "🐱 *knippert langzaam naar je* … vergeven, dommerd.",
         "🐱 Therapeutisch spinnen geactiveerd. Rustig, mens."
+      ],
+      pl: [
+        "🐱 Miau. Tłumaczenie: potrzebujesz przytulasa i drzemki.",
+        "🐱 *mruga do ciebie powoli* … wybaczone, gapciu.",
+        "🐱 Terapeutyczne mruczenie włączone. Uspokój się, człowieku."
       ]
     },
 
@@ -230,6 +251,11 @@
         "👵 Ach, schatje, heb je wel gegeten? Hier, een snoepje.",
         "👵 Kom hier, dan knijp ik even in dat humeurige wangetje.",
         "👵 In mijn tijd zei men dat niet, maar ik hou toch van je."
+      ],
+      pl: [
+        "👵 Ach, skarbie, czy ty w ogóle jadłeś? Masz cukierka.",
+        "👵 Chodź no tu, uszczypnę ten naburmuszony policzek.",
+        "👵 Za moich czasów się tak nie mówiło, ale i tak cię kocham."
       ]
     },
 
@@ -272,6 +298,11 @@
         "🎨 Geen fouten, alleen vrolijke ongelukjes. Adem.",
         "🎨 We zetten hier een vriendelijk boompje, woede weg.",
         "🎨 Je reactie? Een grijze wolk. We maken 'm zacht."
+      ],
+      pl: [
+        "🎨 Nie ma błędów, są tylko szczęśliwe wypadki. Oddychaj.",
+        "🎨 Dodamy tu przyjazne drzewko i złość znika.",
+        "🎨 Twój komentarz? Szara chmurka. Zróbmy ją miękką."
       ]
     }
   };
@@ -295,7 +326,8 @@
     it: ["💛 Andrà tutto bene, promesso.", "💛 Vali più di questo commento.", "💛 Respira, ci sono io.", "💛 Un po' di dolcezza non fa male a nessuno."],
     de: ["💛 Es wird alles gut, versprochen.", "💛 Du bist mehr wert als dieser Kommentar.", "💛 Atme durch, ich bin da.", "💛 Ein bisschen Sanftheit schadet nie."],
     pt: ["💛 Vai ficar tudo bem, prometo.", "💛 Você vale mais que esse comentário.", "💛 Respira, estou aqui.", "💛 Um pouco de doçura não faz mal a ninguém."],
-    nl: ["💛 Het komt allemaal goed, beloofd.", "💛 Je bent meer waard dan deze reactie.", "💛 Haal even adem, ik ben er.", "💛 Een beetje liefde kan geen kwaad."]
+    nl: ["💛 Het komt allemaal goed, beloofd.", "💛 Je bent meer waard dan deze reactie.", "💛 Haal even adem, ik ben er.", "💛 Een beetje liefde kan geen kwaad."],
+    pl: ["💛 Wszystko będzie dobrze, obiecuję.", "💛 Jesteś wart więcej niż ten komentarz.", "💛 Weź oddech, jestem przy tobie.", "💛 Odrobina czułości nikomu nie zaszkodziła."]
   };
   const SAVAGE = {
     fr: ["Ne me remercie pas.", "Bisou quand même, champion du vide.", "C'était cadeau.", "Range ta colère, elle dépasse."],
@@ -304,7 +336,8 @@
     it: ["Non ringraziarmi.", "Bacio comunque, campione del nulla.", "Offre la casa.", "Rimetti via quella rabbia, si vede."],
     de: ["Nicht danken.", "Trotzdem ein Küsschen, Champion des Nichts.", "Geht aufs Haus.", "Pack deine Wut weg, man sieht sie."],
     pt: ["Não precisa agradecer.", "Beijinho mesmo assim, campeão do vazio.", "Esse é cortesia.", "Guarda essa raiva, está aparecendo."],
-    nl: ["Niet bedanken.", "Toch een kusje, kampioen van niks.", "Deze is van het huis.", "Stop die woede weg, ze piept eruit."]
+    nl: ["Niet bedanken.", "Toch een kusje, kampioen van niks.", "Deze is van het huis.", "Stop die woede weg, ze piept eruit."],
+    pl: ["Nie dziękuj.", "Buziak mimo wszystko, mistrzu pustki.", "Ten jest na koszt firmy.", "Schowaj tę złość, wystaje ci."]
   };
 
   // --- easter egg : le Nounours Légendaire (rare, doré) ----------------------
@@ -315,7 +348,8 @@
     it: ["🌟 ✨ ORSETTO LEGGENDARIO ✨ La tua cattiveria ha svegliato l'Orso Dorato… ti perdona. 🐻", "🌟 COLPO CRITICO DI GENTILEZZA! +100 abbracci. ✨"],
     de: ["🌟 ✨ LEGENDÄRER TEDDY ✨ Deine Gemeinheit weckte den Goldenen Bären… er vergibt dir. 🐻", "🌟 KRITISCHER TREFFER DER FREUNDLICHKEIT! +100 Umarmungen. ✨"],
     pt: ["🌟 ✨ URSINHO LENDÁRIO ✨ Tua maldade acordou o Urso Dourado… ele te perdoa. 🐻", "🌟 ACERTO CRÍTICO DE TERNURA! +100 abraços. ✨"],
-    nl: ["🌟 ✨ LEGENDARISCHE TEDDY ✨ Je gemeenheid wekte de Gouden Beer… hij vergeeft je. 🐻", "🌟 KRITIEKE TREFFER VAN VRIENDELIJKHEID! +100 knuffels. ✨"]
+    nl: ["🌟 ✨ LEGENDARISCHE TEDDY ✨ Je gemeenheid wekte de Gouden Beer… hij vergeeft je. 🐻", "🌟 KRITIEKE TREFFER VAN VRIENDELIJKHEID! +100 knuffels. ✨"],
+    pl: ["🌟 ✨ LEGENDARNY MIŚ ✨ Twoja złośliwość obudziła Złotego Niedźwiedzia… on ci wybacza. 🐻", "🌟 KRYTYCZNE TRAFIENIE ŻYCZLIWOŚCIĄ! +100 przytulasów. ✨"]
   };
 
   // --- bulle d'aide localisee -------------------------------------------------
@@ -326,7 +360,8 @@
     it: "Un web gentile — messaggio originale nascosto (clic per rivelare)",
     de: "Ein nettes Web — Originalnachricht versteckt (klicken zum Anzeigen)",
     pt: "Uma web gentil — mensagem original oculta (clique para revelar)",
-    nl: "Een lief web — originele bericht verborgen (klik om te tonen)"
+    nl: "Een lief web — originele bericht verborgen (klik om te tonen)",
+    pl: "Życzliwy internet — oryginalna wiadomość ukryta (kliknij, aby pokazać)"
   };
 
   // --- niveaux (gamification) -------------------------------------------------

@@ -2,7 +2,7 @@
 const STORAGE_KEY = "uwg_state";
 const DEFAULTS = {
   enabled: true, total: 0, theme: "nounours", intensity: "medium",
-  celebrate: true, mirror: true
+  celebrate: true, mirror: true, highlightOnly: false
 };
 const CORE = window.UWGCore;
 
@@ -10,6 +10,7 @@ const $ = (id) => document.getElementById(id);
 const toggle = $("toggle");
 const celebrate = $("celebrate");
 const mirror = $("mirror");
+const highlightOnly = $("highlightOnly");
 const intensityBox = $("intensity");
 const themesBox = $("themes");
 
@@ -33,6 +34,7 @@ function render(st) {
   toggle.checked = !!st.enabled;
   celebrate.checked = !!st.celebrate;
   mirror.checked = !!st.mirror;
+  highlightOnly.checked = !!st.highlightOnly;
 
   themesBox.querySelectorAll(".theme").forEach((el) => {
     el.classList.toggle("active", el.dataset.v === st.theme);
@@ -83,6 +85,7 @@ function load() {
 toggle.addEventListener("change", () => patch({ enabled: toggle.checked }));
 celebrate.addEventListener("change", () => patch({ celebrate: celebrate.checked }));
 mirror.addEventListener("change", () => patch({ mirror: mirror.checked }));
+highlightOnly.addEventListener("change", () => patch({ highlightOnly: highlightOnly.checked }));
 
 themesBox.addEventListener("click", (e) => {
   const el = e.target.closest(".theme");

@@ -13,7 +13,8 @@
     total: 0,
     theme: "nounours",
     intensity: "medium",
-    celebrate: true
+    celebrate: true,
+    highlightOnly: false
   };
 
   const PAGE_LANG = (
@@ -89,11 +90,15 @@
     const m = el.querySelector(".uwg-msg");
     if (!m) return;
     if (el.classList.contains("revealed")) {
+      // "revealed" = on montre le texte d'origine ; on bascule vers le nounours
       el.classList.remove("revealed");
       m.textContent = el.dataset.teddy;
+      m.classList.remove("uwg-flag");
     } else {
       el.classList.add("revealed");
       m.textContent = el.dataset.original;
+      // flag = mode surlignage (texte d'origine atténué + souligné)
+      if (el.dataset.highlight === "1") m.classList.add("uwg-flag");
     }
     e.preventDefault();
     e.stopPropagation();
@@ -114,25 +119,31 @@
       seed: text,
       legendary
     });
+    const highlight = !!state.highlightOnly;
+
     const span = document.createElement("span");
     span.className = legendary ? "uwg-soft uwg-legendary" : "uwg-soft";
+    // En mode surlignage : on garde le texte d'origine visible (état "revealed").
+    if (highlight) span.classList.add("revealed");
     span.title = CORE.HINT[lang] || CORE.HINT.en;
     span.dataset.original = text;
     span.dataset.teddy = msg;
     span.dataset.lang = lang;
+    span.dataset.highlight = highlight ? "1" : "0";
     span.addEventListener("click", revealToggle);
 
     const inner = document.createElement("span");
-    inner.className = "uwg-msg";
-    inner.textContent = msg;
+    inner.className = highlight ? "uwg-msg uwg-flag" : "uwg-msg";
+    // surlignage : on montre l'ORIGINAL ; sinon : le message nounours.
+    inner.textContent = highlight ? text : msg;
     span.appendChild(inner);
 
     node.parentNode.replaceChild(span, node);
     pending++;
     pendingLangs.add(lang);
     if (legendary) pendingLegendary++;
-    // Cœurs sur TOUT endroit filtre (chargement initial ET ajouts en direct).
-    if (state.celebrate) sprinkleHearts(span);
+    // Cœurs sur TOUT endroit filtre — mais pas en mode surlignage (on n'altère rien).
+    if (state.celebrate && !highlight) sprinkleHearts(span);
   }
 
   function walk(root) {
