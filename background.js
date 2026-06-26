@@ -260,6 +260,24 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // Contourne la porte « cas gris » (c'est un test volontaire de l'utilisateur) : on
 // classe le texte EXACT fourni, puis on renvoie { score, status } (status = état courant
 // de uwg_ai_status). Entièrement try/catch -> { score:null, error } en cas de pépin.
+// Attend que le modèle soit PRÊT (ou en erreur) en sondant uwg_ai_status. Le 1er
+// chargement télécharge ~25 Mo : sans cette attente, un test lancé trop tôt retombe
+// sur le timeout de classifyViaOffscreen et affiche un faux « 0.00 ». On distingue
+// donc explicitement : prêt / erreur exacte / encore en chargement.
+function waitForModelReady(timeoutMs) {
+  return new Promise((resolve) => {
+    const t0 = Date.now();
+    const tick = async () => {
+      const st = await getAiStatus();
+      if (st === "ready") return resolve({ ready: true });
+      if (typeof st === "string" && st.indexOf("error") === 0) return resolve({ ready: false, error: st });
+      if (Date.now() - t0 > timeoutMs) return resolve({ ready: false, loading: true });
+      setTimeout(tick, 600);
+    };
+    tick();
+  });
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || msg.type !== "uwg-ai-test") return; // pas pour nous
   (async () => {
@@ -269,12 +287,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (!ok) {
         // création offscreen impossible : ensureOffscreen a déjà publié l'erreur.
         const status = await getAiStatus();
-        sendResponse({ score: null, status, error: "offscreen indisponible" });
+        sendResponse({ score: null, status, error: (status && status.indexOf("error") === 0) ? status : "offscreen indisponible" });
         return;
       }
+      // ATTEND que le modèle finisse de charger (jusqu'à 90 s pour les ~25 Mo) AVANT de
+      // classer — sinon on renvoie un faux 0. On dit la vérité : erreur exacte ou « encore en charge ».
+      const r = await waitForModelReady(90000);
+      if (r.error) { sendResponse({ score: null, status: r.error, error: r.error }); return; }
+      if (!r.ready) { sendResponse({ score: null, status: "loading", error: "modèle encore en chargement (~25 Mo) — réessaie dans quelques secondes" }); return; }
       const score = await classifyViaOffscreen(text);
-      const status = await getAiStatus();
-      sendResponse({ score: typeof score === "number" ? score : null, status });
+      sendResponse({ score: typeof score === "number" ? score : null, status: "ready" });
     } catch (err) {
       const e = (err && err.message) || String(err);
       console.warn(AI_TAG, "uwg-ai-test erreur :", e);

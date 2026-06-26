@@ -4,6 +4,15 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.7.7] — 2026-06-26
+
+### Fixed
+- 🧪 **Honest "Test the AI" button**: it now **waits** for the model to finish
+  loading (up to 90 s for the ~25 MB) before classifying, instead of timing out
+  at 15 s and showing a misleading "score 0.00". It now shows either the **real
+  score**, **"⏳ still loading"**, or the **exact error**. (The test also forces
+  the model to load even if the option isn't enabled yet.)
+
 ## [0.7.6] — 2026-06-26
 
 ### Improved

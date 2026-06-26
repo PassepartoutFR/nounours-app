@@ -4,6 +4,15 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.7] — 2026-06-26
+
+### Corrigé
+- 🧪 **Bouton « Tester l'IA » honnête** : il **attend** que le modèle finisse de
+  charger (jusqu'à 90 s pour les ~25 Mo) avant de classer, au lieu d'expirer à
+  15 s et d'afficher un trompeur « score 0.00 ». Il affiche désormais soit le
+  **vrai score**, soit **« ⏳ encore en chargement »**, soit l'**erreur exacte**.
+  (Le test force aussi le chargement même si l'option n'est pas encore activée.)
+
 ## [0.7.6] — 2026-06-26
 
 ### Amélioré

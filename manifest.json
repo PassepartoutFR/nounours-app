@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Un web de gentil",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "Remplace les commentaires méchants par des mascottes câlines et taquines. 8 langues, 100 % local, gratuit à vie. 🧸",
   "permissions": ["storage", "alarms", "offscreen"],
   "content_security_policy": {

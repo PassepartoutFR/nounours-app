@@ -157,7 +157,7 @@ if (aiTestBtn) {
   aiTestBtn.addEventListener("click", () => {
     const TEST_TEXT = "What a stupid moro";
     const THRESHOLD = 0.9; // même seuil que le chemin « cas gris » (DEFAULTS.aiThreshold)
-    if (aiTestResult) { aiTestResult.classList.remove("warn"); aiTestResult.textContent = "…"; }
+    if (aiTestResult) { aiTestResult.classList.remove("warn"); aiTestResult.textContent = "⏳ test en cours — chargement du modèle (~25 Mo) si besoin, patiente…"; }
     try {
       chrome.runtime.sendMessage({ type: "uwg-ai-test", text: TEST_TEXT }, (resp) => {
         if (!aiTestResult) return;
