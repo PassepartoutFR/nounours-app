@@ -391,3 +391,77 @@ async function makeShareCard() {
   }, "image/png");
 }
 document.getElementById("cardBtn").addEventListener("click", makeShareCard);
+
+// ---------------------------------------------------------------------------
+// Bannière « mise à jour disponible » (testeurs side-load GitHub)
+// ---------------------------------------------------------------------------
+// Le service worker écrit la clé uwg_update { version, url } quand une release
+// plus récente existe. Ici on l'affiche (re-vérification de la version au cas où
+// l'utilisateur aurait déjà mis à jour). FAIL-SAFE : la moindre erreur => on ne
+// montre rien. On ne touche JAMAIS au badge (réservé au compteur de câlins).
+const UPD_KEY = "uwg_update";
+const UPD_DISMISS_KEY = "uwg_update_dismissed"; // version masquée par l'utilisateur
+
+// Même logique que background.js (dupliquée, volontairement minuscule).
+function isNewer(latest, current) {
+  try {
+    const a = String(latest || "").split(".");
+    const b = String(current || "").split(".");
+    const n = Math.max(a.length, b.length);
+    for (let i = 0; i < n; i++) {
+      const x = parseInt(a[i], 10), y = parseInt(b[i], 10);
+      const xi = Number.isFinite(x) ? x : 0;
+      const yi = Number.isFinite(y) ? y : 0;
+      if (xi > yi) return true;
+      if (xi < yi) return false;
+    }
+    return false;
+  } catch (_) { return false; }
+}
+
+function renderUpdateBanner() {
+  try {
+    const banner = $("updateBanner");
+    if (!banner) return;
+    chrome.storage.local.get([UPD_KEY, UPD_DISMISS_KEY], (res) => {
+      try {
+        const upd = res && res[UPD_KEY];
+        const dismissed = res && res[UPD_DISMISS_KEY];
+        const current = chrome.runtime.getManifest().version;
+        // rien à montrer, ou pas réellement plus récent (déjà à jour), ou masqué
+        if (!upd || !upd.version || !isNewer(upd.version, current) || dismissed === upd.version) {
+          banner.style.display = "none";
+          return;
+        }
+        $("updateText").textContent = "🆕 Nouvelle version " + upd.version + " dispo";
+        const dl = $("updateDl");
+        const url = (typeof upd.url === "string" && upd.url) ||
+          "https://github.com/PassepartoutFR/nounours-app/releases/latest";
+        dl.href = url;
+        dl.onclick = (e) => {
+          try {
+            if (chrome.tabs && chrome.tabs.create) {
+              e.preventDefault();
+              chrome.tabs.create({ url });
+            }
+            // sinon : on laisse le lien target=_blank faire le travail (repli)
+          } catch (_) { /* fail-safe : le lien natif reste cliquable */ }
+        };
+        $("updateDismiss").onclick = () => {
+          banner.style.display = "none";
+          // mémorise la version masquée : on ne ré-embête plus pour CETTE version
+          try { chrome.storage.local.set({ [UPD_DISMISS_KEY]: upd.version }); } catch (_) {}
+        };
+        banner.style.display = "flex";
+      } catch (_) { /* fail-safe : aucune bannière */ }
+    });
+  } catch (_) { /* fail-safe : aucune bannière */ }
+}
+
+renderUpdateBanner();
+// si le service worker écrit/efface la clé pendant que le popup est ouvert, on rafraîchit.
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && (changes[UPD_KEY] || changes[UPD_DISMISS_KEY])) renderUpdateBanner();
+  });
+} catch (_) {}

@@ -4,6 +4,16 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.5] — 2026-06-26
+
+### Ajouté
+- 🆕 **Notification de mise à jour** : l'extension vérifie (toutes les 12 h) s'il
+  existe une release plus récente sur GitHub et, le cas échéant, affiche dans le
+  popup « Nouvelle version dispo → Télécharger ». (Les versions chargées « non
+  empaquetées » ne peuvent pas s'auto-installer — Chrome l'interdit ; la vraie
+  auto-mise-à-jour viendra avec la publication sur le Chrome Web Store.) Fail-safe,
+  n'écrase pas le badge « nombre de câlins ».
+
 ## [0.7.4] — 2026-06-26
 
 ### Corrigé

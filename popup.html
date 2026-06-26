@@ -100,9 +100,39 @@
     #acctBox { width: 100%; margin-top: 4px; }
     .acct textarea { width: 100%; box-sizing: border-box; border: 1px solid #f1ddc7; border-radius: 8px; padding: 7px; font: inherit; font-size: 12px; resize: vertical; }
     .acct-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+
+    /* bannière « mise à jour disponible » (testeurs side-load) */
+    .update-banner {
+      display: none; align-items: center; gap: 8px;
+      margin: 10px 12px 2px; padding: 9px 11px;
+      background: linear-gradient(90deg, #FBD27A, #FF8A5E);
+      color: #3A2A1E; border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(180,110,40,.25);
+      font-size: 12px; line-height: 1.25;
+    }
+    .update-banner .ub-txt { flex: 1; font-weight: 600; }
+    .update-banner .ub-dl {
+      border: 0; cursor: pointer; white-space: nowrap;
+      background: #3A2A1E; color: #fff; border-radius: 8px;
+      padding: 5px 10px; font: inherit; font-weight: 700; font-size: 12px;
+      text-decoration: none;
+    }
+    .update-banner .ub-dl:hover { background: #573f2c; }
+    .update-banner .ub-x {
+      border: 0; background: rgba(58,42,30,.12); color: #3A2A1E;
+      cursor: pointer; border-radius: 6px; width: 20px; height: 20px;
+      line-height: 18px; font-size: 13px; padding: 0; flex: 0 0 auto;
+    }
+    .update-banner .ub-x:hover { background: rgba(58,42,30,.22); }
   </style>
 </head>
 <body>
+  <div class="update-banner" id="updateBanner" role="status">
+    <span class="ub-txt" id="updateText"></span>
+    <a class="ub-dl" id="updateDl" href="#" target="_blank" rel="noopener">Télécharger</a>
+    <button class="ub-x" id="updateDismiss" title="Masquer" aria-label="Masquer">✕</button>
+  </div>
+
   <header><span class="ours">🧸</span> Un web de gentil</header>
 
   <div class="row">

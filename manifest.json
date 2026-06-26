@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Un web de gentil",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "Remplace les commentaires méchants par des mascottes câlines et taquines. 8 langues, 100 % local, gratuit à vie. 🧸",
   "permissions": ["storage", "alarms", "offscreen"],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' https://nounours.app http://127.0.0.1:8790 http://localhost:8790 https://storage.googleapis.com https://tfhub.dev https://www.kaggle.com https://kaggle.com"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' https://nounours.app http://127.0.0.1:8790 http://localhost:8790 https://storage.googleapis.com https://tfhub.dev https://www.kaggle.com https://kaggle.com https://api.github.com"
   },
   "host_permissions": ["https://nounours.app/*", "http://127.0.0.1:8790/*", "http://localhost:8790/*"],
   "icons": {

@@ -4,6 +4,15 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.7.5] — 2026-06-26
+
+### Added
+- 🆕 **Update notification**: the extension checks (every 12 h) for a newer GitHub
+  release and, if found, shows "New version available → Download" in the popup.
+  (Side-loaded "unpacked" builds can't self-install — Chrome forbids it; true
+  auto-update will come with the Chrome Web Store listing.) Fail-safe, doesn't
+  clobber the "hug count" badge.
+
 ## [0.7.4] — 2026-06-26
 
 ### Fixed
