@@ -232,3 +232,56 @@ acctDo.addEventListener("click", async () => {
 });
 
 refreshBoard();
+
+// ---------------------------------------------------------------------------
+// Carte sociale partageable (image PNG de ton rang/badges)
+// ---------------------------------------------------------------------------
+function drawShareCard(canvas, d) {
+  const W = 1200, Hh = 630;
+  canvas.width = W; canvas.height = Hh;
+  const x = canvas.getContext("2d");
+  const g = x.createLinearGradient(0, 0, W, Hh);
+  g.addColorStop(0, "#FBD27A"); g.addColorStop(0.55, "#F4A93B"); g.addColorStop(1, "#FF6B5E");
+  x.fillStyle = g; x.fillRect(0, 0, W, Hh);
+  const F = (px, w) => (w || "") + px + 'px "Fredoka","Segoe UI",system-ui,sans-serif';
+  const EMO = (px) => px + 'px "Segoe UI Emoji","Apple Color Emoji",sans-serif';
+  x.font = EMO(170); x.fillText("🧸", 70, 255);
+  x.fillStyle = "#3A2A1E";
+  x.font = F(56, "600 "); x.fillText("Un web de gentil", 310, 140);
+  x.font = F(56, "700 "); x.fillText((d.pseudo || "Un nounours anonyme").slice(0, 24), 70, 360);
+  const tot = d.total || 0;
+  x.font = F(40); x.fillText("a câliné " + tot.toLocaleString("fr-FR") + " troll" + (tot > 1 ? "s" : ""), 70, 420);
+  let line = "🏅 " + (d.level || "");
+  if (d.rank) line += "   ·   #" + d.rank + " mondial";
+  if (d.streak >= 1) line += "   ·   🔥 " + d.streak + " j";
+  x.font = F(34); x.fillText(line, 70, 476);
+  if (d.badges && d.badges.length) { x.font = EMO(50); x.fillText(d.badges.slice(0, 12).join("  "), 70, 556); }
+  x.fillStyle = "#fff"; x.font = F(38, "700 "); x.fillText("nounours.app  🧸", 70, 606);
+}
+
+async function makeShareCard() {
+  const res = await new Promise((r) => chrome.storage.local.get(STORAGE_KEY, r));
+  const st = Object.assign({}, DEFAULTS, res[STORAGE_KEY]);
+  const acc = await Board.getAccount();
+  let rank = null;
+  try { const lb = await Board.fetchLeaderboard(1); if (lb && lb.you) rank = lb.you.rank; } catch (_) {}
+  const data = {
+    pseudo: acc.pseudo,
+    total: st.total || 0,
+    level: CORE.levelFor(st.total || 0).title,
+    streak: (st.streak && st.streak.days) || 0,
+    badges: CORE.earnedBadges(st).map((b) => b.emoji),
+    rank
+  };
+  const canvas = document.createElement("canvas");
+  drawShareCard(canvas, data);
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "ma-carte-nounours.png"; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    try { navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]); } catch (_) {}
+  }, "image/png");
+}
+document.getElementById("cardBtn").addEventListener("click", makeShareCard);

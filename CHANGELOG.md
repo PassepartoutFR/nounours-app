@@ -19,6 +19,8 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
   le popup. Suivi local des langues croisées et des légendaires vus.
 - 🔥 **Séries quotidiennes** : compteur de **jours d'affilée** à adoucir le web
   (jour UTC, +1 si consécutif, reset après un trou) + 2 badges de série.
+- 🖼️ **Carte sociale partageable** : génère en 1 clic une image (pseudo, rang,
+  niveau, série, badges) prête à poster, depuis le popup.
 
 ## [0.6.0] — non publié
 ### Ajouté
