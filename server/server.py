@@ -154,13 +154,48 @@ def leaderboard(limit, uid):
         you = {"rank": idx + 1, "pseudo": scores[uid]["pseudo"], "total": scores[uid]["total"]}
     return {"top": top, "you": you, "count": len(arr)}
 
+# ---- Admin (mainteneur) : sante + stats + moderation du classement ----------
+# La cle d'admin est lue UNIQUEMENT depuis l'environnement (NOUNOURS_ADMIN_KEY) ;
+# JAMAIS en dur dans le code (ce depot est PUBLIC). Si la variable est vide/absente,
+# l'admin est DESACTIVE et toutes les routes /admin/* repondent 403.
+# La page admin envoie la cle dans l'en-tete HTTP X-Admin-Key.
+def check_admin_key(provided, env_key):
+    # Faux si la cle serveur est absente/vide (admin desactive) ou si elle ne
+    # correspond pas. Comparaison a temps constant (hmac.compare_digest).
+    if not env_key or not isinstance(env_key, str):
+        return False
+    if not isinstance(provided, str) or provided == "":
+        return False
+    import hmac
+    return hmac.compare_digest(provided, env_key)
+
+def admin_scores():
+    # Classement COMPLET pour l'admin : [{uid, pseudo, total}] tri decroissant.
+    with lock:
+        arr = [{"uid": k, "pseudo": v["pseudo"], "total": v["total"]} for k, v in scores.items()]
+    arr.sort(key=lambda e: (-e["total"], e["pseudo"]))
+    return arr
+
 class H(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Key")
+
+    def _admin_gate(self):
+        # Renvoie True si la requete admin est autorisee. Sinon ecrit la reponse
+        # d'erreur (403 admin desactive / 403 interdit) et renvoie False.
+        env_key = os.environ.get("NOUNOURS_ADMIN_KEY", "")
+        if not env_key:
+            self._json(403, {"error": "admin disabled"})
+            return False
+        provided = self.headers.get("X-Admin-Key", "")
+        if not check_admin_key(provided, env_key):
+            self._json(403, {"error": "forbidden"})
+            return False
+        return True
 
     def _json(self, code, obj):
         body = json.dumps(obj).encode("utf-8")
@@ -204,6 +239,24 @@ class H(BaseHTTPRequestHandler):
             with stats_lock:
                 out = compute_stats(now_mono, now_wall)
             return self._json(200, out)
+        if u.path == "/admin/overview":
+            if not self._admin_gate():
+                return
+            now_mono, now_wall = time.monotonic(), time.time()
+            with stats_lock:
+                s = compute_stats(now_mono, now_wall)
+            return self._json(200, {
+                "accounts": s["accounts"],
+                "transformed": s["transformed"],
+                "live": s["live"],
+                "today": s["today"],
+                "total": s["total"],
+                "serverTime": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(now_wall)),
+            })
+        if u.path == "/admin/scores":
+            if not self._admin_gate():
+                return
+            return self._json(200, admin_scores())
         return self._json(404, {"error": "not found"})
 
     def _beat(self):
@@ -230,6 +283,32 @@ class H(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path == "/beat":
             return self._beat()
+        if u.path == "/admin/delete":
+            if not self._admin_gate():
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except Exception:
+                length = 0
+            if length < 0 or length > 4096:
+                return self._json(400, {"error": "corps invalide"})
+            raw = self.rfile.read(length) if length else b""
+            try:
+                d = json.loads(raw.decode("utf-8")) if raw else {}
+            except Exception:
+                return self._json(400, {"error": "bad json"})
+            uid = str(d.get("uid", ""))[:64]
+            if not uid:
+                return self._json(400, {"error": "uid requis"})
+            with lock:
+                removed = uid in scores
+                if removed:
+                    del scores[uid]
+                    try:
+                        save()
+                    except Exception as e:
+                        sys.stderr.write("save failed: %s\n" % e)
+            return self._json(200, {"ok": True, "removed": removed})
         if u.path != "/score":
             return self._json(404, {"error": "not found"})
         if not rate_ok(self._client_ip()):
@@ -311,7 +390,14 @@ def _selftest():
     record_beat(sid_long, "3.3.3.3", t0 + 1001, w0 + 86400, persist=False)
     ok(all(len(k) <= 64 for k in _live), "sid borne a 64 (anti-abus)")
 
-    print("\n%d/%d selftest verts" % (10 - fails[0], 10))
+    # ---- admin : verification de la cle ----
+    ok(check_admin_key("s3cr3t", "s3cr3t") is True, "cle admin correcte -> True")
+    ok(check_admin_key("mauvaise", "s3cr3t") is False, "cle admin erronee -> False")
+    ok(check_admin_key("s3cr3t", "") is False, "cle serveur vide (admin desactive) -> False")
+    ok(admin_scores()[0]["total"] >= admin_scores()[-1]["total"], "admin_scores tri decroissant")
+
+    total = 14
+    print("\n%d/%d selftest verts" % (total - fails[0], total))
     return fails[0]
 
 if __name__ == "__main__":

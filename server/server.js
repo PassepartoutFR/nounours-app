@@ -119,10 +119,34 @@ function clampInt(n) {
   return n;
 }
 
+// ---- Admin (mainteneur) : sante + stats + moderation du classement ----------
+// La cle d'admin est lue UNIQUEMENT depuis l'environnement (NOUNOURS_ADMIN_KEY) ;
+// JAMAIS en dur dans le code (ce depot est PUBLIC). Si la variable est vide/absente,
+// l'admin est DESACTIVE et toutes les routes /admin/* repondent 403.
+// La page admin envoie la cle dans l'en-tete HTTP X-Admin-Key.
+function checkAdminKey(provided, envKey) {
+  // Faux si la cle serveur est absente/vide (admin desactive) ou si la cle fournie
+  // ne correspond pas. Comparaison a temps quasi-constant (pas de court-circuit sur
+  // la longueur quand c'est facile) pour limiter les fuites par timing.
+  if (!envKey || typeof envKey !== "string") return false;
+  if (typeof provided !== "string" || provided.length === 0) return false;
+  if (provided.length !== envKey.length) return false;
+  let diff = 0;
+  for (let i = 0; i < envKey.length; i++) diff |= provided.charCodeAt(i) ^ envKey.charCodeAt(i);
+  return diff === 0;
+}
+
+// Renvoie le classement COMPLET pour l'admin : [{uid, pseudo, total}] tri decroissant.
+function adminScores() {
+  return Object.entries(scores)
+    .map(([uid, v]) => ({ uid, pseudo: v.pseudo, total: v.total }))
+    .sort((a, b) => b.total - a.total || a.pseudo.localeCompare(b.pseudo));
+}
+
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Admin-Key");
 }
 function sendJson(res, code, obj) {
   cors(res);
@@ -161,6 +185,50 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && u.pathname === "/stats") {
     const now = Date.now();
     return sendJson(res, 200, computeStats(now, now));
+  }
+
+  // ---- Routes admin (gardees par X-Admin-Key vs NOUNOURS_ADMIN_KEY) ----------
+  if (u.pathname === "/admin/overview" || u.pathname === "/admin/scores" || u.pathname === "/admin/delete") {
+    const envKey = process.env.NOUNOURS_ADMIN_KEY || "";
+    if (!envKey) return sendJson(res, 403, { error: "admin disabled" });
+    const provided = req.headers["x-admin-key"];
+    if (!checkAdminKey(typeof provided === "string" ? provided : "", envKey)) {
+      return sendJson(res, 403, { error: "forbidden" });
+    }
+
+    if (req.method === "GET" && u.pathname === "/admin/overview") {
+      const now = Date.now();
+      const s = computeStats(now, now);
+      return sendJson(res, 200, {
+        accounts: s.accounts,
+        transformed: s.transformed,
+        live: s.live,
+        today: s.today,
+        total: s.total,
+        serverTime: new Date(now).toISOString(),
+      });
+    }
+
+    if (req.method === "GET" && u.pathname === "/admin/scores") {
+      return sendJson(res, 200, adminScores());
+    }
+
+    if (req.method === "POST" && u.pathname === "/admin/delete") {
+      let body = "";
+      req.on("data", (c) => { body += c; if (body.length > 4096) req.destroy(); });
+      req.on("end", () => {
+        let d;
+        try { d = JSON.parse(body || "{}"); } catch (_) { return sendJson(res, 400, { error: "bad json" }); }
+        const uid = String(d && d.uid != null ? d.uid : "").slice(0, 64);
+        if (!uid) return sendJson(res, 400, { error: "uid requis" });
+        const removed = Object.prototype.hasOwnProperty.call(scores, uid);
+        if (removed) { delete scores[uid]; save(); }
+        return sendJson(res, 200, { ok: true, removed });
+      });
+      return;
+    }
+
+    return sendJson(res, 404, { error: "not found" });
   }
 
   if (req.method === "POST" && u.pathname === "/beat") {
@@ -215,5 +283,6 @@ if (require.main === module) {
 
 module.exports = {
   leaderboard, recordBeat, computeLive, computeStats, _reset,
+  checkAdminKey, adminScores,
   scores, stats, LIVE_CAP_PER_IP, LIVE_WINDOW,
 };

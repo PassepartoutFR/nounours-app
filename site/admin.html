@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — Un web de gentil 🧸</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #FBF3E4;
+      --ink: #3A2A1E;
+      --muted: #8a6f57;
+      --brown: #8a5a2b;
+      --honey: #c98a4b;
+      --mint: #7BD3B0;
+      --card: #fffaf1;
+      --line: #efe0c8;
+      --danger: #c2553c;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: "Nunito", system-ui, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.6; margin: 0; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 40px 22px 80px; }
+    h1 { font-family: "Fredoka", sans-serif; font-size: 2rem; margin: 0 0 4px; }
+    h2 { font-family: "Fredoka", sans-serif; font-size: 1.2rem; color: var(--brown); margin: 32px 0 14px; }
+    .sub { color: var(--muted); font-size: .92rem; margin-bottom: 24px; }
+    a { color: var(--honey); }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin: 18px 0; }
+    label { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--line);
+      border-radius: 10px; background: #fff; color: var(--ink);
+    }
+    input:focus { outline: 2px solid var(--mint); outline-offset: 1px; }
+    .field { margin-bottom: 14px; }
+    .hint { color: var(--muted); font-size: .82rem; margin-top: 4px; }
+
+    button {
+      font: inherit; font-weight: 700; cursor: pointer; border: none;
+      border-radius: 10px; padding: 10px 18px; background: var(--honey); color: #fff;
+    }
+    button:hover { filter: brightness(1.05); }
+    button.secondary { background: transparent; color: var(--brown); border: 1px solid var(--line); }
+    button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 6px 10px; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    .msg { border-radius: 10px; padding: 11px 14px; margin: 14px 0; font-size: .92rem; display: none; }
+    .msg.show { display: block; }
+    .msg.err { background: #fdece7; border: 1px solid #f3c7bb; color: #8a3522; }
+    .msg.okk { background: #eafaf3; border: 1px solid #c2ecdb; color: #1f6b4d; }
+
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+    .tile { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .tile .n { font-family: "Fredoka", sans-serif; font-size: 1.8rem; line-height: 1.1; }
+    .tile .k { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+    .tile.live { border-left: 5px solid var(--mint); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); font-size: .92rem; }
+    th { color: var(--brown); font-family: "Fredoka", sans-serif; font-weight: 600; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.uid { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: .8rem; color: var(--muted); word-break: break-all; }
+    tr:hover td { background: #fffdf8; }
+    button.del { background: transparent; color: var(--danger); border: 1px solid #f0d2c9; padding: 5px 9px; font-size: .95rem; }
+    button.del:hover { background: #fdece7; }
+
+    .stamp { color: var(--muted); font-size: .82rem; margin-top: 6px; }
+    .back { display: inline-block; margin-top: 30px; color: var(--muted); text-decoration: none; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧸 Console du mainteneur</h1>
+    <div class="sub">Santé du serveur, statistiques et modération du classement. Réservé au mainteneur.</div>
+
+    <!-- ÉCRAN DE CONNEXION -->
+    <section id="login" class="card">
+      <h2 style="margin-top:0">Se connecter</h2>
+      <div class="field">
+        <label for="apiBase">Base de l'API</label>
+        <input type="text" id="apiBase" autocomplete="off" spellcheck="false" placeholder="/api" />
+        <div class="hint">Par défaut <code>/api</code> (même origine → <code>nounours.app/api/admin/…</code>). Pour tester en local : <code>http://127.0.0.1:8790</code>.</div>
+      </div>
+      <div class="field">
+        <label for="key">Clé admin</label>
+        <input type="password" id="key" autocomplete="off" spellcheck="false" placeholder="X-Admin-Key" />
+        <div class="hint">Comparée côté serveur à la variable d'environnement <code>NOUNOURS_ADMIN_KEY</code>. Gardée uniquement dans cet onglet (sessionStorage).</div>
+      </div>
+      <div class="row">
+        <button id="loginBtn">Se connecter</button>
+      </div>
+      <div id="loginMsg" class="msg err"></div>
+    </section>
+
+    <!-- TABLEAU DE BORD -->
+    <section id="dash" class="hidden">
+      <div class="row" style="justify-content: space-between">
+        <h2 style="margin:0">Vue d'ensemble</h2>
+        <div class="row">
+          <button class="secondary" id="refreshBtn">↻ Rafraîchir</button>
+          <button class="ghost" id="logoutBtn">Se déconnecter</button>
+        </div>
+      </div>
+      <div id="dashMsg" class="msg"></div>
+      <div class="tiles" id="tiles"></div>
+      <div class="stamp" id="stamp"></div>
+
+      <h2>Classement (modération)</h2>
+      <div class="card" style="padding:14px 16px">
+        <div class="hint" style="margin:0 0 8px">Supprimer une entrée abusive la retire définitivement du classement (persisté côté serveur).</div>
+        <div id="tableWrap"></div>
+      </div>
+    </section>
+
+    <a class="back" href="/">← Retour à nounours.app</a>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+    var $ = function (id) { return document.getElementById(id); };
+
+    // ---- état (clé + base API gardées dans l'onglet seulement) ----
+    var KEY_STORE = "nounours_admin_key";
+    var BASE_STORE = "nounours_admin_base";
+
+    function getBase() {
+      var raw = ($("apiBase").value || "").trim();
+      if (!raw) raw = "/api";
+      // retire un éventuel slash final pour éviter les doubles slashes
+      return raw.replace(/\/+$/, "");
+    }
+    function getKey() { return $("key").value || ""; }
+
+    function showMsg(el, text, kind) {
+      el.textContent = text;
+      el.className = "msg show " + (kind === "ok" ? "okk" : "err");
+    }
+    function hideMsg(el) { el.className = "msg"; el.textContent = ""; }
+
+    function fmt(n) {
+      try { return Number(n).toLocaleString("fr-FR"); } catch (_) { return String(n); }
+    }
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+
+    // ---- appel API authentifié ----
+    function api(path, opts) {
+      opts = opts || {};
+      var headers = { "X-Admin-Key": getKey() };
+      if (opts.body) headers["Content-Type"] = "application/json";
+      return fetch(getBase() + path, {
+        method: opts.method || "GET",
+        headers: headers,
+        body: opts.body || undefined,
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (data) {
+          return { status: r.status, ok: r.ok, data: data };
+        });
+      });
+    }
+
+    function explain(res) {
+      if (res.status === 403 && res.data && res.data.error === "admin disabled") {
+        return "Admin désactivé : la variable d'environnement NOUNOURS_ADMIN_KEY n'est pas configurée côté serveur.";
+      }
+      if (res.status === 401 || res.status === 403) {
+        return "Clé refusée (401/403). Vérifie la clé admin et la base de l'API.";
+      }
+      if (res.status === 0 || res.status >= 500) {
+        return "Serveur injoignable ou erreur serveur.";
+      }
+      return "Erreur (" + res.status + ").";
+    }
+
+    // ---- vues ----
+    function renderTiles(o) {
+      var rows = [
+        ["live", "Présents en direct", o.live, true],
+        ["accounts", "Comptes", o.accounts, false],
+        ["transformed", "Méchancetés adoucies", o.transformed, false],
+        ["today", "Visites aujourd'hui", o.today, false],
+        ["total", "Visites au total", o.total, false],
+      ];
+      $("tiles").innerHTML = rows.map(function (r) {
+        return '<div class="tile' + (r[3] ? " live" : "") + '">' +
+          '<div class="n">' + fmt(r[2] || 0) + "</div>" +
+          '<div class="k">' + esc(r[1]) + "</div></div>";
+      }).join("");
+      $("stamp").textContent = o.serverTime ? ("Heure serveur : " + o.serverTime) : "";
+    }
+
+    function renderScores(arr) {
+      if (!arr || !arr.length) {
+        $("tableWrap").innerHTML = '<div class="hint">Aucune entrée dans le classement.</div>';
+        return;
+      }
+      var body = arr.map(function (e, i) {
+        return "<tr>" +
+          "<td>" + (i + 1) + "</td>" +
+          "<td>" + esc(e.pseudo) + "</td>" +
+          '<td class="num">' + fmt(e.total) + "</td>" +
+          '<td class="uid">' + esc(e.uid) + "</td>" +
+          '<td><button class="del" data-uid="' + esc(e.uid) + '" data-pseudo="' + esc(e.pseudo) + '" title="Supprimer cette entrée">🗑️</button></td>' +
+          "</tr>";
+      }).join("");
+      $("tableWrap").innerHTML =
+        '<table><thead><tr><th>#</th><th>Pseudo</th><th class="num">Score</th><th>uid</th><th></th></tr></thead><tbody>' +
+        body + "</tbody></table>";
+      Array.prototype.forEach.call($("tableWrap").querySelectorAll("button.del"), function (b) {
+        b.addEventListener("click", function () { onDelete(b.getAttribute("data-uid"), b.getAttribute("data-pseudo")); });
+      });
+    }
+
+    // ---- actions ----
+    function loadDash() {
+      hideMsg($("dashMsg"));
+      return api("/admin/overview").then(function (res) {
+        if (!res.ok) throw res;
+        renderTiles(res.data);
+        return api("/admin/scores");
+      }).then(function (res) {
+        if (!res.ok) throw res;
+        renderScores(res.data);
+      });
+    }
+
+    function enterDash() {
+      $("login").classList.add("hidden");
+      $("dash").classList.remove("hidden");
+    }
+    function exitDash() {
+      $("dash").classList.add("hidden");
+      $("login").classList.remove("hidden");
+    }
+
+    function onLogin() {
+      hideMsg($("loginMsg"));
+      var btn = $("loginBtn");
+      btn.disabled = true; btn.textContent = "Connexion…";
+      // persiste base + clé pour la session de cet onglet
+      try { sessionStorage.setItem(KEY_STORE, getKey()); sessionStorage.setItem(BASE_STORE, getBase()); } catch (_) {}
+      api("/admin/overview").then(function (res) {
+        if (!res.ok) { showMsg($("loginMsg"), explain(res), "err"); return; }
+        renderTiles(res.data);
+        enterDash();
+        return loadDash();
+      }).catch(function (res) {
+        showMsg($("loginMsg"), res && res.status ? explain(res) : "Serveur injoignable.", "err");
+      }).then(function () {
+        btn.disabled = false; btn.textContent = "Se connecter";
+      });
+    }
+
+    function onRefresh() {
+      var b = $("refreshBtn"); b.disabled = true;
+      loadDash().catch(function (res) {
+        showMsg($("dashMsg"), res && res.status ? explain(res) : "Serveur injoignable.", "err");
+        if (res && (res.status === 401 || res.status === 403)) exitDash();
+      }).then(function () { b.disabled = false; });
+    }
+
+    function onDelete(uid, pseudo) {
+      if (!uid) return;
+      if (!window.confirm('Supprimer l\'entrée « ' + pseudo + ' » du classement ?\n(uid ' + uid + ')')) return;
+      api("/admin/delete", { method: "POST", body: JSON.stringify({ uid: uid }) }).then(function (res) {
+        if (!res.ok) { showMsg($("dashMsg"), explain(res), "err"); if (res.status === 403) exitDash(); return; }
+        showMsg($("dashMsg"), res.data && res.data.removed ? ("Entrée « " + pseudo + " » supprimée.") : "Entrée déjà absente.", "ok");
+        return loadDash();
+      }).catch(function () { showMsg($("dashMsg"), "Serveur injoignable.", "err"); });
+    }
+
+    function onLogout() {
+      try { sessionStorage.removeItem(KEY_STORE); } catch (_) {}
+      $("key").value = "";
+      exitDash();
+    }
+
+    // ---- init ----
+    (function init() {
+      var savedBase = ""; var savedKey = "";
+      try { savedBase = sessionStorage.getItem(BASE_STORE) || ""; savedKey = sessionStorage.getItem(KEY_STORE) || ""; } catch (_) {}
+      $("apiBase").value = savedBase || "/api";
+      $("key").value = savedKey;
+      $("loginBtn").addEventListener("click", onLogin);
+      $("key").addEventListener("keydown", function (e) { if (e.key === "Enter") onLogin(); });
+      $("refreshBtn").addEventListener("click", onRefresh);
+      $("logoutBtn").addEventListener("click", onLogout);
+      // si une clé est déjà en session, on tente une connexion auto
+      if (savedKey) onLogin();
+    })();
+  })();
+  </script>
+</body>
+</html>

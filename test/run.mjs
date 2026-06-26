@@ -132,5 +132,12 @@ const _st = SRV.computeStats(0, 0);
 ok(_st.accounts === 2, "comptes = 2");
 ok(_st.transformed === 42, "mechancetes adoucies = somme des scores");
 
+// ---- server.js : garde de la cle admin (NOUNOURS_ADMIN_KEY) ----
+ok(typeof SRV.checkAdminKey === "function", "checkAdminKey exposé");
+ok(SRV.checkAdminKey("s3cr3t", "s3cr3t") === true, "cle admin correcte -> true");
+ok(SRV.checkAdminKey("mauvaise", "s3cr3t") === false, "cle admin erronee -> false");
+ok(SRV.checkAdminKey("peu importe", "") === false, "cle serveur vide (admin désactivé) -> false");
+ok(SRV.adminScores()[0].total >= SRV.adminScores()[1].total, "adminScores trié décroissant");
+
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);

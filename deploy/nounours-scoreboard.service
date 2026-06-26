@@ -6,6 +6,9 @@ After=network.target
 Type=simple
 User=debian
 WorkingDirectory=/home/debian/nounours-scoreboard
+# Panneau admin (optionnel) : définir la clé secrète — JAMAIS commitée — via :
+#   sudo systemctl edit nounours-scoreboard  →  [Service]  Environment=NOUNOURS_ADMIN_KEY=...
+# Sans cette variable, toutes les routes /admin/* renvoient 403 (admin désactivé).
 ExecStart=/usr/bin/python3 /home/debian/nounours-scoreboard/server.py 8790
 Restart=always
 RestartSec=2

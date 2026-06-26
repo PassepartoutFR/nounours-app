@@ -25,6 +25,10 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 - 🖍️ **Mode « surligner sans remplacer »** : option pour marquer le commentaire
   (texte d'origine atténué + souligné) et révéler la mascotte au clic.
 - 📄 **README anglais** (`README.en.md`) + **FAQ** (`docs/FAQ.md`) pour l'open source.
+- 🛠️ **Panneau admin** (`site/admin.html`) : santé serveur, stats et **modération
+  du classement** (retirer une entrée), protégé par une **clé en variable d'env**
+  (`NOUNOURS_ADMIN_KEY`, jamais commitée ; admin désactivé si absente). Endpoints
+  `/admin/overview|scores|delete` sur les deux serveurs jumeaux (Node + Python).
 
 ## [0.6.0] — non publié
 ### Ajouté
