@@ -81,5 +81,36 @@ let threw = false;
 try { await B.importAccount("n'importe quoi"); } catch (_) { threw = true; }
 ok(threw, "import d'un code invalide -> erreur");
 
+// ---- stats.js : helpers purs du tableau de bord ----
+const S = (await import("../site/stats.js")).default;
+ok(S.formatCount(1234, "en").replace(/[^0-9]/g, "") === "1234", "formatCount garde les chiffres");
+ok(S.formatCount(-5, "fr") === "0", "formatCount borne a 0");
+ok(S.formatCount(1.9, "fr") === "1", "formatCount plancher");
+ok(S.countupValue(100, 0) === 0, "countup debut = 0");
+ok(S.countupValue(100, 1) === 100, "countup fin = cible");
+ok(S.countupValue(100, 0.5) > 0 && S.countupValue(100, 0.5) <= 100, "countup milieu borne");
+ok(S.sparkPoints([0, 5, 10], 220, 44, 3).split(" ").length === 3, "sparkPoints : 3 points");
+ok(S.sparkPoints([], 100, 30) === "", "sparkPoints vide -> ''");
+const _mem = {}, _store = { getItem: (k) => (k in _mem ? _mem[k] : null), setItem: (k, v) => { _mem[k] = v; } };
+ok(S.sessionId(_store) === S.sessionId(_store) && S.sessionId(_store).length > 3, "sessionId stable dans la session");
+
+// ---- server.js : presence live (RAM) + stats agregees ----
+const SRV = (await import("../server/server.js")).default;
+SRV._reset();
+SRV.recordBeat("sidA", "1.1.1.1", 0, 0, false);
+ok(SRV.computeLive(0) === 1, "1 battement -> 1 present");
+SRV.recordBeat("sidA", "1.1.1.1", 1000, 0, false); // meme session
+ok(SRV.computeStats(1000, 0).total === 1, "meme session = 1 seule visite");
+SRV.recordBeat("sidB", "1.1.1.1", 1000, 0, false);
+ok(SRV.computeLive(1000) === 2, "2 sessions = 2 presents");
+for (let i = 0; i < 20; i++) SRV.recordBeat("f" + i, "9.9.9.9", 1000, 0, false);
+ok(SRV.computeLive(1000) === 2 + SRV.LIVE_CAP_PER_IP, "plafond par IP (anti-gonflage)");
+ok(SRV.computeLive(1000 + SRV.LIVE_WINDOW + 1) === 0, "fenetre expiree -> 0 present");
+SRV.scores.u1 = { token: "t", pseudo: "X", total: 30 };
+SRV.scores.u2 = { token: "t", pseudo: "Y", total: 12 };
+const _st = SRV.computeStats(0, 0);
+ok(_st.accounts === 2, "comptes = 2");
+ok(_st.transformed === 42, "mechancetes adoucies = somme des scores");
+
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);

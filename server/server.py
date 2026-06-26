@@ -10,7 +10,7 @@ from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8790
+PORT = next((int(a) for a in sys.argv[1:] if a.isdigit()), 8790)
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "scores.json")
 
@@ -44,6 +44,86 @@ def save():
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(scores, f)
     os.replace(tmp, DATA)
+
+# ---- Tableau des gentils : presence live (RAM only) + stats agregees --------
+# Respect vie privee : AUCUN identifiant persiste, AUCUNE IP stockee. La presence
+# vit en memoire (fenetre glissante) ; seuls des compteurs de visites AGREGES sont
+# sur disque. sid = identifiant de SESSION ephemere, fourni par le navigateur.
+STATS = os.path.join(HERE, "stats.json")
+LIVE_WINDOW = 75.0        # s : un battement compte comme "present" pendant 75 s
+LIVE_CAP_PER_IP = 5       # anti-gonflage : presences max comptees pour une IP
+COUNTED_MAX = 200_000     # borne le set de dedup des visites (anti-fuite memoire)
+
+stats_lock = threading.Lock()
+try:
+    with open(STATS, "r", encoding="utf-8") as f:
+        stats = json.load(f)
+    if not isinstance(stats, dict):
+        stats = {}
+except Exception:
+    stats = {}
+stats.setdefault("total", 0)
+stats.setdefault("days", {})
+
+_live = {}        # sid -> (last_seen_monotonic, ip)  (jamais persiste)
+_counted = set()  # sids deja comptes comme "visite" (dedup par session)
+
+def save_stats():
+    tmp = STATS + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(stats, f)
+    os.replace(tmp, STATS)
+
+def _day(now_wall):
+    return time.strftime("%Y-%m-%d", time.gmtime(now_wall))  # jour UTC
+
+def prune_live(now_mono):
+    for s in [s for s, (ts, _ip) in _live.items() if now_mono - ts > LIVE_WINDOW]:
+        del _live[s]
+
+def compute_live(now_mono):
+    prune_live(now_mono)
+    per_ip = {}
+    for _s, (_ts, ip) in _live.items():
+        per_ip[ip] = per_ip.get(ip, 0) + 1
+    return sum(min(c, LIVE_CAP_PER_IP) for c in per_ip.values())
+
+def record_beat(sid, ip, now_mono, now_wall, persist=True):
+    sid = str(sid)[:64]
+    ip = str(ip)[:64]
+    if not sid:
+        return compute_live(now_mono)
+    prune_live(now_mono)
+    new_visit = sid not in _live and sid not in _counted
+    _live[sid] = (now_mono, ip)
+    if new_visit:
+        if len(_counted) >= COUNTED_MAX:
+            _counted.clear()
+        _counted.add(sid)
+        stats["total"] = int(stats.get("total", 0)) + 1
+        d = _day(now_wall)
+        stats["days"][d] = int(stats["days"].get(d, 0)) + 1
+        if persist:
+            try:
+                save_stats()
+            except Exception as e:
+                sys.stderr.write("save_stats failed: %s\n" % e)
+    return compute_live(now_mono)
+
+def compute_stats(now_mono, now_wall):
+    live = compute_live(now_mono)
+    days = sorted(stats.get("days", {}).items())[-14:]
+    with lock:
+        accounts = len(scores)
+        transformed = sum(clamp_int(v.get("total", 0)) for v in scores.values())
+    return {
+        "live": live,
+        "today": int(stats.get("days", {}).get(_day(now_wall), 0)),
+        "total": int(stats.get("total", 0)),
+        "days": [{"d": k, "n": v} for k, v in days],
+        "accounts": accounts,
+        "transformed": transformed,
+    }
 
 def clean_pseudo(p):
     s = "" if p is None else str(p)
@@ -119,10 +199,37 @@ class H(BaseHTTPRequestHandler):
             uid = q.get("uid", [""])[0]
             with lock:
                 return self._json(200, leaderboard(limit, uid))
+        if u.path == "/stats":
+            now_mono, now_wall = time.monotonic(), time.time()
+            with stats_lock:
+                out = compute_stats(now_mono, now_wall)
+            return self._json(200, out)
         return self._json(404, {"error": "not found"})
+
+    def _beat(self):
+        if not rate_ok(self._client_ip()):
+            return self._json(429, {"error": "trop de requetes"})
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except Exception:
+            length = 0
+        if length < 0 or length > 1024:
+            return self._json(400, {"error": "corps invalide"})
+        raw = self.rfile.read(length) if length else b""
+        try:
+            d = json.loads(raw.decode("utf-8")) if raw else {}
+        except Exception:
+            d = {}
+        sid = str(d.get("sid", ""))[:64]
+        now_mono, now_wall = time.monotonic(), time.time()
+        with stats_lock:
+            live = record_beat(sid, self._client_ip(), now_mono, now_wall)
+        return self._json(200, {"ok": True, "live": live})
 
     def do_POST(self):
         u = urlparse(self.path)
+        if u.path == "/beat":
+            return self._beat()
         if u.path != "/score":
             return self._json(404, {"error": "not found"})
         if not rate_ok(self._client_ip()):
@@ -162,7 +269,54 @@ class H(BaseHTTPRequestHandler):
             lb = leaderboard(1, uid)
         return self._json(200, {"ok": True, "rank": lb["you"]["rank"] if lb["you"] else None, "total": scores[uid]["total"]})
 
+def _selftest():
+    # Verifie la logique presence/stats SANS ouvrir de socket ni ecrire de fichier.
+    global stats
+    fails = [0]
+    def ok(cond, msg):
+        print(("ok   " if cond else "FAIL ") + msg)
+        if not cond:
+            fails[0] += 1
+    stats = {"total": 0, "days": {}}
+    _live.clear(); _counted.clear(); scores.clear()
+    t0, w0 = 1000.0, 1_700_000_000.0  # mono + wall (UTC) fixes
+
+    record_beat("a", "1.1.1.1", t0, w0, persist=False)
+    ok(compute_stats(t0, w0)["total"] == 1, "1re visite comptee")
+    ok(compute_live(t0) == 1, "1 present")
+
+    record_beat("a", "1.1.1.1", t0 + 1, w0, persist=False)
+    ok(stats["total"] == 1, "meme session = pas de double visite")
+
+    record_beat("b", "1.1.1.1", t0 + 1, w0, persist=False)
+    ok(compute_live(t0 + 1) == 2, "2 sessions meme IP = 2 presents")
+
+    for i in range(20):
+        record_beat("flood%d" % i, "9.9.9.9", t0 + 2, w0, persist=False)
+    ok(compute_live(t0 + 2) == 2 + LIVE_CAP_PER_IP, "plafond par IP applique (anti-gonflage)")
+
+    ok(compute_live(t0 + 2 + LIVE_WINDOW + 1) == 0, "fenetre expiree -> 0 present")
+
+    record_beat("c", "2.2.2.2", t0 + 999, w0 + 86400, persist=False)
+    s = compute_stats(t0 + 999, w0 + 86400)
+    ok(s["today"] == 1 and len(s["days"]) == 2, "bucket par jour (UTC)")
+
+    scores["u1"] = {"token": "t", "pseudo": "X", "total": 30}
+    scores["u2"] = {"token": "t", "pseudo": "Y", "total": 12}
+    s2 = compute_stats(t0 + 1000, w0 + 86400)
+    ok(s2["accounts"] == 2, "comptes = 2")
+    ok(s2["transformed"] == 42, "mechancetes adoucies = somme des scores")
+
+    sid_long = "x" * 200
+    record_beat(sid_long, "3.3.3.3", t0 + 1001, w0 + 86400, persist=False)
+    ok(all(len(k) <= 64 for k in _live), "sid borne a 64 (anti-abus)")
+
+    print("\n%d/%d selftest verts" % (10 - fails[0], 10))
+    return fails[0]
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        sys.exit(1 if _selftest() else 0)
     srv = ThreadingHTTPServer(("127.0.0.1", PORT), H)
     print("WebDeGentil scoreboard (python) -> http://127.0.0.1:%d" % PORT)
     srv.serve_forever()

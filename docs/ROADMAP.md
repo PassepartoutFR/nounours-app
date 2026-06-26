@@ -23,6 +23,10 @@ sections = la priorité.
 ---
 
 ## 🔜 Maintenant (en cours / immédiat)
+- [ ] 🌍 **Déployer le « Tableau des gentils »** (checkpoint humain) : copier le
+      site mis à jour vers `/var/www/nounours` (incl. `stats.js`) **et** redéployer
+      `server.py` puis `systemctl restart nounours-scoreboard`. Caddy route déjà
+      `/api/*` → rien à reconfigurer. Procédure détaillée dans le commit.
 - [ ] Review Chrome de la **v0.5.0** → à l'approbation : basculer le bouton
       « Installer » de la landing vers le lien Web Store + redéployer.
 - [ ] **Tester l'export/import d'identité** dans un vrai navigateur.
@@ -48,6 +52,8 @@ sections = la priorité.
   intensité, cœurs animés, miroir gentil.
 - Classement « compte sans compte » (serveur Python) + **export/import d'identité**.
 - 🌟 **Nounours Légendaire** (easter egg doré, rare) + `CHANGELOG.md`.
+- 📊 **Tableau des gentils** : données vivantes sur le site (visiteurs en direct +
+  stats agrégées), respect total de la vie privée — *code prêt, attend le déploiement*.
 - Site **nounours.app** multilingue + page vie privée.
 - **Open source** (repo public, MIT, templates, CODEOWNERS).
 - **Livre blanc** FR + EN, doc releases, doc multi-navigateur.

@@ -95,3 +95,97 @@ window.I18N = {
   pt: {"meta_title":"Uma web mais gentil — trola o troll, com um abraço 🧸","meta_desc":"Uma extensão que deteta comentários de ódio e os substitui por mascotes adoravelmente atrevidas. 100% local, grátis para sempre.","nav_install":"Instalar","hero_badge":"100% local · grátis para sempre","hero_h1":"Trola o troll.\nCom um *abraço*. 🧸","hero_lead":"Uma extensão que deteta comentários de ódio e os substitui por mascotes adoravelmente atrevidas.","hero_cta":"Adicionar ao meu navegador","hero_demo":"Ver a demo","hero_reassure":"Entra maldade gratuita… sai ternura sem nexo.","ba_before":"Antes","ba_after":"Depois 🧸","ba_mean":"Sinceramente és um caso perdido, desaparece.","ba_nice":"🧸 Ai, dia difícil? Anda cá, ó ursinho rabugento.","masc_eyebrow":"Escolhe a tua energia","masc_h2":"Quatro mascotes, uma missão: desarmar com amor","masc_sub":"Cada uma tem a sua própria forma de responder ao veneno. Terna, mas com a sobrancelha erguida.","masc_nounours":"Ursinho","masc_nounours_ln":"«Ai, dia difícil? Anda cá.»","masc_chatons":"Gatinhos","masc_chatons_ln":"«Miau. Tradução: precisas de uma soneca.»","masc_meme":"Avó","masc_meme_ln":"«Já comeste alguma coisa? Toma, um rebuçado.»","masc_bobross":"Bob Ross","masc_bobross_ln":"«Não há erros, só pequenos acidentes felizes.»","inten_eyebrow":"O mesmo troll, 3 respostas","inten_h2":"A intensidade és tu que defines. O Hardcore continua gentil — só mais brincalhão.","inten_sub":"Insulto de partida: «_Que idiota, aqui ninguém gosta de ti._» Arrasta. 👇","inten_0":"💛 Vai ficar tudo bem, prometo. Vales mais do que este comentário.","inten_1":"🧸 Parece que alguém pulou a soneca E a boa educação.","inten_2":"🧸 Que coragem atrás de um ecrã! Toma, uma medalha de chocolate. Guarda essa raiva, está a transbordar.","tick_doux":"Suave","tick_medium":"Médio","tick_hardcore":"Hardcore","try_eyebrow":"Experimenta a sério","try_placeholder":"Escreve um comentário malvado…","try_btn":"Abraçar","try_nice":"gentil ✓ nada para suavizar 🌸","try_loading":"🧸 (motor a carregar…)","feat_eyebrow":"O que vem na caixa","feat_h2":"Fofo por fora, sério por dentro","feat_1_h3":"Tudo fica contigo","feat_1_p":"A filtragem corre no teu navegador. Não lemos nada, não guardamos nada. Palavra de peluche.","feat_2_h3":"Fala a língua do troll","feat_2_p":"7 línguas. Insultado em italiano? Abraçado em italiano.","feat_3_h3":"Corações que ficam","feat_3_p":"Onde filtrou, brotam coraçõezinhos. O teu feed vira um jardim.","feat_4_h3":"Escolhe a tua energia","feat_4_p":"Suave, Médio ou Hardcore. O Hardcore continua gentil — só mais brincalhão.","feat_5_h3":"O espelho gentil","feat_5_p":"Antes de TU publicares algo duro, ele propõe-te uma versão suave. O comando é teu.","feat_6_h3":"Grátis. Para sempre.","feat_6_p":"Sem subscrição, sem «premium», sem armadilha. Só ursinhos.","board_eyebrow":"Uma conta sem conta","board_h2":"Sobe no ranking mundial","board_sub":"O teu addon = a tua sessão. Sem email, sem palavra-passe. Quantos mais trolls suavizares, mais sobes. Zero pressão, só glória.","board_join":"Entrar no jogo","board_loading":"A carregar o ranking…","board_empty":"Ainda ninguém. Sê o primeiro 🧸","board_error":"Ranking indisponível de momento 🙈","board_you_label":"Tu?","board_you_val":"via a extensão","priv_eyebrow":"A promessa","priv_h2":"Explicamos-te exatamente o que sai da tua máquina","priv_sub":"Spoiler: quase nada.","priv_1_h3":"A filtragem: 100% local","priv_1_p":"A deteção e a substituição acontecem no teu navegador. Nenhum pedido, nenhum dado enviado.","priv_2_h3":"O ranking: opcional","priv_2_p":"Desativado por predefinição. Se entrares, enviamos apenas um identificador anónimo, a tua alcunha e a tua pontuação.","priv_3_h3":"Nunca os teus comentários","priv_3_p":"Nunca enviamos o conteúdo que lês, nem os URLs que visitas. Nunca.","inst_eyebrow":"Três minutos, cronómetro na mão","inst_h2":"Torna a web um pouco mais aconchegante","inst_sub":"Em breve na Chrome Web Store. Entretanto, em modo programador:","step_1_h3":"Descarrega","step_1_p":"Apanha a pasta da extensão.","step_2_h3":"brave://extensions","step_2_p":"Ativa o «Modo programador» no canto superior direito.","step_3_h3":"Carrega a pasta","step_3_p":"«Carregar extensão não empacotada» → escolhe a pasta. 🧸","inst_cta":"Adicionar ao meu navegador — grátis para sempre","foot_mascottes":"Mascotes","foot_privacy":"Privacidade","foot_install":"Instalar","foot_tagline":"Torna a web um pouco mais aconchegante.","lang_label":"Língua"},
   nl: {"meta_title":"Een lievere web — trol de trol, met een knuffel 🧸","meta_desc":"Een extensie die haatreacties opspoort en vervangt door schattig brutale mascottes. 100% lokaal, voor altijd gratis.","nav_install":"Installeren","hero_badge":"100% lokaal · voor altijd gratis","hero_h1":"Trol de trol.\nMet een *knuffel*. 🧸","hero_lead":"Een extensie die haatreacties opspoort en vervangt door schattig brutale mascottes.","hero_cta":"Aan mijn browser toevoegen","hero_demo":"Bekijk de demo","hero_reassure":"Gratis gemeenheid erin… knuffelige onzin eruit.","ba_before":"Voor","ba_after":"Na 🧸","ba_mean":"Eerlijk, je bent echt hopeloos, hoepel op.","ba_nice":"🧸 Ach, zware dag gehad? Kom hier, grote chagrijnige knuffelbeer.","masc_eyebrow":"Kies je energie","masc_h2":"Vier mascottes, één missie: ontwapenen met liefde","masc_sub":"Elk heeft zijn eigen manier om op gif te antwoorden. Teder, maar met een opgetrokken wenkbrauw.","masc_nounours":"Teddy","masc_nounours_ln":"„Ach, zware dag gehad? Kom hier.”","masc_chatons":"Kittens","masc_chatons_ln":"„Miauw. Vertaling: je hebt een dutje nodig.”","masc_meme":"Oma","masc_meme_ln":"„Heb je al gegeten? Hier, een snoepje.”","masc_bobross":"Bob Ross","masc_bobross_ln":"„Geen fouten, alleen kleine gelukkige ongelukjes.”","inten_eyebrow":"Dezelfde trol, 3 weerwoorden","inten_h2":"Jij regelt de intensiteit. Hardcore blijft lief — gewoon wat plagerig.","inten_sub":"Beginbelediging: „_Wat een idioot, niemand mag je hier._” Sleep maar. 👇","inten_0":"💛 Het komt allemaal goed, beloofd. Je bent meer waard dan deze reactie.","inten_1":"🧸 Lijkt erop dat iemand zijn dutje ÉN zijn manieren oversloeg.","inten_2":"🧸 Wat dapper achter een scherm! Hier, een chocolademedaille. Berg die boosheid op, hij steekt eruit.","tick_doux":"Zacht","tick_medium":"Medium","tick_hardcore":"Hardcore","try_eyebrow":"Probeer het echt","try_placeholder":"Schrijf een gemene reactie…","try_btn":"Knuffelen","try_nice":"lief ✓ niks te verzachten 🌸","try_loading":"🧸 (motor laadt…)","feat_eyebrow":"Wat er in de doos zit","feat_h2":"Schattig vanbuiten, serieus vanbinnen","feat_1_h3":"Alles blijft bij jou","feat_1_p":"Het filteren draait in je browser. We lezen niets, we slaan niets op. Knuffel-erewoord.","feat_2_h3":"Het spreekt trol","feat_2_p":"7 talen. Beledigd in het Italiaans? Geknuffeld in het Italiaans.","feat_3_h3":"Hartjes die blijven","feat_3_p":"Waar het filterde, groeien kleine hartjes. Je feed wordt een tuin.","feat_4_h3":"Kies je energie","feat_4_p":"Zacht, Medium of Hardcore. Hardcore blijft lief — gewoon wat plagerig.","feat_5_h3":"De lieve spiegel","feat_5_p":"Voordat JIJ iets hards plaatst, stelt hij je een zachtere versie voor. Jij houdt de touwtjes.","feat_6_h3":"Gratis. Voor altijd.","feat_6_p":"Geen abonnement, geen „premium”, geen addertje. Gewoon knuffelberen.","board_eyebrow":"Een account zonder account","board_h2":"Klim in de wereldranglijst","board_sub":"Je addon = je login. Geen e-mail, geen wachtwoord. Hoe meer trollen je verzacht, hoe hoger je klimt. Nul druk, alleen glorie.","board_join":"Doe mee","board_loading":"Ranglijst laden…","board_empty":"Nog niemand. Wees de eerste 🧸","board_error":"Ranglijst tijdelijk niet beschikbaar 🙈","board_you_label":"Jij?","board_you_val":"via de extensie","priv_eyebrow":"De belofte","priv_h2":"We leggen je precies uit wat je machine verlaat","priv_sub":"Spoiler: bijna niets.","priv_1_h3":"Het filteren: 100% lokaal","priv_1_p":"Detectie en vervanging gebeuren in je browser. Geen enkele aanvraag, geen enkele data verstuurd.","priv_2_h3":"De ranglijst: opt-in","priv_2_p":"Standaard uit. Als je meedoet, sturen we alleen een anonieme ID, je bijnaam en je score.","priv_3_h3":"Nooit je reacties","priv_3_p":"We sturen nooit de inhoud die je leest, noch de URL's die je bezoekt. Nooit.","inst_eyebrow":"Drie minuten, klok in de hand","inst_h2":"Maak de web een tikje knuffeliger","inst_sub":"Binnenkort in de Chrome Web Store. Tot dan, in ontwikkelaarsmodus:","step_1_h3":"Download","step_1_p":"Haal de map van de extensie op.","step_2_h3":"brave://extensions","step_2_p":"Zet rechtsboven de „Ontwikkelaarsmodus” aan.","step_3_h3":"Laad de map","step_3_p":"„Uitgepakte extensie laden” → kies de map. 🧸","inst_cta":"Aan mijn browser toevoegen — voor altijd gratis","foot_mascottes":"Mascottes","foot_privacy":"Privacy","foot_install":"Installeren","foot_tagline":"Maak de web een tikje knuffeliger.","lang_label":"Taal"}
 };
+
+// --- Tableau des gentils (dashboard live) : clés ajoutées 2026-06-25 ---------
+// Bloc ADDITIF : fusionne les clés du tableau de bord dans chaque langue sans
+// toucher aux dictionnaires ci-dessus. Si une langue manque une clé, t() retombe
+// déjà sur le FR.
+(function (I) {
+  var D = {
+    fr: {
+      "data_eyebrow": "En temps réel", "data_h2": "Le tableau des gentils",
+      "data_sub": "Des chiffres vivants, agrégés et anonymes. Aucun cookie, aucun pistage — promis sur la peluche.",
+      "data_live_label": "gentils sur le site, là, maintenant",
+      "data_stat_accounts": "Gentils équipés", "data_stat_transformed": "Méchancetés adoucies",
+      "data_stat_today": "Visites aujourd'hui", "data_stat_total": "Visites au total",
+      "data_spark_label": "Visites — 14 derniers jours",
+      "data_soon": "🚀 Bientôt : utilisateurs actifs des extensions, une fois publiées.",
+      "data_privacy_note": "Données anonymes & agrégées · zéro cookie · zéro pistage.",
+      "data_privacy_link": "Comment ?", "data_error": "Données momentanément indisponibles 🙈",
+      "foot_data": "Données"
+    },
+    en: {
+      "data_eyebrow": "In real time", "data_h2": "The kindness dashboard",
+      "data_sub": "Live numbers, aggregated and anonymous. No cookies, no tracking — plushie's honor.",
+      "data_live_label": "kind folks on the site, right now",
+      "data_stat_accounts": "Kind folks equipped", "data_stat_transformed": "Mean comments softened",
+      "data_stat_today": "Visits today", "data_stat_total": "Visits all-time",
+      "data_spark_label": "Visits — last 14 days",
+      "data_soon": "🚀 Coming soon: active extension users, once published.",
+      "data_privacy_note": "Anonymous & aggregated data · zero cookies · zero tracking.",
+      "data_privacy_link": "How?", "data_error": "Data temporarily unavailable 🙈",
+      "foot_data": "Data"
+    },
+    es: {
+      "data_eyebrow": "En tiempo real", "data_h2": "El tablero de los buenos",
+      "data_sub": "Cifras vivas, agregadas y anónimas. Sin cookies, sin rastreo — palabra de peluche.",
+      "data_live_label": "buena gente en el sitio, ahora mismo",
+      "data_stat_accounts": "Buena gente equipada", "data_stat_transformed": "Maldades suavizadas",
+      "data_stat_today": "Visitas hoy", "data_stat_total": "Visitas en total",
+      "data_spark_label": "Visitas — últimos 14 días",
+      "data_soon": "🚀 Pronto: usuarios activos de las extensiones, una vez publicadas.",
+      "data_privacy_note": "Datos anónimos y agregados · cero cookies · cero rastreo.",
+      "data_privacy_link": "¿Cómo?", "data_error": "Datos no disponibles por ahora 🙈",
+      "foot_data": "Datos"
+    },
+    it: {
+      "data_eyebrow": "In tempo reale", "data_h2": "Il cruscotto dei gentili",
+      "data_sub": "Numeri vivi, aggregati e anonimi. Niente cookie, niente tracciamento — parola di peluche.",
+      "data_live_label": "persone gentili sul sito, proprio ora",
+      "data_stat_accounts": "Gentili equipaggiati", "data_stat_transformed": "Cattiverie addolcite",
+      "data_stat_today": "Visite oggi", "data_stat_total": "Visite in totale",
+      "data_spark_label": "Visite — ultimi 14 giorni",
+      "data_soon": "🚀 Presto: utenti attivi delle estensioni, una volta pubblicate.",
+      "data_privacy_note": "Dati anonimi e aggregati · zero cookie · zero tracciamento.",
+      "data_privacy_link": "Come?", "data_error": "Dati momentaneamente non disponibili 🙈",
+      "foot_data": "Dati"
+    },
+    de: {
+      "data_eyebrow": "In Echtzeit", "data_h2": "Das Nettigkeits-Dashboard",
+      "data_sub": "Lebendige Zahlen, aggregiert und anonym. Keine Cookies, kein Tracking — Plüsch-Ehrenwort.",
+      "data_live_label": "nette Leute auf der Seite, gerade jetzt",
+      "data_stat_accounts": "Ausgerüstete Nette", "data_stat_transformed": "Gemeinheiten besänftigt",
+      "data_stat_today": "Besuche heute", "data_stat_total": "Besuche insgesamt",
+      "data_spark_label": "Besuche — letzte 14 Tage",
+      "data_soon": "🚀 Bald: aktive Nutzer der Erweiterungen, sobald veröffentlicht.",
+      "data_privacy_note": "Anonyme & aggregierte Daten · null Cookies · null Tracking.",
+      "data_privacy_link": "Wie?", "data_error": "Daten vorübergehend nicht verfügbar 🙈",
+      "foot_data": "Daten"
+    },
+    pt: {
+      "data_eyebrow": "Em tempo real", "data_h2": "O painel dos gentis",
+      "data_sub": "Números vivos, agregados e anónimos. Sem cookies, sem rastreio — palavra de peluche.",
+      "data_live_label": "gente gentil no site, agora mesmo",
+      "data_stat_accounts": "Gentis equipados", "data_stat_transformed": "Maldades suavizadas",
+      "data_stat_today": "Visitas hoje", "data_stat_total": "Visitas no total",
+      "data_spark_label": "Visitas — últimos 14 dias",
+      "data_soon": "🚀 Em breve: utilizadores ativos das extensões, depois de publicadas.",
+      "data_privacy_note": "Dados anónimos e agregados · zero cookies · zero rastreio.",
+      "data_privacy_link": "Como?", "data_error": "Dados indisponíveis de momento 🙈",
+      "foot_data": "Dados"
+    },
+    nl: {
+      "data_eyebrow": "In realtime", "data_h2": "Het lieve-mensen-dashboard",
+      "data_sub": "Levende cijfers, geaggregeerd en anoniem. Geen cookies, geen tracking — knuffel-erewoord.",
+      "data_live_label": "lieve mensen op de site, nu meteen",
+      "data_stat_accounts": "Uitgeruste lieverds", "data_stat_transformed": "Gemeenheden verzacht",
+      "data_stat_today": "Bezoeken vandaag", "data_stat_total": "Bezoeken totaal",
+      "data_spark_label": "Bezoeken — laatste 14 dagen",
+      "data_soon": "🚀 Binnenkort: actieve gebruikers van de extensies, zodra gepubliceerd.",
+      "data_privacy_note": "Anonieme & geaggregeerde data · nul cookies · nul tracking.",
+      "data_privacy_link": "Hoe?", "data_error": "Data tijdelijk niet beschikbaar 🙈",
+      "foot_data": "Data"
+    }
+  };
+  for (var lang in D) { if (I[lang]) { for (var k in D[lang]) I[lang][k] = D[lang][k]; } else { I[lang] = D[lang]; } }
+})(window.I18N);

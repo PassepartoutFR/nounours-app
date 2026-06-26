@@ -1,6 +1,11 @@
 # données runtime du serveur de classement
 server/scores.json
 server/scores.json.tmp
+server/stats.json
+server/stats.json.tmp
+
+# config locale de l'outil de prévisualisation
+.claude/
 
 # artefacts de build
 dist/
@@ -15,3 +20,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+
+# artefacts python
+__pycache__/
+*.pyc

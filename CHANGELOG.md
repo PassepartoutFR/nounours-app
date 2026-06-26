@@ -8,6 +8,12 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
   **dorée et brillante** (rare, stable par texte, multilingue).
 - 🛡️ **Détection anti-obfuscation** : reconnaît le *leetspeak* (`c0nnard`, `5tupid`,
   `d3gage`) et les **lettres répétées** (`saloooope`), sans surdétecter le texte normal.
+- 📊 **Tableau des gentils** (site) : tableau de bord vivant sur nounours.app —
+  visiteurs présents en direct, visites du jour/au total (sparkline 14 jours),
+  comptes équipés et méchancetés adoucies. **Respect total de la vie privée** :
+  identifiant de session éphémère, présence en RAM seulement, compteurs agrégés,
+  **zéro cookie, zéro pistage, aucune IP stockée** (anti-gonflage par IP). Traduit
+  en 7 langues, page vie privée mise à jour.
 
 ## [0.6.0] — non publié
 ### Ajouté
