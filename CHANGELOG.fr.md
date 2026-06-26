@@ -4,6 +4,14 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.8] — 2026-06-26
+
+### Corrigé
+- 🩺 **Diagnostic offscreen** : si la création du document offscreen (qui héberge
+  le modèle IA) se **bloque** au lieu d'aboutir, on lève désormais une erreur au
+  bout de 20 s → le popup affiche le souci au lieu d'un « test en cours » infini.
+  Logs `UWG-AI[sw]` enrichis (« création… » → « créé ✓ »).
+
 ## [0.7.7] — 2026-06-26
 
 ### Corrigé

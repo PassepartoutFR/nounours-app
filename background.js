@@ -125,14 +125,21 @@ async function ensureOffscreen() {
       if (has) return true;
     }
     if (offscreenCreating) { await offscreenCreating; return true; }
+    console.log(AI_TAG, "création du document offscreen…");
     offscreenCreating = chrome.offscreen.createDocument({
       url: "offscreen.html",
       reasons: ["DOM_SCRAPING"],
       justification: "Run a local toxicity model for opt-in AI filtering."
     });
-    await offscreenCreating;
+    // Filet anti-blocage : si createDocument ne résout JAMAIS (observé sur certains
+    // navigateurs), on lève au bout de 20 s pour rendre le souci OBSERVABLE dans le
+    // popup, au lieu d'un « test en cours » infini.
+    await Promise.race([
+      offscreenCreating,
+      new Promise((_, rej) => setTimeout(() => rej(new Error("création du document offscreen : délai dépassé (20 s)")), 20000))
+    ]);
     offscreenCreating = null;
-    console.log(AI_TAG, "document offscreen créé");
+    console.log(AI_TAG, "document offscreen créé ✓");
     return true;
   } catch (err) {
     offscreenCreating = null;

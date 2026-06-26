@@ -4,6 +4,14 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.7.8] — 2026-06-26
+
+### Fixed
+- 🩺 **Offscreen diagnostics**: if creating the offscreen document (which hosts the
+  AI model) **hangs** instead of completing, it now throws after 20 s → the popup
+  shows the problem instead of an endless "test in progress". Richer `UWG-AI[sw]`
+  logs ("creating…" → "created ✓").
+
 ## [0.7.7] — 2026-06-26
 
 ### Fixed
