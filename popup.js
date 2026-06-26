@@ -162,4 +162,55 @@ $("leaveBtn").addEventListener("click", async () => {
   refreshBoard();
 });
 
+// --- export / import d'identité (ne jamais perdre son score) ---
+const acctBox = $("acctBox"), acctIO = $("acctIO"), acctDo = $("acctDo"), acctMsg = $("acctMsg");
+let acctMode = null;
+
+$("acctSave").addEventListener("click", async () => {
+  const code = await Board.exportAccount();
+  acctMode = "save";
+  acctBox.style.display = "block";
+  acctIO.value = code;
+  acctIO.readOnly = true;
+  acctIO.select();
+  acctDo.style.display = "none";
+  try {
+    await navigator.clipboard.writeText(code);
+    acctMsg.textContent = "Copié ! Colle ce code sur ton autre appareil.";
+  } catch (_) {
+    acctMsg.textContent = "Copie ce code et garde-le précieusement.";
+  }
+});
+
+$("acctRestore").addEventListener("click", () => {
+  acctMode = "restore";
+  acctBox.style.display = "block";
+  acctIO.value = "";
+  acctIO.readOnly = false;
+  acctDo.style.display = "inline";
+  acctDo.textContent = "Restaurer";
+  acctMsg.textContent = "";
+  acctIO.focus();
+});
+
+acctDo.addEventListener("click", async () => {
+  if (acctMode !== "restore") return;
+  try {
+    await Board.importAccount(acctIO.value);
+    await Board.postScore().catch(() => {});
+    const lb = await Board.fetchLeaderboard(1).catch(() => null);
+    if (lb && lb.you && lb.you.total) {
+      chrome.storage.local.get(STORAGE_KEY, (r) => {
+        const st = Object.assign({}, DEFAULTS, r[STORAGE_KEY]);
+        if (lb.you.total > (st.total || 0)) { st.total = lb.you.total; chrome.storage.local.set({ [STORAGE_KEY]: st }); }
+      });
+    }
+    acctMsg.textContent = "Compte restauré ✓";
+    acctBox.style.display = "none";
+    refreshBoard();
+  } catch (_) {
+    acctMsg.textContent = "Code invalide ✗";
+  }
+});
+
 refreshBoard();

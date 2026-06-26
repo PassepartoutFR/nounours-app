@@ -97,9 +97,31 @@
     return update({ optedIn: false });
   }
 
+  // --- export / import d'identité (pour ne jamais perdre son score) ---
+  // base64 sûr en UTF-8 (pseudo avec accents/emoji OK)
+  const b64e = (s) => btoa(unescape(encodeURIComponent(s)));
+  const b64d = (s) => decodeURIComponent(escape(atob(s)));
+
+  async function exportAccount() {
+    const acc = await ensureAccount();
+    return "UWG1:" + b64e(JSON.stringify({ uid: acc.uid, secret: acc.secret, pseudo: acc.pseudo || "" }));
+  }
+  async function importAccount(code) {
+    let c = String(code || "").trim();
+    if (c.startsWith("UWG1:")) c = c.slice(5);
+    let data;
+    try { data = JSON.parse(b64d(c)); } catch (_) { throw new Error("Code invalide"); }
+    if (!data || !data.uid || !data.secret) throw new Error("Code invalide");
+    const token = await hmac(data.secret, data.uid);
+    const acc = { uid: data.uid, secret: data.secret, token, pseudo: data.pseudo || "", optedIn: true };
+    await set({ [ACC_KEY]: acc });
+    return acc;
+  }
+
   const api = {
     ensureAccount, getAccount: ensureAccount, update,
-    postScore, fetchLeaderboard, join, leave, endpoint, DEFAULT_EP
+    postScore, fetchLeaderboard, join, leave, endpoint, DEFAULT_EP,
+    exportAccount, importAccount
   };
   if (typeof self !== "undefined") self.UWGBoard = api;
   if (typeof window !== "undefined") window.UWGBoard = api;

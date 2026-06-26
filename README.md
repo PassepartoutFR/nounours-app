@@ -5,7 +5,7 @@ commentaires méchants par des messages de mascottes** trolls et ironiques.
 
 **🌍 [nounours.app](https://nounours.app) · Licence MIT · Gratuit à vie · Bientôt sur le Chrome Web Store**
 
-📖 [Livre blanc / vision](docs/LIVRE-BLANC.md) · 🚀 [Du patch au produit (releases)](docs/RELEASE.md) · 🤝 [Contribuer](CONTRIBUTING.md)
+📖 Livre blanc ([FR](docs/LIVRE-BLANC.md) · [EN](docs/WHITE-PAPER.md)) · 🌐 [Multi-navigateur](docs/BROWSERS.md) · 🚀 [Releases](docs/RELEASE.md) · 🤝 [Contribuer](CONTRIBUTING.md)
 
 **Multilingue (7 langues)** : FR, EN, ES, IT, DE, PT, NL. La détection ET la
 réponse se font dans la langue du commentaire — un troll espagnol se fait

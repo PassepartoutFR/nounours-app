@@ -80,6 +80,10 @@
     .board .links { display: flex; gap: 10px; margin-top: 8px; }
     .linkbtn { border: 0; background: none; color: #a47b53; cursor: pointer; font-size: 12px; text-decoration: underline; padding: 0; }
     .board .err { color: #b06a3a; font-size: 12px; margin-top: 6px; }
+    .acct { margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    #acctBox { width: 100%; margin-top: 4px; }
+    .acct textarea { width: 100%; box-sizing: border-box; border: 1px solid #f1ddc7; border-radius: 8px; padding: 7px; font: inherit; font-size: 12px; resize: vertical; }
+    .acct-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -143,6 +147,17 @@
       <div class="links">
         <button class="linkbtn" id="renameBtn">Changer de pseudo</button>
         <button class="linkbtn" id="leaveBtn">Quitter</button>
+      </div>
+    </div>
+    <div class="acct">
+      <button class="linkbtn" id="acctSave">🔑 Sauvegarder mon compte</button>
+      <button class="linkbtn" id="acctRestore">↻ Restaurer</button>
+      <div id="acctBox" style="display:none;">
+        <textarea id="acctIO" rows="2" placeholder="Colle ton code de sauvegarde ici"></textarea>
+        <div class="acct-row">
+          <button class="linkbtn" id="acctDo">Restaurer</button>
+          <span class="muted" id="acctMsg"></span>
+        </div>
       </div>
     </div>
     <div class="err" id="boardErr" style="display:none;"></div>
