@@ -40,9 +40,12 @@ jobs:
           generate_release_notes: true
 
       - name: Publish to Chrome Web Store
-        # ne s'active que lorsque les identifiants OAuth sont configurés
+        # ne s'active que lorsque les identifiants OAuth sont configurés.
+        # NB : GitHub résout TOUTES les actions `uses:` au démarrage du job, AVANT
+        # d'évaluer ce `if` — donc la version doit exister (sinon le job échoue avant
+        # même de créer la Release). On épingle une version valide (v6.0.0).
         if: ${{ env.CHROME_REFRESH_TOKEN != '' }}
-        uses: mnao305/chrome-extension-upload@v5
+        uses: mnao305/chrome-extension-upload@v6.0.0
         with:
           file-path: nounours-app-${{ github.ref_name }}.zip
           extension-id: ${{ env.CHROME_EXTENSION_ID }}
