@@ -101,6 +101,13 @@ let threw = false;
 try { await B.importAccount("n'importe quoi"); } catch (_) { threw = true; }
 ok(threw, "import d'un code invalide -> erreur");
 
+// ---- scoreboard : suppression autonome (code DEL1) ----
+const delCode = await B.generateDeletionCode();
+ok(delCode.startsWith("DEL1:"), "generateDeletionCode -> DEL1");
+const delPayload = B.parseDeletionCode(delCode);
+ok(delPayload.uid === acc1.uid && delPayload.sig && delPayload.exp, "parseDeletionCode extrait uid+sig+exp");
+ok(delPayload.exp > Math.floor(Date.now() / 1000), "code DEL1 : expiration dans le futur");
+
 // ---- stats.js : helpers purs du tableau de bord ----
 const S = (await import("../site/stats.js")).default;
 ok(S.formatCount(1234, "en").replace(/[^0-9]/g, "") === "1234", "formatCount garde les chiffres");
@@ -225,6 +232,26 @@ ok(SRV.sanitizeOverrides({ lex: { fr: ["x".repeat(999)] } }).ok === false, "over
 ok(SRV.sanitizeOverrides({ lex: { fr: new Array(999).fill("ok") } }).ok === false, "overrides : tableau trop grand rejeté (400)");
 ok(SRV.sanitizeOverrides([]).ok === false, "overrides : racine non-objet rejetée (400)");
 ok(SRV.sanitizeOverrides({}).ok === true, "overrides : objet vide accepté");
+
+// ---- server.js : suppression autonome (token ou DEL1) ----
+SRV._reset();
+const delTok = "cd".repeat(16);
+SRV.scores.delu = { token: delTok, pseudo: "Z", total: 9 };
+let delOut = SRV.deleteAccount({ uid: "delu", token: delTok });
+ok(delOut.body.removed === true, "deleteAccount : token valide supprime");
+ok(!SRV.scores.delu, "deleteAccount : entree retiree");
+delOut = SRV.deleteAccount({ uid: "delu", token: delTok });
+ok(delOut.body.removed === false, "deleteAccount : deja supprime");
+SRV.scores.delu = { token: delTok, pseudo: "Z", total: 9 };
+const delExp = Math.floor(Date.now() / 1000) + 120;
+const delSig = SRV.delSig(delTok, "delu", delExp);
+delOut = SRV.deleteAccount({ uid: "delu", exp: delExp, sig: delSig });
+ok(delOut.body.removed === true, "deleteAccount : code DEL1 valide");
+SRV.scores.delu = { token: delTok, pseudo: "Z", total: 9 };
+delOut = SRV.deleteAccount({ uid: "delu", exp: delExp, sig: "00".repeat(32) });
+ok(delOut.code === 403, "deleteAccount : mauvaise sig -> 403");
+delOut = SRV.deleteAccount({ uid: "delu", exp: Math.floor(Date.now() / 1000) - 10, sig: delSig });
+ok(delOut.code === 403, "deleteAccount : code expire -> 403");
 
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);

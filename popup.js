@@ -292,6 +292,41 @@ acctDo.addEventListener("click", async () => {
   }
 });
 
+// --- suppression autonome du classement (sans e-mail) ---
+const delBox = $("delBox"), delIO = $("delIO"), delMsg = $("delMsg");
+
+$("delCodeBtn").addEventListener("click", async () => {
+  try {
+    const code = await Board.generateDeletionCode();
+    delBox.style.display = "block";
+    delIO.value = code;
+    delIO.select();
+    try {
+      await navigator.clipboard.writeText(code);
+      delMsg.textContent = "Code copié (15 min). Colle-le sur nounours.app/privacy.html";
+    } catch (_) {
+      delMsg.textContent = "Valable 15 min. Colle ce code sur nounours.app/privacy.html";
+    }
+  } catch (_) {
+    delMsg.textContent = "Impossible de générer le code.";
+    delBox.style.display = "block";
+  }
+});
+
+$("delNowBtn").addEventListener("click", async () => {
+  if (!confirm("Supprimer ton entrée du classement sur le serveur ?\n\nTon pseudo et ton score seront effacés. Tu pourras rejoindre à nouveau plus tard.")) return;
+  try {
+    const res = await Board.deleteServerEntry();
+    delBox.style.display = "none";
+    showErr("");
+    delMsg.textContent = res.removed ? "Entrée serveur supprimée ✓" : "Aucune entrée à supprimer.";
+    delBox.style.display = "block";
+    refreshBoard();
+  } catch (e) {
+    showErr("Suppression impossible (serveur hors-ligne ?).");
+  }
+});
+
 refreshBoard();
 
 // ---------------------------------------------------------------------------

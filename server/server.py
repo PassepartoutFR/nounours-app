@@ -5,7 +5,7 @@
 # Le serveur fait du TOFU : le 1er /score fixe le token de l'uid ; ensuite il faut
 # le meme token pour mettre a jour. Anti-triche LEGER : score monotone + plafonds.
 # Bind 127.0.0.1 (derriere Caddy /api/*). Stockage : scores.json a cote.
-import json, os, sys, time, threading
+import hashlib, hmac, json, os, sys, time, threading
 from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -343,6 +343,64 @@ def admin_scores():
     arr.sort(key=lambda e: (-e["total"], e["pseudo"]))
     return arr
 
+# ---- Suppression autonome (sans e-mail) -------------------------------------
+# Deux preuves acceptees pour POST /account/delete :
+#   1) {uid, token} — depuis l'extension (prouve la possession du secret derive).
+#   2) {uid, exp, sig} — code DEL1 temporaire (15 min) : sig = HMAC(token, "del:uid:exp").
+# Le code DEL1 n'expose jamais le secret ni le token complet sur la page web.
+DEL_TTL = 900  # secondes
+
+def del_sig(token_hex, uid, exp):
+    msg = ("del:%s:%d" % (uid, int(exp))).encode("utf-8")
+    try:
+        key = bytes.fromhex(str(token_hex))
+    except Exception:
+        return ""
+    return hmac.new(key, msg, hashlib.sha256).hexdigest()
+
+def verify_delete_auth(d, stored_token):
+    uid = str(d.get("uid", ""))[:64]
+    if not uid:
+        return False, "uid requis"
+    token = str(d.get("token", ""))[:128]
+    if token:
+        if not hmac.compare_digest(stored_token, token):
+            return False, "token invalide"
+        return True, uid
+    exp = d.get("exp")
+    sig = str(d.get("sig", ""))[:128]
+    if not sig or exp is None:
+        return False, "preuve requise"
+    try:
+        exp_i = int(exp)
+    except Exception:
+        return False, "code expire ou invalide"
+    if exp_i < time.time():
+        return False, "code expire ou invalide"
+    expected = del_sig(stored_token, uid, exp_i)
+    if not expected or not hmac.compare_digest(expected, sig):
+        return False, "code invalide"
+    return True, uid
+
+def delete_account(d):
+    uid = str(d.get("uid", ""))[:64]
+    if not uid:
+        return 400, {"error": "uid requis"}
+    with lock:
+        cur = scores.get(uid)
+        if cur is None:
+            return 200, {"ok": True, "removed": False}
+        ok, err_or_uid = verify_delete_auth(d, cur["token"])
+        if not ok:
+            code = 403 if "invalide" in err_or_uid else 400
+            return code, {"error": err_or_uid}
+        del scores[uid]
+        try:
+            save()
+        except Exception as e:
+            sys.stderr.write("save failed: %s\n" % e)
+    return 200, {"ok": True, "removed": True}
+
 class H(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -545,6 +603,22 @@ class H(BaseHTTPRequestHandler):
                 except Exception as e:
                     sys.stderr.write("save failed: %s\n" % e)
             return self._json(200, {"ok": True, "team": team})
+        if u.path == "/account/delete":
+            # Suppression autonome : token direct ou code DEL1 temporaire (15 min).
+            if not rate_ok(self._client_ip()):
+                return self._json(429, {"error": "trop de requetes"})
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except Exception:
+                length = 0
+            if length <= 0 or length > 4096:
+                return self._json(400, {"error": "corps invalide"})
+            try:
+                d = json.loads(self.rfile.read(length).decode("utf-8"))
+            except Exception:
+                return self._json(400, {"error": "bad json"})
+            code, body = delete_account(d)
+            return self._json(code, body)
         if u.path == "/admin/delete":
             if not self._admin_gate():
                 return
@@ -728,7 +802,22 @@ def _selftest():
     ok(sanitize_overrides([])[0] is False, "overrides : racine non-objet rejetee (400)")
     ok(sanitize_overrides({})[0] is True, "overrides : objet vide accepte")
 
-    total = 38
+    # ---- suppression autonome (token ou code DEL1) ----
+    scores.clear()
+    tok = "ab" * 16
+    scores["delu"] = {"token": tok, "pseudo": "Z", "total": 9}
+    ok(delete_account({"uid": "delu", "token": tok})[1].get("removed") is True, "delete : token valide supprime")
+    ok("delu" not in scores, "delete : entree retiree de scores")
+    ok(delete_account({"uid": "delu", "token": tok})[1].get("removed") is False, "delete : deja supprime -> removed false")
+    scores["delu"] = {"token": tok, "pseudo": "Z", "total": 9}
+    exp_ok = int(time.time()) + 120
+    sig_ok = del_sig(tok, "delu", exp_ok)
+    ok(delete_account({"uid": "delu", "exp": exp_ok, "sig": sig_ok})[1].get("removed") is True, "delete : code DEL1 valide")
+    scores["delu"] = {"token": tok, "pseudo": "Z", "total": 9}
+    ok(delete_account({"uid": "delu", "exp": exp_ok, "sig": "00" * 32})[0] == 403, "delete : mauvaise sig -> 403")
+    ok(delete_account({"uid": "delu", "exp": int(time.time()) - 10, "sig": sig_ok})[0] == 403, "delete : code expire -> 403")
+
+    total = 45
     print("\n%d/%d selftest verts" % (total - fails[0], total))
     return fails[0]
 

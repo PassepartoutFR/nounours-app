@@ -161,10 +161,54 @@
     return acc;
   }
 
+  // --- suppression autonome du classement (sans e-mail) ---
+  const DEL_TTL = 900; // 15 min
+
+  async function deletionSig(token, uid, exp) {
+    return hmac(token, "del:" + uid + ":" + exp);
+  }
+
+  async function generateDeletionCode() {
+    const acc = await ensureAccount();
+    const exp = Math.floor(Date.now() / 1000) + DEL_TTL;
+    const sig = await deletionSig(acc.token, acc.uid, exp);
+    return "DEL1:" + b64e(JSON.stringify({ uid: acc.uid, exp, sig }));
+  }
+
+  function parseDeletionCode(code) {
+    let c = String(code || "").trim();
+    if (c.startsWith("DEL1:")) c = c.slice(5);
+    let data;
+    try { data = JSON.parse(b64d(c)); } catch (_) { throw new Error("Code invalide"); }
+    if (!data || !data.uid || !data.exp || !data.sig) throw new Error("Code invalide");
+    return { uid: data.uid, exp: data.exp, sig: data.sig };
+  }
+
+  async function deleteServerEntry(opts) {
+    const ep = await endpoint();
+    let body;
+    if (opts && opts.code) {
+      body = parseDeletionCode(opts.code);
+    } else {
+      const acc = await ensureAccount();
+      body = { uid: acc.uid, token: acc.token };
+    }
+    const res = await fetch(ep + "/account/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+    if (!(opts && opts.code)) await update({ optedIn: false });
+    return data;
+  }
+
   const api = {
     ensureAccount, getAccount: ensureAccount, update,
     postScore, fetchLeaderboard, join, leave, endpoint, DEFAULT_EP,
     exportAccount, importAccount,
+    generateDeletionCode, parseDeletionCode, deleteServerEntry, DEL_TTL,
     reportFalsePositive, joinTeam, fetchTeams
   };
   if (typeof self !== "undefined") self.UWGBoard = api;

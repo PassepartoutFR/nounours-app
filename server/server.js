@@ -6,6 +6,7 @@
 // Anti-triche LEGER (projet fun, systeme a l'honneur) : score monotone + plafonds.
 "use strict";
 
+const crypto = require("crypto");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -303,6 +304,53 @@ function adminScores() {
     .sort((a, b) => b.total - a.total || a.pseudo.localeCompare(b.pseudo));
 }
 
+// Suppression autonome : token direct ou code DEL1 temporaire (15 min).
+const DEL_TTL = 900;
+
+function delSig(tokenHex, uid, exp) {
+  const msg = `del:${uid}:${exp}`;
+  try {
+    return crypto.createHmac("sha256", Buffer.from(tokenHex, "hex")).update(msg).digest("hex");
+  } catch (_) {
+    return "";
+  }
+}
+
+function verifyDeleteAuth(d, storedToken) {
+  const uid = String(d && d.uid != null ? d.uid : "").slice(0, 64);
+  if (!uid) return { ok: false, error: "uid requis" };
+  const token = String(d.token || "").slice(0, 128);
+  if (token) {
+    if (storedToken !== token) return { ok: false, error: "token invalide" };
+    return { ok: true, uid };
+  }
+  const sig = String(d.sig || "").slice(0, 128);
+  const exp = d.exp;
+  if (!sig || exp == null) return { ok: false, error: "preuve requise" };
+  const expI = Number(exp);
+  if (!Number.isFinite(expI) || expI < Date.now() / 1000) {
+    return { ok: false, error: "code expire ou invalide" };
+  }
+  const expected = delSig(storedToken, uid, Math.floor(expI));
+  if (!expected || expected !== sig) return { ok: false, error: "code invalide" };
+  return { ok: true, uid };
+}
+
+function deleteAccount(d) {
+  const uid = String(d && d.uid != null ? d.uid : "").slice(0, 64);
+  if (!uid) return { code: 400, body: { error: "uid requis" } };
+  const cur = scores[uid];
+  if (!cur) return { code: 200, body: { ok: true, removed: false } };
+  const auth = verifyDeleteAuth(d, cur.token);
+  if (!auth.ok) {
+    const code = auth.error && auth.error.includes("invalide") ? 403 : 400;
+    return { code, body: { error: auth.error } };
+  }
+  delete scores[uid];
+  save();
+  return { code: 200, body: { ok: true, removed: true } };
+}
+
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -463,6 +511,21 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Suppression autonome du classement (token direct ou code DEL1 temporaire).
+  if (req.method === "POST" && u.pathname === "/account/delete") {
+    const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || "";
+    if (!rateOk(ip)) return sendJson(res, 429, { error: "trop de requetes" });
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 4096) req.destroy(); });
+    req.on("end", () => {
+      let d;
+      try { d = JSON.parse(body || "{}"); } catch (_) { return sendJson(res, 400, { error: "bad json" }); }
+      const out = deleteAccount(d);
+      return sendJson(res, out.code, out.body);
+    });
+    return;
+  }
+
   // Feature #10 — rejoindre une equipe (token verifie comme /score). Body {uid, token, team}.
   if (req.method === "POST" && u.pathname === "/team/join") {
     let body = "";
@@ -526,5 +589,6 @@ module.exports = {
   recordReport, cleanLang, teams, cleanTeam,
   recordGeo, primaryLang, geo,
   sanitizeOverrides,
+  delSig, verifyDeleteAuth, deleteAccount, DEL_TTL,
   scores, stats, LIVE_CAP_PER_IP, LIVE_WINDOW,
 };

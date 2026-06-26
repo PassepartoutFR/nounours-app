@@ -4,6 +4,9 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
 ## [0.7.0] — non publié
 ### Ajouté
+- 🗑️ **Suppression autonome du classement** : plus besoin d'e-mail — code
+  temporaire `DEL1` (15 min) depuis le popup ou suppression directe ; page
+  vie privée avec formulaire (`POST /api/account/delete`).
 - 🌟 **Nounours Légendaire** : ~1 commentaire méchant sur 25 réveille une réponse
   **dorée et brillante** (rare, stable par texte, multilingue).
 - 🛡️ **Détection anti-obfuscation** : reconnaît le *leetspeak* (`c0nnard`, `5tupid`,
