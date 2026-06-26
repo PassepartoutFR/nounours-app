@@ -1,0 +1,24 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Vérif syntaxe
+        run: |
+          for f in uwg-core.js content.js mirror.js background.js popup.js scoreboard.js; do
+            node --check "$f"
+          done
+      - name: Tests unitaires
+        run: node test/run.mjs

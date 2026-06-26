@@ -125,4 +125,6 @@
   };
   if (typeof self !== "undefined") self.UWGBoard = api;
   if (typeof window !== "undefined") window.UWGBoard = api;
+  // hook de test Node (aucun effet navigateur : self/window y sont définis)
+  if (typeof self === "undefined" && typeof window === "undefined") globalThis.UWGBoard = api;
 })();
