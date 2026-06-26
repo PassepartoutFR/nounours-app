@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🧸🧠 Labo IA — comprendre le sens · Un web de gentil</title>
+<style>
+  :root{ --cream:#FBF3E4; --ink:#3A2A1E; --honey:#F4A93B; --coral:#FF6B5E; --mint:#7BD3B0; --muted:#8a6f57; --surface:#fffaf1; --line:#efe0c8; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:"Nunito",system-ui,Segoe UI,sans-serif;line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px}
+  h1{font-size:1.8rem;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 14px 34px rgba(58,42,30,.10);margin-bottom:18px}
+  .pill{display:inline-block;background:#eafaf2;color:#1f7a52;border:1px solid #bfe9d4;border-radius:999px;padding:3px 12px;font-weight:800;font-size:.8rem}
+  textarea{width:100%;min-height:84px;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:#fff;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  button{cursor:pointer;border:0;border-radius:999px;padding:11px 20px;font-weight:800;font-family:inherit;background:var(--honey);color:#3a2a1e;box-shadow:0 8px 20px rgba(244,169,59,.4)}
+  button:disabled{opacity:.5;cursor:wait;box-shadow:none}
+  .chip{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:.86rem;padding:7px 12px;box-shadow:none}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .meter{height:16px;border-radius:999px;background:#eee;overflow:hidden;margin:14px 0 6px}
+  .meter > i{display:block;height:100%;width:0;transition:width .4s ease;background:linear-gradient(90deg,var(--mint),var(--honey),var(--coral))}
+  .verdict{font-size:1.3rem;font-weight:800;margin-top:6px}
+  .verdict.ok{color:#1f7a52}.verdict.flag{color:var(--coral)}
+  label.thr{font-weight:800;display:flex;align-items:center;gap:10px;color:var(--muted)}
+  input[type=range]{flex:1;accent-color:var(--coral)}
+  .muted{color:var(--muted);font-size:.92rem}
+  code{background:#f3e9d6;padding:1px 6px;border-radius:6px}
+  #status{font-weight:700}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+  .box b{font-size:1.5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧸🧠 Labo IA — comprendre le <em>sens</em></h1>
+  <p class="sub">Preuve de concept : un petit modèle de toxicité tourne <strong>100 % dans ton navigateur</strong> (rien n'est envoyé à un serveur). Il <em>comprend</em> le sens — il attrape « What a stupid moro » que les listes de mots ratent.</p>
+
+  <div class="card">
+    <span class="pill" id="loadpill">⏳ Chargement du modèle…</span>
+    <p class="muted" id="status">Première fois : téléchargement du modèle (~qq dizaines de Mo), puis mis en cache. 100 % local ensuite.</p>
+  </div>
+
+  <div class="card">
+    <textarea id="txt" placeholder="Colle un commentaire…">What a stupid moro</textarea>
+    <div class="chips" id="presets"></div>
+    <div class="row">
+      <button id="go" disabled>Analyser</button>
+      <label class="thr">Seuil <input id="thr" type="range" min="0.5" max="0.99" step="0.01" value="0.90"> <span id="thrv">0.90</span></label>
+    </div>
+    <div class="meter"><i id="bar"></i></div>
+    <div class="muted">Score de toxicité : <strong id="score">—</strong></div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+
+  <div class="card">
+    <strong>Pourquoi c'est l'avenir du filtre</strong>
+    <div class="grid">
+      <div class="box"><b>0</b><br><span class="muted">requête réseau pour analyser (après le 1er chargement)</span></div>
+      <div class="box"><b>🌍</b><br><span class="muted">comprend fautes, sarcasme, insultes nouvelles</span></div>
+    </div>
+    <p class="muted" style="margin-top:12px">Dans l'extension, ce serait <strong>hybride</strong> : le lexique tranche les cas évidents en 0 ms, et l'IA n'est appelée (hors-page, dans le contexte de l'extension) que sur les <strong>cas gris</strong>, en option « 🧠 IA locale ». Le <strong>seuil</strong> ci-dessus = ton curseur précision.</p>
+  </div>
+</div>
+
+<script type="module">
+  import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2";
+  env.allowLocalModels = false;
+  const $ = (id) => document.getElementById(id);
+  const PRESETS = [
+    "What a stupid moro",
+    "playing dumb is honestly a skill",
+    "of all the dumb lies he told",
+    "have a wonderful afternoon, friends!",
+    "you dumb bastards",
+    "you are worthless and nobody likes you"
+  ];
+  $("presets").innerHTML = PRESETS.map((p,i)=>`<button class="chip" data-i="${i}">${p}</button>`).join("");
+  $("presets").addEventListener("click", (e)=>{ const b=e.target.closest("button"); if(b){ $("txt").value = PRESETS[b.dataset.i]; analyse(); }});
+  $("thr").addEventListener("input", ()=>{ $("thrv").textContent = (+$("thr").value).toFixed(2); render(last); });
+
+  let clf = null, last = null;
+  (async ()=>{
+    try{
+      clf = await pipeline("text-classification", "Xenova/toxic-bert", { quantized:true });
+      $("loadpill").textContent = "✅ Modèle prêt — 100 % local";
+      $("loadpill").style.cssText = "background:#eafaf2;color:#1f7a52;border-color:#bfe9d4";
+      $("status").innerHTML = "Le modèle tourne <strong>dans ton navigateur</strong>. Tape un commentaire ou clique un exemple.";
+      $("go").disabled = false;
+      analyse();
+    }catch(err){
+      $("loadpill").textContent = "⚠️ Chargement impossible";
+      $("status").textContent = "Le modèle n'a pas pu se charger (réseau ? CDN ?). Détail : " + err.message;
+    }
+  })();
+
+  async function analyse(){
+    const t = $("txt").value.trim();
+    if(!t || !clf) return;
+    $("go").disabled = true; $("go").textContent = "…";
+    const out = await clf(t, { topk:null });
+    last = out.sort((a,b)=>b.score-a.score)[0];
+    $("go").disabled = false; $("go").textContent = "Analyser";
+    render(last);
+  }
+  function render(top){
+    if(!top) return;
+    const s = top.score, thr = +$("thr").value;
+    $("score").textContent = s.toFixed(2) + "  (" + top.label + ")";
+    $("bar").style.width = Math.round(s*100) + "%";
+    const flag = s >= thr;
+    $("verdict").textContent = flag ? "🧸 serait CÂLINÉ (adouci)" : "· laissé tranquille (pas une attaque)";
+    $("verdict").className = "verdict " + (flag ? "flag" : "ok");
+  }
+  $("go").addEventListener("click", analyse);
+</script>
+</body>
+</html>
