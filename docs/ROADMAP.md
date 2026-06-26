@@ -32,8 +32,7 @@ sections = la priorité.
 - [ ] Soumettre sur **Firefox** (`scripts/build-firefox.cjs` + web-ext).
 - [ ] **Mode « surligner sans remplacer »** (option) pour comparer avant/après.
 - [ ] **Stats par langue** dans le popup (mini répartition).
-- [ ] **Easter eggs** : insulte rare → mascotte « légendaire » dorée.
-- [ ] **CHANGELOG.md** + armer l'auto-publication (secrets OAuth).
+- [ ] **Armer l'auto-publication** (secrets OAuth → release auto au tag).
 - [ ] Élargir le harnais de **tests** (mirror, content — via jsdom léger).
 
 ## 🌱 Plus tard
@@ -48,6 +47,7 @@ sections = la priorité.
 - Extension MV3 : détection locale multilingue (7 langues), mascottes,
   intensité, cœurs animés, miroir gentil.
 - Classement « compte sans compte » (serveur Python) + **export/import d'identité**.
+- 🌟 **Nounours Légendaire** (easter egg doré, rare) + `CHANGELOG.md`.
 - Site **nounours.app** multilingue + page vie privée.
 - **Open source** (repo public, MIT, templates, CODEOWNERS).
 - **Livre blanc** FR + EN, doc releases, doc multi-navigateur.

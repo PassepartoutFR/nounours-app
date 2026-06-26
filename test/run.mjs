@@ -46,6 +46,16 @@ ok(C.levelFor(10).title === "Apprenti Câlin", "niveau 10");
 ok(C.levelFor(9).next.min === 10, "next à 9 = 10");
 ok(C.levelFor(1000000).next === null, "niveau max");
 
+// ---- easter egg : Nounours Légendaire ----
+ok(typeof C.isLegendary === "function", "isLegendary exposé");
+ok(C.isLegendary("meme texte") === C.isLegendary("meme texte"), "isLegendary déterministe");
+let legSeed = null;
+for (let i = 0; i < 300; i++) { if (C.isLegendary("x" + i)) { legSeed = "x" + i; break; } }
+ok(legSeed !== null, "des graines légendaires existent");
+ok(C.reply({ theme: "nounours", lang: "fr", seed: legSeed, legendary: true }).includes("🌟"), "reply légendaire = doré 🌟");
+ok(!C.reply({ theme: "nounours", lang: "fr", seed: "abc", legendary: false }).includes("🌟"), "reply normal ≠ légendaire");
+ok(C.reply({ lang: "de", seed: legSeed, legendary: true }).includes("🌟"), "légendaire multilingue (DE)");
+
 // ---- scoreboard : identité + export/import ----
 const acc1 = await B.ensureAccount();
 ok(acc1.uid && acc1.secret && acc1.token, "ensureAccount crée uid+secret+token");

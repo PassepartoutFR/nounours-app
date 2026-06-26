@@ -104,14 +104,16 @@
     if (!lang) return;
     if (shouldSkip(node)) return;
 
+    const legendary = CORE.isLegendary(text);
     const msg = CORE.reply({
       theme: state.theme,
       intensity: state.intensity,
       lang,
-      seed: text
+      seed: text,
+      legendary
     });
     const span = document.createElement("span");
-    span.className = "uwg-soft";
+    span.className = legendary ? "uwg-soft uwg-legendary" : "uwg-soft";
     span.title = CORE.HINT[lang] || CORE.HINT.en;
     span.dataset.original = text;
     span.dataset.teddy = msg;

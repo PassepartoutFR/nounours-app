@@ -48,6 +48,8 @@
 
     .soft { position: relative; background: linear-gradient(180deg, #fff4e6, #ffe8cc); border: 1px solid #ffd8a8; border-radius: 10px; padding: 0 7px; color: #8a5a2b; font-style: italic; cursor: help; }
     .soft.revealed { background: #eef0f2; border-color: #dde1e6; color: #868e96; font-style: normal; }
+    .soft.legendary { background: linear-gradient(110deg,#ffe9a8,#ffd25e,#fff4cf,#ffd25e,#ffe9a8); background-size: 220% 100%; border-color: #f4c430; color: #7a5613; box-shadow: 0 0 0 2px rgba(244,196,48,.35); animation: uwg-shine 2.4s linear infinite; }
+    @keyframes uwg-shine { to { background-position: 220% 0; } }
     .uwg-hearts { position: absolute; inset: -10px -14px; pointer-events: none; overflow: visible; z-index: 1; }
     .uwg-heart { position: absolute; line-height: 1; transform: translate(-50%, -50%); }
     .uwg-heart > span { display: inline-block; opacity: 0; animation-name: uwg-heart-float, uwg-heart-in; animation-duration: 2.4s, .5s; animation-timing-function: ease-in-out, ease; animation-iteration-count: infinite, 1; animation-fill-mode: none, forwards; filter: drop-shadow(0 1px 1px rgba(0,0,0,.12)); }
@@ -168,9 +170,10 @@
       tx.className = "text";
 
       if (lang) {
-        const msg = CORE.reply({ theme: state.theme, intensity: state.intensity, lang, seed: text });
+        const legendary = CORE.isLegendary(text);
+        const msg = CORE.reply({ theme: state.theme, intensity: state.intensity, lang, seed: text, legendary });
         const span = document.createElement("span");
-        span.className = "soft";
+        span.className = legendary ? "soft legendary" : "soft";
         span.title = (CORE.HINT[lang] || CORE.HINT.en);
         span.dataset.original = text;
         span.dataset.soft = msg;

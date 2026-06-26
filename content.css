@@ -21,6 +21,18 @@
   font-style: normal;
 }
 
+/* --- Nounours Légendaire (rare, doré) --- */
+.uwg-soft.uwg-legendary {
+  background: linear-gradient(110deg, #ffe9a8, #ffd25e, #fff4cf, #ffd25e, #ffe9a8) !important;
+  background-size: 220% 100% !important;
+  border-color: #f4c430 !important;
+  color: #7a5613 !important;
+  box-shadow: 0 0 0 2px rgba(244, 196, 48, 0.35), 0 5px 16px rgba(244, 196, 48, 0.45);
+  animation: uwg-shine 2.4s linear infinite;
+}
+@keyframes uwg-shine { to { background-position: 220% 0; } }
+@media (prefers-reduced-motion: reduce) { .uwg-soft.uwg-legendary { animation: none; } }
+
 /* --- cœurs persistants ET animes : semes autour de chaque endroit filtre --- */
 .uwg-hearts {
   position: absolute;

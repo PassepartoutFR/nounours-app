@@ -303,6 +303,17 @@
     nl: ["Niet bedanken.", "Toch een kusje, kampioen van niks.", "Deze is van het huis.", "Stop die woede weg, ze piept eruit."]
   };
 
+  // --- easter egg : le Nounours Légendaire (rare, doré) ----------------------
+  const LEGENDARY = {
+    fr: ["🌟 ✨ NOUNOURS LÉGENDAIRE ✨ Ta méchanceté a réveillé l'Ours Doré… il te pardonne. 🐻", "🌟 COUP CRITIQUE DE GENTILLESSE ! +100 câlins. ✨"],
+    en: ["🌟 ✨ LEGENDARY TEDDY ✨ Your meanness woke the Golden Bear… he forgives you. 🐻", "🌟 CRITICAL HIT OF KINDNESS! +100 hugs. ✨"],
+    es: ["🌟 ✨ OSITO LEGENDARIO ✨ Tu maldad despertó al Oso Dorado… te perdona. 🐻", "🌟 ¡GOLPE CRÍTICO DE TERNURA! +100 abrazos. ✨"],
+    it: ["🌟 ✨ ORSETTO LEGGENDARIO ✨ La tua cattiveria ha svegliato l'Orso Dorato… ti perdona. 🐻", "🌟 COLPO CRITICO DI GENTILEZZA! +100 abbracci. ✨"],
+    de: ["🌟 ✨ LEGENDÄRER TEDDY ✨ Deine Gemeinheit weckte den Goldenen Bären… er vergibt dir. 🐻", "🌟 KRITISCHER TREFFER DER FREUNDLICHKEIT! +100 Umarmungen. ✨"],
+    pt: ["🌟 ✨ URSINHO LENDÁRIO ✨ Tua maldade acordou o Urso Dourado… ele te perdoa. 🐻", "🌟 ACERTO CRÍTICO DE TERNURA! +100 abraços. ✨"],
+    nl: ["🌟 ✨ LEGENDARISCHE TEDDY ✨ Je gemeenheid wekte de Gouden Beer… hij vergeeft je. 🐻", "🌟 KRITIEKE TREFFER VAN VRIENDELIJKHEID! +100 knuffels. ✨"]
+  };
+
   // --- bulle d'aide localisee -------------------------------------------------
   const HINT = {
     fr: "Un web de gentil — message d'origine masqué (clic pour révéler)",
@@ -362,12 +373,17 @@
   }
   const pickFrom = (arr, seed) => arr[hash(seed) % arr.length];
 
+  // ~1 commentaire mechant sur 25 reveille le Nounours Legendaire (stable par texte)
+  const isLegendary = (seed) => hash(String(seed || "")) % 25 === 0;
+
   function reply(opts) {
     const o = opts || {};
     const theme = o.theme || "nounours";
     const intensity = o.intensity || "medium";
     const lang = o.lang || "fr";
     const seed = o.seed || "";
+
+    if (o.legendary) return pickFrom(LEGENDARY[lang] || LEGENDARY.en, seed);
 
     let base;
     if (intensity === "doux") {
@@ -392,7 +408,7 @@
 
   const api = {
     LANGS, THEMES, LEVELS, HINT,
-    norm, detect, reply, levelFor, themeEmoji
+    norm, detect, reply, levelFor, themeEmoji, isLegendary
   };
 
   if (typeof window !== "undefined") window.UWGCore = api;
