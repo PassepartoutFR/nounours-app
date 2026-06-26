@@ -54,6 +54,14 @@
     .seg button:last-child { border-right: 0; }
     .seg button.active { background: #c98a4b; color: #fff; }
 
+    /* select (sensibilité de détection) */
+    select.uwg-select {
+      width: 100%; box-sizing: border-box; border: 1px solid #f1ddc7;
+      border-radius: 10px; background: #fff; color: #8a5a2b; padding: 8px 9px;
+      font-family: inherit; font-size: 12px; cursor: pointer;
+    }
+    select.uwg-select:focus { outline: 2px solid #f3d9b8; outline-offset: 0; }
+
     /* niveau */
     .levelcard { padding: 10px 14px; }
     .levelcard .title { font-weight: 800; color: #8a5a2b; font-size: 15px; }
@@ -116,6 +124,15 @@
       <button data-v="medium">Médium</button>
       <button data-v="hardcore">Hardcore</button>
     </div>
+  </div>
+
+  <div class="block">
+    <h4>Sensibilité de détection</h4>
+    <select class="uwg-select" id="sensitivity">
+      <option value="precise">Précise · que les vraies attaques (défaut)</option>
+      <option value="large">Large · adoucit aussi les mots durs isolés (plus de prises)</option>
+    </select>
+    <div class="muted" style="margin-top:6px;">« Large » peut adoucir des messages neutres — à toi de voir.</div>
   </div>
 
   <div class="row">

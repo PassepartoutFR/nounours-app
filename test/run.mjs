@@ -49,6 +49,24 @@ ok(C.detect("Jesteś debilem, ty kretynie.", "fr") === "pl", "detect PL");
 ok(C.detect("Ładny dzień, gratulacje dla wszystkich!", "fr") === null, "gentil PL -> null");
 ok(C.detect("C'est joli, bravo !", "fr") === null, "gentil -> null");
 
+// ---- uwg-core : SENSIBILITÉ de détection (opts.aggressive) -------------------
+// Mode "precise" (défaut, opts absent) : un mot CONTEXTUAL isolé ('stupide'/'dumb')
+// SANS marqueur de ciblage ne flague PAS (comportement actuel, 0 FP). Mode "large"
+// (opts.aggressive=true) : les CONTEXTUAL flaguent sur PRÉSENCE — plus de prises —
+// mais TOUJOURS scopé aux langues candidates (pas d'explosion cross-langue).
+// précise (défaut) : inchangé.
+ok(C.detect("c'est vraiment stupide comme idée", "fr") === null, "précise : 'stupide' descriptif FR -> null");
+ok(C.detect("this plan is so dumb", "en") === null, "précise : 'dumb' descriptif EN -> null");
+// agressif : les MÊMES phrases flaguent maintenant (CONTEXTUAL sur présence).
+ok(C.detect("c'est vraiment stupide comme idée", "fr", { aggressive: true }) === "fr", "agressif : 'stupide' FR -> fr");
+ok(C.detect("this plan is so dumb", "en", { aggressive: true }) === "en", "agressif : 'dumb' EN -> en");
+// agressif TOUJOURS scopé à la langue : une phrase anglaise neutre, sans insulte
+// anglaise, ne doit PAS flaguer comme une autre langue (pas de scan aveugle des 8).
+// 'menso' est un CONTEXTUAL espagnol ('idiot' au Mexique) ; ici un mot anglais
+// inventé proche ne doit rien déclencher car ES n'est pas candidat (preferred=en).
+ok(C.detect("the weather is calm and the sky is clear today", "en", { aggressive: true }) === null, "agressif : phrase EN neutre -> null (scopé langue)");
+ok(C.detect("hello friends, have a wonderful afternoon", "en", { aggressive: true }) === null, "agressif : phrase EN neutre 2 -> null (pas de cross-lang)");
+
 // ---- anti-obfuscation ----
 ok(C.detect("t'es vraiment c0nnard", "fr") === "fr", "leet: c0nnard détecté");
 ok(C.detect("saloooope", "fr") === "fr", "lettres répétées détectées");

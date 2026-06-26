@@ -900,13 +900,19 @@
     //    On teste sur t, puis (secours) sur tHard pour rattraper une obfuscation à
     //    doublure d'un mot évaluatif (imbeciiil→imbecil) — MAIS toujours gated par un
     //    target_marker, donc sans réintroduire de FP descriptif.
+    //    MODE AGRESSIF (opts.aggressive) : on flague les CONTEXTUAL sur PRÉSENCE (on
+    //    saute l'exigence de target_marker) — mais TOUJOURS scopé aux candidates (on ne
+    //    revient PAS à scanner les 8 langues à l'aveugle). Tout le reste est identique :
+    //    STRONG déjà passé ci-dessus, et on rend la langue matchée. Plus de prises, plus
+    //    de FP descriptifs assumés ('dumb'/'stupide' isolés) — choix de l'utilisateur.
+    const aggressive = !!opts.aggressive;
     for (const lg of cand) {
       for (const cm of contextMatches(t, lg)) {
-        if (targetPresent(t, lg, cm.idx, cm.len, win)) return lg;
+        if (aggressive || targetPresent(t, lg, cm.idx, cm.len, win)) return lg;
       }
       if (tHard !== t) {
         for (const cm of contextMatches(tHard, lg)) {
-          if (targetPresent(tHard, lg, cm.idx, cm.len, win)) return lg;
+          if (aggressive || targetPresent(tHard, lg, cm.idx, cm.len, win)) return lg;
         }
       }
     }

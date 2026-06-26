@@ -43,7 +43,8 @@
     intensity: "medium",
     celebrate: true,
     highlightOnly: false,
-    remoteLists: false // opt-in listes en ligne : 100% LOCAL PAR DÉFAUT (OFF)
+    remoteLists: false, // opt-in listes en ligne : 100% LOCAL PAR DÉFAUT (OFF)
+    sensitivity: "precise" // détection : "precise" (défaut, 0 FP) | "large" (mots durs isolés)
   };
 
   const PAGE_LANG = (
@@ -184,7 +185,7 @@
   function processTextNode(node) {
     const text = node.nodeValue;
     if (!text || text.trim().length < 2) return;
-    const lang = CORE.detect(text, PAGE_LANG);
+    const lang = CORE.detect(text, PAGE_LANG, { aggressive: state.sensitivity === "large" });
     if (!lang) return;
     if (shouldSkip(node)) return;
 

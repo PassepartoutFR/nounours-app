@@ -2,7 +2,8 @@
 const STORAGE_KEY = "uwg_state";
 const DEFAULTS = {
   enabled: true, total: 0, theme: "nounours", intensity: "medium",
-  celebrate: true, mirror: true, highlightOnly: false, remoteLists: false
+  celebrate: true, mirror: true, highlightOnly: false, remoteLists: false,
+  sensitivity: "precise"
 };
 const CORE = window.UWGCore;
 
@@ -12,6 +13,7 @@ const celebrate = $("celebrate");
 const mirror = $("mirror");
 const highlightOnly = $("highlightOnly");
 const remoteLists = $("remoteLists");
+const sensitivity = $("sensitivity");
 const intensityBox = $("intensity");
 const themesBox = $("themes");
 
@@ -37,6 +39,7 @@ function render(st) {
   mirror.checked = !!st.mirror;
   highlightOnly.checked = !!st.highlightOnly;
   remoteLists.checked = !!st.remoteLists;
+  sensitivity.value = st.sensitivity === "large" ? "large" : "precise";
 
   themesBox.querySelectorAll(".theme").forEach((el) => {
     el.classList.toggle("active", el.dataset.v === st.theme);
@@ -91,6 +94,8 @@ highlightOnly.addEventListener("change", () => patch({ highlightOnly: highlightO
 // Feature #2 — opt-in listes en ligne (défaut OFF). Activer => le service worker
 // récupérera /lists au prochain cycle ; désactiver => zéro appel réseau pour les listes.
 remoteLists.addEventListener("change", () => patch({ remoteLists: remoteLists.checked }));
+// Sensibilité de détection : "precise" (défaut, 0 FP) | "large" (mots durs isolés adoucis).
+sensitivity.addEventListener("change", () => patch({ sensitivity: sensitivity.value }));
 
 themesBox.addEventListener("click", (e) => {
   const el = e.target.closest(".theme");
