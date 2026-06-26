@@ -2,7 +2,10 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
-## [0.7.0] — 2026-06-26 (bêta testable sur GitHub)
+## [0.7.1] — 2026-06-26 (bêta testable sur GitHub)
+
+> 0.7.1 = première build publiée (le tag 0.7.0 avait échoué au CI release :
+> action `chrome-extension-upload@v5` inexistante). Contenu identique à 0.7.0.
 ### Ajouté
 - 🎯 **Détection repensée — beaucoup moins de faux positifs** : refonte du moteur
   (panel d'experts, 8 langues). Lexiques à **2 niveaux** — insultes *toujours-attaque*
