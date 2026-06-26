@@ -4,6 +4,14 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.2] — 2026-06-26
+
+### Ajouté
+- 🎚️ **Réglage de sensibilité de détection** (popup) : **Précise** (défaut — que
+  les vraies attaques, 0 faux positif) ou **Large** (adoucit aussi les mots durs
+  isolés comme « dumb » / « stupide » sans exiger de cible — beaucoup plus de
+  prises, quelques faux positifs assumés). Reste **scopé par langue**.
+
 ## [0.7.1] — 2026-06-26 (bêta testable sur GitHub)
 
 > 0.7.1 = première build publiée (le tag 0.7.0 avait échoué au CI release :
