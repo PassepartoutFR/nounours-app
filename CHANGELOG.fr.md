@@ -4,6 +4,13 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.4] — 2026-06-26
+
+### Corrigé
+- 🔧 **CSP** : le `connect-src` ajouté en 0.7.3 (pour charger le modèle IA)
+  bloquait par erreur les appels au **classement** (`nounours.app/api`). Hôtes
+  `nounours.app` + localhost ré-autorisés. (Régression de la 0.7.3.)
+
 ## [0.7.3] — 2026-06-26
 
 ### Ajouté

@@ -4,6 +4,13 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.7.4] — 2026-06-26
+
+### Fixed
+- 🔧 **CSP**: the `connect-src` added in 0.7.3 (to load the AI model) mistakenly
+  blocked the **leaderboard** calls (`nounours.app/api`). Re-allowed `nounours.app`
+  + localhost. (Regression from 0.7.3.)
+
 ## [0.7.3] — 2026-06-26
 
 ### Added
