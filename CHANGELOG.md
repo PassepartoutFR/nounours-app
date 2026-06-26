@@ -2,7 +2,7 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
-## [0.7.0] — non publié
+## [0.7.0] — 2026-06-26 (bêta testable sur GitHub)
 ### Ajouté
 - 🎯 **Détection repensée — beaucoup moins de faux positifs** : refonte du moteur
   (panel d'experts, 8 langues). Lexiques à **2 niveaux** — insultes *toujours-attaque*

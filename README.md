@@ -3,7 +3,10 @@
 Extension navigateur (Chromium / **Brave** / Chrome / Edge) qui **remplace les
 commentaires méchants par des messages de mascottes** trolls et ironiques.
 
-**🌍 [nounours.app](https://nounours.app) · Licence MIT · Gratuit à vie · Bientôt sur le Chrome Web Store**
+**🌍 [nounours.app](https://nounours.app) · Licence MIT · Gratuit à vie**
+
+> ### ⬇️ Tester la bêta maintenant (gratuit, sans attendre le store)
+> **[Télécharge le dernier `.zip`](https://github.com/PassepartoutFR/nounours-app/releases/latest)** → décompresse → charge-le en *mode développeur* (voir [Installer](#installer-mode-développeur-30-s)). Marche sur Brave / Chrome / Edge. *(Soumission Chrome Web Store en cours en parallèle.)*
 
 📖 Livre blanc ([FR](docs/LIVRE-BLANC.md) · [EN](docs/WHITE-PAPER.md)) · 🌐 [Multi-navigateur](docs/BROWSERS.md) · 🚀 [Releases](docs/RELEASE.md) · 🤝 [Contribuer](CONTRIBUTING.md)
 
@@ -44,10 +47,19 @@ page. Seul le **classement** (ci-dessous) est opt-in et envoie un strict minimum
 
 ## Installer (mode développeur, ~30 s)
 
-1. Ouvre `brave://extensions` (ou `chrome://extensions`).
-2. Active **Mode développeur** (coin haut-droit).
-3. **Charger l'extension non empaquetée** → choisis ce dossier (`web-de-gentil`).
-4. Clique l'icône 🧸 → choisis ta mascotte, ton intensité, etc.
+### 🅰️ Le plus simple — depuis une Release GitHub (sans rien cloner)
+
+1. Va sur **[Releases](https://github.com/PassepartoutFR/nounours-app/releases/latest)** et télécharge `nounours-app-vX.Y.Z.zip`.
+2. **Décompresse** le zip → tu obtiens un dossier `nounours-app/`.
+3. Ouvre `brave://extensions` (ou `chrome://extensions` / `edge://extensions`).
+4. Active **Mode développeur** (coin haut-droit) → **Charger l'extension non empaquetée** → choisis le dossier `nounours-app/`.
+5. Clique l'icône 🧸 → choisis ta mascotte, ton intensité, etc.
+
+### 🅱️ Depuis le code source (pour contribuer)
+
+1. Clone le dépôt, ouvre `brave://extensions`, active **Mode développeur**.
+2. **Charger l'extension non empaquetée** → choisis ce dossier (`web-de-gentil`).
+3. Clique l'icône 🧸 → choisis ta mascotte, ton intensité, etc.
 
 ## Tester
 
