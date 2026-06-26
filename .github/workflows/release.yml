@@ -1,8 +1,10 @@
 name: Release
 
-# À chaque tag vX.Y.Z, construit le .zip prêt pour le Chrome Web Store
-# (uniquement les fichiers de l'extension, pas le site/serveur/docs)
-# et le joint à une Release GitHub.
+# À chaque tag vX.Y.Z :
+#  1. build le .zip prêt-store (fichiers extension uniquement)
+#  2. crée une Release GitHub avec notes auto
+#  3. publie sur le Chrome Web Store SI les secrets sont configurés (sinon sauté)
+# Voir docs/RELEASE.md.
 
 on:
   push:
@@ -15,6 +17,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+      CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+      CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+      CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,3 +38,14 @@ jobs:
         with:
           files: nounours-app-*.zip
           generate_release_notes: true
+
+      - name: Publish to Chrome Web Store
+        if: ${{ env.CHROME_EXTENSION_ID != '' }}
+        uses: mnao305/chrome-extension-upload@v5
+        with:
+          file-path: nounours-app-${{ github.ref_name }}.zip
+          extension-id: ${{ env.CHROME_EXTENSION_ID }}
+          client-id: ${{ env.CHROME_CLIENT_ID }}
+          client-secret: ${{ env.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ env.CHROME_REFRESH_TOKEN }}
+          publish: true
