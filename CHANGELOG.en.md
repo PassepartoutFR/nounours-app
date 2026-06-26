@@ -4,6 +4,15 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.7.6] — 2026-06-26
+
+### Improved
+- 👁️ **Visible local AI**: on enable, the model now loads **immediately** (instead
+  of waiting for a gray-zone comment), and the popup shows its **live status**
+  (⏳ loading / ✅ ready / ⚠️ exact error) plus a **"🧪 Test the AI"** button that
+  shows the score on a sample sentence. No more invisible AI — you can see it's
+  active (or the precise error, surfaced in the popup).
+
 ## [0.7.5] — 2026-06-26
 
 ### Added

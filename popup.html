@@ -23,6 +23,7 @@
     }
     .label { font-size: 13px; }
     .muted { color: #a47b53; font-size: 12px; }
+    .muted.warn { color: #b06a3a; font-weight: 600; }
     .sep { height: 1px; background: #f1ddc7; margin: 4px 14px; }
     .block { padding: 8px 14px; }
     .block h4 { margin: 0 0 7px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #a47b53; }
@@ -191,6 +192,15 @@
     <label class="switch"><input type="checkbox" id="aiMode" /><span class="slider"></span></label>
   </div>
   <div class="muted" style="padding: 0 14px 6px; margin-top: -4px;">Comprend les insultes voilées que les listes ratent. Télécharge un petit modèle (~25 Mo) la 1ʳᵉ fois, puis 100 % local. Peut ralentir un peu.</div>
+
+  <!-- État OBSERVABLE de l'IA locale (visible seulement quand l'IA est activée). La ligne
+       #aiStatus reflète chrome.storage.local.uwg_ai_status en direct ; #aiTestBtn permet de
+       prouver que l'IA tourne (classe un texte de test) et affiche le résultat dans #aiTestResult. -->
+  <div id="aiStatus" class="muted" style="display:none; padding: 0 14px 4px; margin-top: -2px;"></div>
+  <div id="aiTestRow" class="block" style="display:none; padding-top: 0;">
+    <button class="linkbtn" id="aiTestBtn" type="button">🧪 Tester l'IA</button>
+    <div id="aiTestResult" class="muted" style="margin-top: 4px;"></div>
+  </div>
 
   <div class="sep"></div>
 

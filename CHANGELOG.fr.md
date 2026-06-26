@@ -4,6 +4,15 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.6] — 2026-06-26
+
+### Amélioré
+- 👁️ **IA locale visible** : à l'activation, le modèle se charge **tout de suite**
+  (au lieu d'attendre un commentaire « gris »), et le popup affiche son **état en
+  direct** (⏳ chargement / ✅ prêt / ⚠️ erreur exacte) + un bouton **« 🧪 Tester
+  l'IA »** qui montre le score sur une phrase d'exemple. Fini l'IA invisible : on
+  voit qu'elle est active (ou l'erreur précise, surfacée dans le popup).
+
 ## [0.7.5] — 2026-06-26
 
 ### Ajouté

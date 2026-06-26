@@ -88,6 +88,23 @@ const aiCache = new Map();         // cache des scores (clé = texte brut)
 const aiInflight = new Map();      // dédoublonnage des demandes simultanées (texte -> Promise)
 let offscreenCreating = null;      // garde anti-course pour la création du document
 
+// SOURCE DE VÉRITÉ unique de l'état IA, lue par le popup (cf. offscreen.js) :
+//   chrome.storage.local.uwg_ai_status = "loading"|"ready"|"error: <msg>" (|"off"/absente).
+// Le popup affiche ce qui s'y trouve. On y écrit ici les échecs de CRÉATION du document
+// offscreen (l'offscreen lui-même publie loading/ready/error du MODÈLE).
+const AI_STATUS_KEY = "uwg_ai_status";
+function setAiStatus(value) {
+  // fail-safe : ne jamais lever.
+  try { chrome.storage.local.set({ [AI_STATUS_KEY]: value }); } catch (_) {}
+}
+function getAiStatus() {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.get(AI_STATUS_KEY, (r) => resolve((r && r[AI_STATUS_KEY]) || null));
+    } catch (_) { resolve(null); }
+  });
+}
+
 function aiEnabled() {
   return new Promise((resolve) => {
     try {
@@ -122,6 +139,9 @@ async function ensureOffscreen() {
     // « document déjà existant » = course gagnée par un autre appel : ce n'est pas un échec.
     const m = (err && err.message) || String(err);
     if (/single offscreen|already/i.test(m)) return true;
+    // Échec RÉEL de création : on le rend OBSERVABLE dans le popup (même une création
+    // ratée doit être visible — sinon le modèle ne se chargera jamais sans explication).
+    setAiStatus("error: offscreen " + m);
     console.warn(AI_TAG, "création offscreen impossible :", m);
     return false;
   }
@@ -181,6 +201,84 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       // FAIL-SAFE : toute erreur -> score 0, le content-script reste en mode liste.
       console.warn(AI_TAG, "uwg-ai-score erreur :", (err && err.message) || err);
       try { sendResponse({ score: 0 }); } catch (_) {}
+    }
+  })();
+  return true; // réponse asynchrone
+});
+
+// ---------------------------------------------------------------------------
+// IA LOCALE — chargement EAGER + observabilité
+// ---------------------------------------------------------------------------
+// Quand l'utilisateur ACTIVE l'IA (aiMode -> true), on crée immédiatement le document
+// offscreen : sa simple création déclenche le chargement EAGER du modèle (offscreen.js),
+// qui publie loading -> ready|error dans uwg_ai_status. L'utilisateur voit donc l'état
+// tout de suite, sans attendre un 1er « cas gris ». Quand il DÉSACTIVE (aiMode -> false),
+// on remet le statut à "off" et on ferme le document (fail-safe). Toute erreur de création
+// est déjà publiée par ensureOffscreen() -> reste observable dans le popup.
+async function onAiEnabled() {
+  console.log(AI_TAG, "IA activée -> création offscreen + chargement eager du modèle");
+  // ensureOffscreen() publie lui-même une erreur de création le cas échéant.
+  await ensureOffscreen();
+}
+
+async function onAiDisabled() {
+  console.log(AI_TAG, "IA désactivée -> fermeture offscreen + statut off");
+  setAiStatus("off");
+  try {
+    if (chrome.offscreen && chrome.offscreen.closeDocument) {
+      // ne ferme que s'il existe (évite une exception « no offscreen document »).
+      let has = true;
+      if (chrome.offscreen.hasDocument) { try { has = await chrome.offscreen.hasDocument(); } catch (_) { has = true; } }
+      if (has) await chrome.offscreen.closeDocument();
+    }
+  } catch (_) { /* fail-safe : fermeture best-effort */ }
+}
+
+// Réagit aux bascules de aiMode (le popup écrit uwg_state via patch()). On compare
+// l'ancienne et la nouvelle valeur pour n'agir que sur un VRAI changement.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local" || !changes[STATE_KEY]) return;
+  try {
+    const before = (changes[STATE_KEY].oldValue && changes[STATE_KEY].oldValue.aiMode) === true;
+    const after = (changes[STATE_KEY].newValue && changes[STATE_KEY].newValue.aiMode) === true;
+    if (before === after) return; // pas un changement de aiMode
+    if (after) onAiEnabled(); else onAiDisabled();
+  } catch (_) { /* fail-safe */ }
+});
+
+// Au démarrage du service worker : si l'IA est DÉJÀ activée, on (re)lance le chargement
+// eager immédiatement (le SW MV3 a pu être tué entre deux ; on ne veut pas attendre un
+// cas gris pour que l'état redevienne observable). No-op si aiMode est OFF.
+(async () => {
+  try {
+    const on = await aiEnabled();
+    if (on) onAiEnabled();
+  } catch (_) { /* fail-safe */ }
+})();
+
+// Handler de TEST explicite : déclenché par le bouton « 🧪 Tester l'IA » du popup.
+// Contourne la porte « cas gris » (c'est un test volontaire de l'utilisateur) : on
+// classe le texte EXACT fourni, puis on renvoie { score, status } (status = état courant
+// de uwg_ai_status). Entièrement try/catch -> { score:null, error } en cas de pépin.
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== "uwg-ai-test") return; // pas pour nous
+  (async () => {
+    try {
+      const text = typeof msg.text === "string" ? msg.text : "";
+      const ok = await ensureOffscreen();
+      if (!ok) {
+        // création offscreen impossible : ensureOffscreen a déjà publié l'erreur.
+        const status = await getAiStatus();
+        sendResponse({ score: null, status, error: "offscreen indisponible" });
+        return;
+      }
+      const score = await classifyViaOffscreen(text);
+      const status = await getAiStatus();
+      sendResponse({ score: typeof score === "number" ? score : null, status });
+    } catch (err) {
+      const e = (err && err.message) || String(err);
+      console.warn(AI_TAG, "uwg-ai-test erreur :", e);
+      try { sendResponse({ score: null, error: e }); } catch (_) {}
     }
   })();
   return true; // réponse asynchrone

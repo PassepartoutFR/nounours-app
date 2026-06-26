@@ -16,15 +16,27 @@ const TAG = "UWG-AI[offscreen]";
 // Labels du modèle de toxicité. Score = max des probabilités "vrai" sur ces labels.
 const LABELS = ["toxicity", "insult", "identity_attack", "obscene", "threat", "severe_toxicity"];
 
-let model = null;          // instance du modèle, une fois chargé
-let loadPromise = null;    // garde anti-double-chargement (load lazy, une seule fois)
+// SOURCE DE VÉRITÉ unique de l'état IA, lue par le popup : chrome.storage.local.uwg_ai_status
+//   "loading" | "ready" | "error: <message>"  (absente / "off" quand l'IA est désactivée).
+// CHAQUE mode d'échec doit finir écrit ici pour rester OBSERVABLE.
+const AI_STATUS_KEY = "uwg_ai_status";
+function setStatus(value) {
+  // Écriture fail-safe : ne JAMAIS lever (une erreur de storage ne doit rien casser).
+  try { chrome.storage.local.set({ [AI_STATUS_KEY]: value }); } catch (_) {}
+}
 
-// Charge le modèle UNE seule fois (lazy). Force le backend CPU : fiable, pas besoin
-// de WebGL (qui peut manquer/être instable dans un document offscreen). Toute erreur
-// remonte au caller, qui répondra { score:0 } — on ne casse rien.
+let model = null;          // instance du modèle, une fois chargé
+let loadPromise = null;    // garde anti-double-chargement (load une seule fois)
+
+// Charge le modèle UNE seule fois. Force le backend CPU : fiable, pas besoin de WebGL
+// (qui peut manquer/être instable dans un document offscreen). Écrit l'état dans
+// uwg_ai_status à CHAQUE étape (loading -> ready | error: …) pour que le popup le voie.
+// Toute erreur remonte aussi au caller (qui répondra { score:0 } — on ne casse rien).
 function ensureModel() {
   if (model) return Promise.resolve(model);
   if (loadPromise) return loadPromise;
+  setStatus("loading");
+  console.log(TAG, "chargement du modèle…");
   loadPromise = (async () => {
     if (typeof tf === "undefined" || typeof toxicity === "undefined") {
       throw new Error("librairies tf/toxicity absentes (vendor non chargé)");
@@ -35,13 +47,17 @@ function ensureModel() {
     // seuil interne 0.5 : on récupère les probabilités, on calcule le max nous-mêmes.
     const m = await toxicity.load(0.5, LABELS);
     model = m;
-    console.log(TAG, "modèle prêt ✓ (100 % local)");
+    setStatus("ready");
+    console.log(TAG, "modèle prêt ✓");
     return m;
   })().catch((err) => {
     // échec : on réarme la garde pour autoriser une nouvelle tentative ultérieure,
-    // et on propage l'erreur au caller (qui répondra score:0, fail-safe).
+    // on PUBLIE l'erreur (observable dans le popup) et on la propage au caller
+    // (qui répondra score:0, fail-safe).
     loadPromise = null;
-    console.warn(TAG, "échec du chargement du modèle :", (err && err.message) || err);
+    const msg = (err && err.message) || String(err);
+    setStatus("error: " + msg);
+    console.warn(TAG, "échec du chargement du modèle :", msg);
     throw err;
   });
   return loadPromise;
@@ -88,4 +104,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true; // réponse asynchrone
 });
 
-console.log(TAG, "prêt (en attente de demandes de score, modèle chargé à la 1re demande)");
+// CHARGEMENT EAGER : dès que ce document offscreen se charge (= l'IA est activée, car
+// le SW ne crée ce document QUE dans ce cas), on lance le chargement du modèle sans
+// attendre une 1re demande de score. L'état (loading -> ready | error) est publié dans
+// uwg_ai_status -> le popup peut le montrer. Fail-safe : on avale toute exception ici
+// (ensureModel publie déjà l'erreur dans le storage ; le handler classify la reverra).
+console.log(TAG, "prêt — chargement EAGER du modèle au démarrage du document");
+try { ensureModel().catch(() => {}); } catch (_) {}
