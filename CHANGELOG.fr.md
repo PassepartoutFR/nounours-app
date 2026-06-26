@@ -4,6 +4,19 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.3] — 2026-06-26
+
+### Ajouté
+- 🧠 **IA locale (expérimental)** — option du popup, **désactivée par défaut**.
+  Un petit modèle de toxicité tourne **100 % dans ton navigateur** (hors-page,
+  dans un *offscreen document*) et **comprend le sens** : il câline les insultes
+  voilées que les listes ratent (« What a stupid moro » → adouci). **Hybride** :
+  la liste de mots tranche en 0 ms, l'IA n'est appelée que sur les **cas gris**
+  (un mot dur sans cible claire). Modèle ~25 Mo téléchargé une fois puis caché.
+  **Fail-safe** : toute erreur IA → repli silencieux sur les listes (zéro casse) ;
+  libs TF.js **vendorées** (aucun code distant), seules les données du modèle se
+  chargent au runtime.
+
 ## [0.7.2] — 2026-06-26
 
 ### Ajouté

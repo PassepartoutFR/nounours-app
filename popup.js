@@ -3,7 +3,7 @@ const STORAGE_KEY = "uwg_state";
 const DEFAULTS = {
   enabled: true, total: 0, theme: "nounours", intensity: "medium",
   celebrate: true, mirror: true, highlightOnly: false, remoteLists: false,
-  sensitivity: "precise"
+  sensitivity: "precise", aiMode: false, aiThreshold: 0.9
 };
 const CORE = window.UWGCore;
 
@@ -13,6 +13,7 @@ const celebrate = $("celebrate");
 const mirror = $("mirror");
 const highlightOnly = $("highlightOnly");
 const remoteLists = $("remoteLists");
+const aiMode = $("aiMode");
 const sensitivity = $("sensitivity");
 const intensityBox = $("intensity");
 const themesBox = $("themes");
@@ -39,6 +40,7 @@ function render(st) {
   mirror.checked = !!st.mirror;
   highlightOnly.checked = !!st.highlightOnly;
   remoteLists.checked = !!st.remoteLists;
+  aiMode.checked = !!st.aiMode;
   sensitivity.value = st.sensitivity === "large" ? "large" : "precise";
 
   themesBox.querySelectorAll(".theme").forEach((el) => {
@@ -94,6 +96,9 @@ highlightOnly.addEventListener("change", () => patch({ highlightOnly: highlightO
 // Feature #2 — opt-in listes en ligne (défaut OFF). Activer => le service worker
 // récupérera /lists au prochain cycle ; désactiver => zéro appel réseau pour les listes.
 remoteLists.addEventListener("change", () => patch({ remoteLists: remoteLists.checked }));
+// IA locale (opt-in, défaut OFF) : adoucit aussi les insultes voilées (cas gris) via un
+// petit modèle 100 % local. OFF => zéro document offscreen, zéro modèle, aucun changement.
+aiMode.addEventListener("change", () => patch({ aiMode: aiMode.checked }));
 // Sensibilité de détection : "precise" (défaut, 0 FP) | "large" (mots durs isolés adoucis).
 sensitivity.addEventListener("change", () => patch({ sensitivity: sensitivity.value }));
 

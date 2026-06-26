@@ -852,14 +852,12 @@
     return (m[2] || "").replace(/[^a-zà-ÿ]/giu, "").length >= 4;
   }
 
-  function detect(text, preferred, opts) {
-    opts = opts || {};
-    const t = norm(text);
-    const tHard = collapseHard(text); // 3+ → single, depuis le texte d'origine
-    const win = (typeof opts.win === "number" && opts.win > 0) ? opts.win : 4;
+  // CANDIDATES : preferred + lightDetect + pageLang + userLangs (dédupliqués, ⊂ LANGS).
+  // Extrait de detect() pour être PARTAGÉ tel quel par aiCandidate() — même scoping,
+  // donc le « cas gris » de l'IA est borné exactement aux langues que detect examine.
+  // `t` doit être le texte DÉJÀ normalisé (norm()).
+  function candidateLangs(t, preferred, opts) {
     preferred = to2(preferred);
-
-    // CANDIDATES : preferred + lightDetect + pageLang + userLangs (dédupliqués, ⊂ LANGS)
     const cand = [];
     const seen = new Set();
     const push = (l) => {
@@ -886,6 +884,17 @@
       if (Array.isArray(userLangs)) for (const u of userLangs) push(u);
     }
     if (!cand.length && preferred) push(preferred);
+    return cand;
+  }
+
+  function detect(text, preferred, opts) {
+    opts = opts || {};
+    const t = norm(text);
+    const tHard = collapseHard(text); // 3+ → single, depuis le texte d'origine
+    const win = (typeof opts.win === "number" && opts.win > 0) ? opts.win : 4;
+    preferred = to2(preferred);
+
+    const cand = candidateLangs(t, preferred, opts);
     const crossMode = cand.length === 0; // CANDIDATES vide -> repli strict pour tout
 
     // 1) PASSE STRONG sur les candidates (présence ; + secours tHard pour la doublure).
@@ -931,6 +940,32 @@
     return null;
   }
 
+  // --- aiCandidate : le « cas gris » que l'IA locale doit arbitrer (OPT-IN) -----
+  // Renvoie true SSI le texte contient un mot de lexique STRONG ou CONTEXTUAL dans
+  // une langue CANDIDATE (même scoping que detect : preferred + détection légère +
+  // page/navigateur) MAIS detect(text, preferred, opts) a renvoyé null — c.-à-d. un
+  // mot « insultant-ish » SANS cible claire (« What a stupid moro », « playing dumb »).
+  // C'est exactement là où une liste de mots hésite et où un modèle de toxicité doit
+  // trancher. Cette borne (mot insultant déjà présent) limite drastiquement le nombre
+  // d'appels IA — on n'interroge JAMAIS le modèle sur du texte sans aucun marqueur.
+  // PUR : ne modifie rien, ne lance jamais d'exception (tout est borné/déjà compilé).
+  function aiCandidate(text, preferred, opts) {
+    opts = opts || {};
+    const t = norm(text);
+    // si detect flague déjà, ce n'est PAS un cas gris (la liste a tranché) -> false
+    if (detect(text, preferred, opts) !== null) return false;
+    const cand = candidateLangs(t, preferred, opts);
+    if (!cand.length) return false; // hors de toute langue candidate -> on n'appelle pas l'IA
+    const tHard = collapseHard(text);
+    for (const lg of cand) {
+      // un mot STRONG (sur t ou la doublure tHard) ?
+      if (RES_STRONG[lg].test(t) || RES_STRONG[lg].test(tHard)) return true;
+      // un mot CONTEXTUAL (évaluatif : 'stupid'/'dumb'/'stupide'…) présent ?
+      if (contextMatches(t, lg).length || (tHard !== t && contextMatches(tHard, lg).length)) return true;
+    }
+    return false;
+  }
+
   // --- reponse ----------------------------------------------------------------
   function hash(s) {
     let h = 0;
@@ -974,7 +1009,7 @@
 
   const api = {
     LANGS, THEMES, LEVELS, HINT,
-    norm, detect, reply, levelFor, themeEmoji, isLegendary,
+    norm, detect, aiCandidate, reply, levelFor, themeEmoji, isLegendary,
     BADGES, earnedBadges, updateStreak,
     applyOverrides, clearOverrides
   };

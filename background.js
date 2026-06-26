@@ -74,6 +74,118 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   maybeSync();
 });
 
+// ---------------------------------------------------------------------------
+// Feature — IA LOCALE (OPT-IN, défaut OFF). Pont content-script -> offscreen.
+// ---------------------------------------------------------------------------
+// 100 % LOCAL ET OPT-IN : on ne crée le document offscreen, ni ne touche au modèle,
+// QUE si l'utilisateur a activé state.aiMode. Quand c'est OFF : ZÉRO document
+// offscreen, ZÉRO fetch de modèle, comportement STRICTEMENT identique à aujourd'hui.
+// FAIL-SAFE total : la moindre erreur (offscreen KO, modèle KO, message perdu) ->
+// on répond { score:0 } et le content-script reste en mode liste-de-mots.
+const AI_TAG = "UWG-AI[sw]";
+const AI_CACHE_CAP = 500;          // borne mémoire : Map texte->score
+const aiCache = new Map();         // cache des scores (clé = texte brut)
+const aiInflight = new Map();      // dédoublonnage des demandes simultanées (texte -> Promise)
+let offscreenCreating = null;      // garde anti-course pour la création du document
+
+function aiEnabled() {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.get(STATE_KEY, (r) => {
+        const st = (r && r[STATE_KEY]) || {};
+        resolve(st.aiMode === true); // défaut OFF
+      });
+    } catch (_) { resolve(false); }
+  });
+}
+
+// Crée le document offscreen UNE seule fois (garde hasDocument + promesse de création
+// pour éviter les courses). Toute erreur est avalée (fail-safe).
+async function ensureOffscreen() {
+  try {
+    if (chrome.offscreen && chrome.offscreen.hasDocument) {
+      const has = await chrome.offscreen.hasDocument();
+      if (has) return true;
+    }
+    if (offscreenCreating) { await offscreenCreating; return true; }
+    offscreenCreating = chrome.offscreen.createDocument({
+      url: "offscreen.html",
+      reasons: ["DOM_SCRAPING"],
+      justification: "Run a local toxicity model for opt-in AI filtering."
+    });
+    await offscreenCreating;
+    offscreenCreating = null;
+    console.log(AI_TAG, "document offscreen créé");
+    return true;
+  } catch (err) {
+    offscreenCreating = null;
+    // « document déjà existant » = course gagnée par un autre appel : ce n'est pas un échec.
+    const m = (err && err.message) || String(err);
+    if (/single offscreen|already/i.test(m)) return true;
+    console.warn(AI_TAG, "création offscreen impossible :", m);
+    return false;
+  }
+}
+
+// Demande un score à l'offscreen pour un texte donné. Renvoie toujours un nombre
+// (0 en cas d'échec). Borné par un timeout pour ne jamais laisser le content-script
+// attendre indéfiniment.
+function classifyViaOffscreen(text) {
+  return new Promise((resolve) => {
+    let done = false;
+    const id = "uwg-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    const finish = (score) => { if (done) return; done = true; resolve(typeof score === "number" ? score : 0); };
+    const timer = setTimeout(() => finish(0), 15000); // filet : 15 s max
+    try {
+      chrome.runtime.sendMessage({ target: "offscreen", type: "classify", id, text }, (resp) => {
+        // lastError = offscreen absent/canal fermé : fail-safe -> 0
+        if (chrome.runtime.lastError) { clearTimeout(timer); finish(0); return; }
+        if (resp && resp.id === id) { clearTimeout(timer); finish(resp.score); }
+      });
+    } catch (_) { clearTimeout(timer); finish(0); }
+  });
+}
+
+async function aiScore(text) {
+  // cache : déjà connu ?
+  if (aiCache.has(text)) return aiCache.get(text);
+  // dédoublonnage : une demande identique est déjà en vol ?
+  if (aiInflight.has(text)) return aiInflight.get(text);
+  const p = (async () => {
+    const ok = await ensureOffscreen();
+    if (!ok) return 0; // offscreen indisponible -> fail-safe
+    const score = await classifyViaOffscreen(text);
+    // mémorise (borne : on évacue la plus ancienne entrée si on dépasse le cap)
+    try {
+      aiCache.set(text, score);
+      if (aiCache.size > AI_CACHE_CAP) { const k = aiCache.keys().next().value; aiCache.delete(k); }
+    } catch (_) {}
+    return score;
+  })();
+  aiInflight.set(text, p);
+  try { return await p; }
+  finally { aiInflight.delete(text); }
+}
+
+// Handler dédié pour les demandes de score du content-script. SÉPARÉ du handler
+// uwg_count ci-dessus pour pouvoir renvoyer `true` (réponse asynchrone) proprement.
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== "uwg-ai-score") return; // pas pour nous
+  (async () => {
+    try {
+      const on = await aiEnabled();
+      if (!on || typeof msg.text !== "string" || !msg.text) { sendResponse({ score: 0 }); return; }
+      const score = await aiScore(msg.text);
+      sendResponse({ score: typeof score === "number" ? score : 0 });
+    } catch (err) {
+      // FAIL-SAFE : toute erreur -> score 0, le content-script reste en mode liste.
+      console.warn(AI_TAG, "uwg-ai-score erreur :", (err && err.message) || err);
+      try { sendResponse({ score: 0 }); } catch (_) {}
+    }
+  })();
+  return true; // réponse asynchrone
+});
+
 chrome.tabs.onRemoved.addListener((id) => { delete perTab[id]; });
 
 chrome.tabs.onUpdated.addListener((id, info) => {

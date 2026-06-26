@@ -4,6 +4,18 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.7.3] — 2026-06-26
+
+### Added
+- 🧠 **Local AI (experimental)** — popup option, **off by default**. A small
+  toxicity model runs **100% in your browser** (off-page, in an *offscreen
+  document*) and **understands meaning**: it softens veiled insults the word
+  lists miss ("What a stupid moro" → softened). **Hybrid**: the word list decides
+  the obvious cases in 0 ms; the AI is only called on the **gray zone** (a harsh
+  word with no clear target). ~25 MB model downloaded once, then cached.
+  **Fail-safe**: any AI error silently falls back to the word lists (no breakage);
+  TF.js libs are **vendored** (no remote code), only model data loads at runtime.
+
 ## [0.7.2] — 2026-06-26
 
 ### Added

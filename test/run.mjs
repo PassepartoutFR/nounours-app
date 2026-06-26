@@ -292,6 +292,29 @@ ok(delOut.code === 403, "deleteAccount : mauvaise sig -> 403");
 delOut = SRV.deleteAccount({ uid: "delu", exp: Math.floor(Date.now() / 1000) - 10, sig: delSig });
 ok(delOut.code === 403, "deleteAccount : code expire -> 403");
 
+// ---- uwg-core : aiCandidate — le « cas gris » que l'IA locale arbitre -------
+// aiCandidate(text, preferred) === true SSI un mot STRONG ou CONTEXTUAL est présent
+// dans une langue candidate MAIS detect() a renvoyé null (insulte-ish sans cible
+// claire). Borne les appels IA aux textes contenant déjà un mot insultant.
+ok(typeof C.aiCandidate === "function", "aiCandidate exposé");
+// 'stupid' est CONTEXTUAL ; ici aucun marqueur de ciblage -> detect=null -> cas gris.
+ok(C.detect("What a stupid moro", "en") === null, "pré-condition : 'stupid moro' non flaggé en précise");
+ok(C.aiCandidate("What a stupid moro", "en") === true, "aiCandidate : 'What a stupid moro' EN -> true (cas gris)");
+// 'playing dumb' : 'dumb' contextuel, pas de ciblage -> cas gris.
+ok(C.aiCandidate("he keeps playing dumb about it", "en") === true, "aiCandidate : 'playing dumb' EN -> true");
+// FR : 'stupide' descriptif sans cible -> detect=null -> cas gris.
+ok(C.detect("c'est vraiment stupide", "fr") === null, "pré-condition : 'stupide' descriptif FR non flaggé");
+ok(C.aiCandidate("c'est vraiment stupide", "fr") === true, "aiCandidate : 'c'est vraiment stupide' FR -> true");
+// message gentil sans aucun mot insultant -> jamais un cas gris (on n'appelle pas l'IA).
+ok(C.aiCandidate("have a wonderful afternoon", "en") === false, "aiCandidate : message gentil EN -> false");
+ok(C.aiCandidate("hello friends, the weather is clear today", "en") === false, "aiCandidate : phrase neutre EN -> false");
+// déjà flaggé par la liste (ciblage explicite) -> ce n'est PAS un cas gris (la liste a tranché).
+// 'you suck' est détecté ; aiCandidate doit donc renvoyer false (pas requis pour l'IA).
+ok(C.detect("you suck", "en") !== null, "pré-condition : 'you suck' déjà flaggé");
+ok(C.aiCandidate("you suck", "en") === false, "aiCandidate : déjà flaggé -> false (la liste a tranché)");
+// scoping langue : une phrase EN neutre ne doit pas devenir un cas gris via une autre langue.
+ok(C.aiCandidate("the sky is calm and blue today", "en") === false, "aiCandidate : neutre EN -> false (scopé langue)");
+
 // ---- uwg-core : ORACLE corpus étiqueté (anti-faux-positifs) ----------------
 // 213 items {text, lang, expect}. Règle : expect==="flag" ⟺ detect(text, lang) !== null.
 // Le 'lang' de chaque item sert de preferred (= langue de page simulée). Priorité
