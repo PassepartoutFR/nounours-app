@@ -1,0 +1,30 @@
+# nounours.app — site statique « Un web de gentil ».
+# ISOLE du moteur : file_server pur, zero PHP, zero requete au moteur tenant.
+# HTTPS auto (Let's Encrypt HTTP-01) — pas de bloc tls{} : DNS-only, A -> IP directe.
+# À déposer dans le dossier de vhosts importé par ton Caddyfile (ex. /etc/caddy/sites/).
+nounours.app, www.nounours.app {
+    encode zstd gzip
+
+    header {
+        Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    @www host www.nounours.app
+    redir @www https://nounours.app{uri} permanent
+
+    # API de classement (serveur Python isole, hors moteur) — /api/* -> :8790
+    # handle_path retire le prefixe /api : /api/leaderboard -> /leaderboard
+    handle_path /api/* {
+        reverse_proxy 127.0.0.1:8790
+    }
+
+    # tout le reste = site statique
+    handle {
+        root * /var/www/nounours
+        file_server
+    }
+}

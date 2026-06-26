@@ -1,0 +1,33 @@
+name: Release
+
+# À chaque tag vX.Y.Z, construit le .zip prêt pour le Chrome Web Store
+# (uniquement les fichiers de l'extension, pas le site/serveur/docs)
+# et le joint à une Release GitHub.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension zip
+        run: |
+          mkdir -p dist/nounours-app
+          cp manifest.json background.js content.js content.css mirror.js \
+             popup.html popup.js scoreboard.js uwg-core.js dist/nounours-app/
+          cp -r icons dist/nounours-app/
+          cd dist && zip -r "../nounours-app-${GITHUB_REF_NAME}.zip" nounours-app
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: nounours-app-*.zip
+          generate_release_notes: true

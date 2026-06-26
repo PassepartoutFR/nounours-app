@@ -1,0 +1,10 @@
+{
+  "name": "web-de-gentil",
+  "version": "0.4.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Extension navigateur : remplace les commentaires mechants par des mascottes trolls (7 langues, themes, intensite, niveaux, miroir gentil) + classement opt-in sans compte.",
+  "scripts": {
+    "server": "node server/server.js"
+  }
+}

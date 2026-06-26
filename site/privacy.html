@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Politique de confidentialité — Un web de gentil 🧸</title>
+  <meta name="robots" content="index,follow" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: "Nunito", system-ui, sans-serif; background: #FBF3E4; color: #3A2A1E; line-height: 1.65; margin: 0; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 80px; }
+    h1, h2 { font-family: "Fredoka", sans-serif; }
+    h1 { font-size: 2rem; margin-bottom: 4px; }
+    h2 { font-size: 1.25rem; margin-top: 32px; color: #8a5a2b; }
+    .updated { color: #8a6f57; font-size: .9rem; }
+    .tldr { background: #fffaf1; border: 1px solid #efe0c8; border-left: 5px solid #7BD3B0; border-radius: 12px; padding: 16px 18px; margin: 22px 0; }
+    a { color: #c98a4b; }
+    code { background: #fff0df; padding: 1px 6px; border-radius: 6px; }
+    .back { display: inline-block; margin-top: 30px; color: #8a6f57; text-decoration: none; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧸 Politique de confidentialité</h1>
+    <div class="updated">« Un web de gentil » / nounours.app — dernière mise à jour : 25 juin 2026</div>
+
+    <div class="tldr">
+      <strong>En une phrase :</strong> le filtrage des commentaires se passe
+      <strong>entièrement dans ton navigateur</strong>. Rien ne quitte ton
+      appareil — <em>sauf</em> si tu choisis volontairement de rejoindre le
+      classement, auquel cas on n'envoie que ton pseudo et ton score.
+    </div>
+
+    <h2>Ce qui reste sur ton appareil (toujours)</h2>
+    <ul>
+      <li>La <strong>détection et le remplacement</strong> des commentaires : 100 % local, aucune requête réseau.</li>
+      <li>Tes <strong>réglages</strong> (mascotte, intensité, cœurs, miroir) et ton <strong>compteur</strong> de câlins, stockés dans le stockage local du navigateur.</li>
+      <li>Une <strong>identité anonyme</strong> (un identifiant aléatoire + une clé), générée localement. Pas d'e-mail, pas de mot de passe.</li>
+    </ul>
+    <p>Nous ne lisons jamais, ne transmettons jamais et ne stockons jamais le
+       contenu des pages que tu visites, les commentaires que tu lis, ni les
+       URLs que tu consultes.</p>
+
+    <h2>Ce qui est envoyé — uniquement si tu actives le classement</h2>
+    <p>Le classement est <strong>désactivé par défaut</strong> (opt-in). Si, et
+       seulement si, tu cliques « Rejoindre », l'extension envoie à notre serveur
+       (<code>nounours.app/api</code>) :</p>
+    <ul>
+      <li>ton <strong>identifiant anonyme</strong> (non rattaché à ton identité réelle) ;</li>
+      <li>le <strong>pseudo</strong> que tu as choisi ;</li>
+      <li>ton <strong>score</strong> (nombre de commentaires adoucis).</li>
+    </ul>
+    <p><strong>Jamais</strong> le contenu des commentaires, ni les pages, ni les
+       URLs. Pas de cookies de pistage, pas de publicité, pas de revente de
+       données. Aucune donnée n'est partagée avec des tiers.</p>
+
+    <h2>Permissions de l'extension</h2>
+    <ul>
+      <li><code>storage</code> : mémoriser tes réglages, ton compteur et ton identité locale.</li>
+      <li><code>alarms</code> : resynchroniser ton score de temps en temps si tu as rejoint le classement.</li>
+      <li>Accès aux pages (<code>&lt;all_urls&gt;</code>) : nécessaire pour adoucir les commentaires <em>là où tu navigues</em>. Le traitement est local ; rien n'est exfiltré.</li>
+      <li>Accès à <code>nounours.app</code> : envoyer/lire le classement (opt-in uniquement).</li>
+    </ul>
+
+    <h2>Conservation & suppression</h2>
+    <p>Tu peux quitter le classement à tout moment depuis le popup de l'extension.
+       Pour demander la suppression de ton entrée du classement, écris-nous à
+       <a href="mailto:contact@nounours.app">contact@nounours.app</a>.</p>
+
+    <h2>Enfants</h2>
+    <p>L'extension ne collecte aucune donnée permettant d'identifier qui que ce
+       soit, et n'est pas dirigée spécifiquement vers les enfants.</p>
+
+    <h2>Modifications</h2>
+    <p>Si cette politique change, la date ci-dessus sera mise à jour. Le code est
+       ouvert : tu peux tout vérifier sur le dépôt public.</p>
+
+    <a class="back" href="/">← Retour à nounours.app</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# données runtime du serveur de classement
+server/scores.json
+server/scores.json.tmp
+
+# artefacts de build
+dist/
+*.zip
+*.b64
+
+# divers
+node_modules/
+.DS_Store
+Thumbs.db
+*.log

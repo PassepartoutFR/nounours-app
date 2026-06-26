@@ -1,0 +1,16 @@
+[Unit]
+Description=nounours.app — serveur de classement WebDeGentil (isole, hors moteur)
+After=network.target
+
+[Service]
+Type=simple
+User=debian
+WorkingDirectory=/home/debian/nounours-scoreboard
+ExecStart=/usr/bin/python3 /home/debian/nounours-scoreboard/server.py 8790
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Faux reseau social — test « Un web de gentil »</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #eef1f5;
+      margin: 0;
+      padding: 24px;
+      color: #1c1e21;
+    }
+    .wrap { max-width: 620px; margin: 0 auto; }
+    h1 { font-size: 20px; }
+    .hint {
+      background: #fff3cd; border: 1px solid #ffe69c; color: #664d03;
+      padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;
+    }
+    .post {
+      background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    }
+    .post .author { font-weight: 700; }
+    .post .body { margin-top: 6px; }
+    .comments { margin-top: 12px; border-top: 1px solid #eee; padding-top: 12px; }
+    .comment { display: flex; gap: 10px; margin-bottom: 12px; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px;
+      display: grid; place-items: center; font-size: 18px; background: #e7eaf0;
+    }
+    .bubble { background: #f0f2f5; border-radius: 14px; padding: 8px 12px; }
+    .bubble .name { font-weight: 600; font-size: 13px; }
+    .bubble .text { font-size: 14px; margin-top: 2px; }
+    .toolbar { display: flex; gap: 8px; margin: 12px 0 20px; }
+    button {
+      border: 0; background: #1877f2; color: #fff; padding: 8px 12px;
+      border-radius: 8px; cursor: pointer; font-size: 13px;
+    }
+    button.alt { background: #42b72a; }
+    .composer-box {
+      margin-top: 10px; border: 1px solid #c7cdd6; border-radius: 10px;
+      padding: 12px; font-size: 13px; color: #444; background: #fafbfc;
+    }
+    .composer-box kbd {
+      background: #eee; border: 1px solid #ccc; border-radius: 4px;
+      padding: 0 4px; font-family: monospace;
+    }
+    .composer-box button {
+      background: #1877f2; color: #fff; border: 0; border-radius: 8px;
+      padding: 8px 14px; cursor: pointer; font-size: 13px;
+    }
+    #published .comment { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🐣 FauxBook — fil de commentaires (page de test)</h1>
+    <div class="hint">
+      Charge l'extension <b>Un web de gentil</b> puis ouvre cette page. Les
+      commentaires mechants ci-dessous doivent devenir des nounours 🧸.
+      Le bouton « commentaire mechant (dynamique) » teste la detection sur du
+      contenu ajoute apres le chargement (comme un vrai flux).
+    </div>
+
+    <div class="toolbar">
+      <button id="addMean">+ commentaire mechant (dynamique)</button>
+      <button class="alt" id="addNice">+ commentaire gentil (dynamique)</button>
+    </div>
+
+    <div class="post">
+      <div class="author">Marie D.</div>
+      <div class="body">Mon premier dessin a l'aquarelle 🎨 soyez indulgents !</div>
+
+      <div class="comments" id="comments">
+        <div class="comment">
+          <div class="avatar">😺</div>
+          <div class="bubble">
+            <div class="name">Lucas</div>
+            <div class="text">C'est vraiment joli, bravo a toi !</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">👿</div>
+          <div class="bubble">
+            <div class="name">TrollMaster92</div>
+            <div class="text">Franchement c'est nul a chier, t es nul, degage.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🙃</div>
+          <div class="bubble">
+            <div class="name">Anonyme</div>
+            <div class="text">Quel abruti, ferme la et arrete de poster ca, c'est moche.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🌸</div>
+          <div class="bubble">
+            <div class="name">Sophie</div>
+            <div class="text">Les couleurs sont douces, j'adore l'ambiance.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🤖</div>
+          <div class="bubble">
+            <div class="name">xX_hater_Xx</div>
+            <div class="text">You are pathetic and this is garbage, just stop. Loser.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🇪🇸</div>
+          <div class="bubble">
+            <div class="name">ElTroll</div>
+            <div class="text">Cállate, eres basura, idiota. Nadie te quiere.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🇮🇹</div>
+          <div class="bubble">
+            <div class="name">IlTroll</div>
+            <div class="text">Sei uno stupido, taci, spazzatura.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🇩🇪</div>
+          <div class="bubble">
+            <div class="name">DerTroll</div>
+            <div class="text">Halt die Klappe, du Versager, hässlich.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🇵🇹</div>
+          <div class="bubble">
+            <div class="name">OTroll</div>
+            <div class="text">Cala a boca, seu otário, lixo.</div>
+          </div>
+        </div>
+        <div class="comment">
+          <div class="avatar">🇳🇱</div>
+          <div class="bubble">
+            <div class="name">DeTrol</div>
+            <div class="text">Hou je mond, mislukkeling, lelijk.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer-box">
+        <strong>🪞 Tester le Miroir gentil :</strong> écris un message méchant
+        ci-dessous (ex. « t'es vraiment un idiot ») puis appuie sur <kbd>Entrée</kbd>
+        ou « Publier ». Le Miroir doit te proposer une version douce <em>avant</em>
+        l'envoi. Ton texte n'est jamais transformé à ta place (on ne touche pas aux
+        champs de saisie).
+        <form id="composer" style="margin-top:10px;">
+          <textarea id="draft" rows="2" style="width:100%;box-sizing:border-box;border:1px solid #c7cdd6;border-radius:8px;padding:8px;font:inherit;" placeholder="Écris ton commentaire…"></textarea>
+          <button type="submit" style="margin-top:8px;">Publier</button>
+        </form>
+        <div id="published"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Ajout dynamique pour tester le MutationObserver.
+    const mean = [
+      "Quelle ordure, espèce de minable, casse-toi.",        // FR
+      "This is disgusting, you suck, get a life.",            // EN
+      "Eres un idiota, payaso, das asco.",                   // ES
+      "Sei uno sfigato, coglione, schifoso.",                // IT
+      "Du Idiot, verschwinde, widerlich.",                   // DE
+      "Seu otário, vai embora, nojento.",                    // PT
+      "Idioot, verdwijn, walgelijk."                         // NL
+    ];
+    const nice = [
+      "Trop beau, continue comme ca !",
+      "Ca me donne le sourire, merci.",
+      "Bravo, j'aime beaucoup le rendu.",
+      "Tu progresses vite, felicitations !"
+    ];
+    let mi = 0, ni = 0;
+
+    function addComment(name, emoji, text) {
+      const c = document.createElement("div");
+      c.className = "comment";
+      c.innerHTML =
+        '<div class="avatar">' + emoji + '</div>' +
+        '<div class="bubble"><div class="name"></div><div class="text"></div></div>';
+      c.querySelector(".name").textContent = name;
+      c.querySelector(".text").textContent = text;
+      document.getElementById("comments").appendChild(c);
+    }
+
+    document.getElementById("addMean").addEventListener("click", () => {
+      addComment("TrollDynamique", "👹", mean[mi++ % mean.length]);
+    });
+    document.getElementById("addNice").addEventListener("click", () => {
+      addComment("PersonneGentille", "🌼", nice[ni++ % nice.length]);
+    });
+
+    // Composer : publie le brouillon (si le Miroir ne l'a pas intercepte).
+    // Un commentaire mechant publie sera ensuite adouci par la galerie. :)
+    document.getElementById("composer").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const ta = document.getElementById("draft");
+      const v = ta.value.trim();
+      if (!v) return;
+      const c = document.createElement("div");
+      c.className = "comment";
+      c.innerHTML =
+        '<div class="avatar">🙂</div>' +
+        '<div class="bubble"><div class="name">Toi</div><div class="text"></div></div>';
+      c.querySelector(".text").textContent = v;
+      document.getElementById("published").appendChild(c);
+      ta.value = "";
+    });
+  </script>
+</body>
+</html>

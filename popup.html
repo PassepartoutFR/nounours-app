@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { color-scheme: light; }
+    body {
+      width: 268px;
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #fff8f1;
+      color: #5b3a1a;
+    }
+    header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 14px 6px; font-weight: 700; font-size: 15px;
+    }
+    header .ours { font-size: 22px; }
+    .row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 14px;
+    }
+    .label { font-size: 13px; }
+    .muted { color: #a47b53; font-size: 12px; }
+    .sep { height: 1px; background: #f1ddc7; margin: 4px 14px; }
+    .block { padding: 8px 14px; }
+    .block h4 { margin: 0 0 7px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #a47b53; }
+
+    /* interrupteur */
+    .switch { position: relative; width: 46px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; cursor: pointer; background: #e0c3a0; border-radius: 26px; transition: .2s; }
+    .slider::before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: #c98a4b; }
+    input:checked + .slider::before { transform: translateX(20px); }
+
+    /* themes */
+    .themes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .theme {
+      border: 1px solid #f1ddc7; background: #fff; border-radius: 10px;
+      padding: 7px 2px 5px; text-align: center; cursor: pointer; transition: .12s;
+    }
+    .theme .emo { font-size: 20px; display: block; }
+    .theme .nm { font-size: 10px; color: #a47b53; }
+    .theme.active { border-color: #c98a4b; background: #fff0df; box-shadow: 0 0 0 2px #f3d9b8; }
+
+    /* segmented intensite */
+    .seg { display: flex; border: 1px solid #f1ddc7; border-radius: 10px; overflow: hidden; }
+    .seg button {
+      flex: 1; border: 0; background: #fff; color: #8a5a2b; padding: 7px 0;
+      font-size: 12px; cursor: pointer; border-right: 1px solid #f1ddc7;
+    }
+    .seg button:last-child { border-right: 0; }
+    .seg button.active { background: #c98a4b; color: #fff; }
+
+    /* niveau */
+    .levelcard { padding: 10px 14px; }
+    .levelcard .title { font-weight: 800; color: #8a5a2b; font-size: 15px; }
+    .bar { height: 8px; background: #f1ddc7; border-radius: 8px; margin: 7px 0 4px; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, #e8b06a, #c98a4b); width: 0%; }
+
+    button.reset {
+      width: calc(100% - 28px); margin: 6px 14px 14px; padding: 8px;
+      border: 1px solid #f1ddc7; background: #fff; color: #a47b53;
+      border-radius: 8px; cursor: pointer; font-size: 12px;
+    }
+    button.reset:hover { background: #fff0df; }
+
+    /* classement */
+    .board .note { color: #a47b53; font-size: 11px; margin-bottom: 7px; }
+    .board .join { display: flex; gap: 6px; }
+    .board .join input { flex: 1; border: 1px solid #f1ddc7; border-radius: 8px; padding: 7px; font-family: inherit; font-size: 13px; }
+    .board .join button { border: 0; background: #c98a4b; color: #fff; border-radius: 8px; padding: 0 12px; cursor: pointer; font-size: 13px; }
+    .board ol { margin: 4px 0 0; padding-left: 20px; }
+    .board ol li { font-size: 13px; padding: 1px 0; }
+    .board ol li.me { font-weight: 800; color: #8a5a2b; }
+    .board ol li b { font-weight: 700; }
+    .board .me-line { font-size: 12px; color: #8a5a2b; font-weight: 700; margin-bottom: 4px; }
+    .board .links { display: flex; gap: 10px; margin-top: 8px; }
+    .linkbtn { border: 0; background: none; color: #a47b53; cursor: pointer; font-size: 12px; text-decoration: underline; padding: 0; }
+    .board .err { color: #b06a3a; font-size: 12px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <header><span class="ours">🧸</span> Un web de gentil</header>
+
+  <div class="row">
+    <span class="label">Bouclier de gentillesse</span>
+    <label class="switch"><input type="checkbox" id="toggle" /><span class="slider"></span></label>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="block">
+    <h4>Mascotte</h4>
+    <div class="themes" id="themes"></div>
+  </div>
+
+  <div class="block">
+    <h4>Intensité</h4>
+    <div class="seg" id="intensity">
+      <button data-v="doux">Doux</button>
+      <button data-v="medium">Médium</button>
+      <button data-v="hardcore">Hardcore</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <span class="label">Cœurs semés 💕</span>
+    <label class="switch"><input type="checkbox" id="celebrate" /><span class="slider"></span></label>
+  </div>
+
+  <div class="row">
+    <span class="label">Miroir gentil 🪞</span>
+    <label class="switch"><input type="checkbox" id="mirror" /><span class="slider"></span></label>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="levelcard">
+    <div class="title" id="lvlTitle">—</div>
+    <div class="bar"><i id="lvlBar"></i></div>
+    <div class="muted"><span id="total">0</span> câlins envoyés · <span id="lvlNext"></span></div>
+  </div>
+
+  <button class="reset" id="reset">Remettre le compteur à zéro</button>
+
+  <div class="sep"></div>
+
+  <div class="block board">
+    <h4>🏆 Classement WebDeGentil</h4>
+    <div id="boardJoin">
+      <div class="note">Connexion <b>sans compte</b>, gratuite à vie. On n'envoie que ton pseudo et ton score — jamais tes commentaires.</div>
+      <div class="join">
+        <input id="pseudo" placeholder="Ton pseudo" maxlength="24" />
+        <button id="joinBtn">Rejoindre</button>
+      </div>
+    </div>
+    <div id="boardView" style="display:none;">
+      <div class="me-line" id="boardMe"></div>
+      <ol id="boardList"></ol>
+      <div class="links">
+        <button class="linkbtn" id="renameBtn">Changer de pseudo</button>
+        <button class="linkbtn" id="leaveBtn">Quitter</button>
+      </div>
+    </div>
+    <div class="err" id="boardErr" style="display:none;"></div>
+  </div>
+
+  <script src="uwg-core.js"></script>
+  <script src="scoreboard.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

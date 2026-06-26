@@ -1,0 +1,113 @@
+/* Un web de gentil — habillage du message nounours */
+.uwg-soft {
+  position: relative; /* ancre les cœurs persistants */
+  background: linear-gradient(180deg, #fff4e6, #ffe8cc);
+  border: 1px solid #ffd8a8;
+  border-radius: 10px;
+  padding: 0 7px;
+  color: #8a5a2b !important;
+  font-style: italic;
+  text-decoration: none !important;
+  cursor: help;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* etat "revele" : on a clique pour voir le message d'origine */
+.uwg-soft.revealed {
+  background: #f1f3f5;
+  border-color: #dee2e6;
+  color: #868e96 !important;
+  font-style: normal;
+}
+
+/* --- cœurs persistants ET animes : semes autour de chaque endroit filtre --- */
+.uwg-hearts {
+  position: absolute;
+  inset: -10px -14px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+/* couche externe = positionnement seul (centre le cœur sur son point) */
+.uwg-heart {
+  position: absolute;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+}
+/* couche interne = mouvement, ISOLE pour ne jamais etre fige par la page hote */
+.uwg-heart > span {
+  display: inline-block;
+  opacity: 0;
+  animation-name: uwg-heart-float, uwg-heart-in;
+  animation-duration: 2.4s, 0.5s;
+  animation-timing-function: ease-in-out, ease;
+  animation-iteration-count: infinite, 1;
+  animation-fill-mode: none, forwards;
+  /* animation-delay defini en ligne par cœur (desynchronise) */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+}
+@keyframes uwg-heart-in {
+  from { opacity: 0; }
+  to { opacity: 0.92; }
+}
+@keyframes uwg-heart-float {
+  0%   { transform: translateY(3px) rotate(-9deg) scale(0.95); }
+  50%  { transform: translateY(-9px) rotate(9deg) scale(1.15); }
+  100% { transform: translateY(3px) rotate(-9deg) scale(0.95); }
+}
+
+/* --- toast "niveau atteint" --- */
+.uwg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(10px);
+  background: #8a5a2b;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif;
+  z-index: 2147483647;
+  pointer-events: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  animation: uwg-toast 2.6s ease forwards;
+}
+@keyframes uwg-toast {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+}
+
+/* NB : les cœurs animent TOUJOURS (effet ludique voulu), meme en reduce-motion. */
+@media (prefers-reduced-motion: reduce) {
+  .uwg-toast { animation-duration: 0.01s; }
+}
+
+/* --- Miroir gentil (verifie TON propre brouillon) --- */
+.uwg-mirror {
+  position: fixed;
+  z-index: 2147483647;
+  max-width: 300px;
+  background: #fff;
+  color: #5b3a1a;
+  border: 1px solid #ffd8a8;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.uwg-mirror-h { font-weight: 700; margin-bottom: 4px; }
+.uwg-mirror-b { font-size: 13px; color: #7a5a36; margin-bottom: 8px; }
+.uwg-mirror-s {
+  background: #fff4e6; border: 1px solid #ffe8cc; border-radius: 8px;
+  padding: 7px 9px; font-style: italic; margin-bottom: 10px;
+}
+.uwg-mirror-actions { display: flex; gap: 8px; }
+.uwg-mirror-actions button {
+  flex: 1; border: 0; border-radius: 8px; padding: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.uwg-mirror-soft { background: #c98a4b; color: #fff; }
+.uwg-mirror-keep { background: #f1f3f5; color: #868e96; }

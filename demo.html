@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Un web de gentil — playground</title>
+  <style>
+    :root {
+      --bg: #fff8f1; --card: #fff; --ink: #5b3a1a; --muted: #a47b53;
+      --line: #f1ddc7; --accent: #c98a4b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 28px 18px 60px; }
+    h1 { font-size: 26px; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 18px; }
+    .badge { display: inline-block; background: #eaf7e7; color: #2f7d32; border: 1px solid #cdeac9; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+    .ctl { display: flex; flex-direction: column; gap: 5px; }
+    .ctl label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .themes { display: flex; gap: 6px; }
+    .theme { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 6px 8px; cursor: pointer; font-size: 18px; }
+    .theme.active { border-color: var(--accent); background: #fff0df; box-shadow: 0 0 0 2px #f3d9b8; }
+    select, .seg button { font-family: inherit; }
+    select { border: 1px solid var(--line); border-radius: 8px; padding: 7px; background: #fff; color: var(--ink); }
+    .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .seg button { border: 0; background: #fff; color: #8a5a2b; padding: 7px 12px; cursor: pointer; border-right: 1px solid var(--line); font-size: 13px; }
+    .seg button:last-child { border-right: 0; }
+    .seg button.active { background: var(--accent); color: #fff; }
+
+    .composer { display: flex; gap: 8px; margin-bottom: 8px; }
+    .composer input { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; font-size: 14px; }
+    .composer button { border: 0; background: var(--accent); color: #fff; border-radius: 10px; padding: 0 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .tip { color: var(--muted); font-size: 12px; margin: 0 0 16px; }
+
+    .feed { display: flex; flex-direction: column; gap: 10px; }
+    .comment { display: flex; gap: 10px; }
+    .avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; background: #e7eaf0; }
+    .bubble { background: #f0f2f5; border-radius: 14px; padding: 8px 12px; }
+    .bubble .name { font-weight: 600; font-size: 13px; }
+    .bubble .text { font-size: 14px; margin-top: 2px; }
+    .nice { font-size: 11px; color: #2f7d32; margin-left: 6px; }
+
+    .soft { position: relative; background: linear-gradient(180deg, #fff4e6, #ffe8cc); border: 1px solid #ffd8a8; border-radius: 10px; padding: 0 7px; color: #8a5a2b; font-style: italic; cursor: help; }
+    .soft.revealed { background: #eef0f2; border-color: #dde1e6; color: #868e96; font-style: normal; }
+    .uwg-hearts { position: absolute; inset: -10px -14px; pointer-events: none; overflow: visible; z-index: 1; }
+    .uwg-heart { position: absolute; line-height: 1; transform: translate(-50%, -50%); }
+    .uwg-heart > span { display: inline-block; opacity: 0; animation-name: uwg-heart-float, uwg-heart-in; animation-duration: 2.4s, .5s; animation-timing-function: ease-in-out, ease; animation-iteration-count: infinite, 1; animation-fill-mode: none, forwards; filter: drop-shadow(0 1px 1px rgba(0,0,0,.12)); }
+    @keyframes uwg-heart-in { from { opacity: 0; } to { opacity: .92; } }
+    @keyframes uwg-heart-float { 0% { transform: translateY(3px) rotate(-9deg) scale(.95); } 50% { transform: translateY(-9px) rotate(9deg) scale(1.15); } 100% { transform: translateY(3px) rotate(-9deg) scale(.95); } }
+
+    .counter { margin: 18px 0 6px; font-weight: 700; color: #8a5a2b; }
+    .footer { margin-top: 26px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧸 Un web de gentil</h1>
+    <p class="sub">Le bac à sable. Tape un commentaire méchant, regarde-le devenir adorable.</p>
+    <p><span class="badge">100 % local · aucune donnée envoyée</span></p>
+
+    <div class="controls">
+      <div class="ctl">
+        <label>Mascotte</label>
+        <div class="themes" id="themes"></div>
+      </div>
+      <div class="ctl">
+        <label>Intensité</label>
+        <div class="seg" id="intensity">
+          <button data-v="doux">Doux</button>
+          <button data-v="medium" class="active">Médium</button>
+          <button data-v="hardcore">Hardcore</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Langue prioritaire</label>
+        <select id="lang">
+          <option value="">Auto</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="it">Italiano</option>
+          <option value="de">Deutsch</option>
+          <option value="pt">Português</option>
+          <option value="nl">Nederlands</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="composer">
+      <input id="input" type="text" placeholder="Écris un commentaire (gentil ou méchant)…" />
+      <button id="send">Envoyer</button>
+    </div>
+    <p class="tip">Astuce : clique sur un message adouci pour révéler l'original. Essaie « callate idiota », « halt die klappe », « you are pathetic »…</p>
+
+    <div class="counter">🧸 <span id="count">0</span> troll(s) câliné(s)</div>
+    <div class="feed" id="feed"></div>
+
+    <p class="footer">Même moteur que l'extension (<code>uwg-core.js</code>). Open source, PRs bienvenues : nouvelles langues, nounours plus drôles.</p>
+  </div>
+
+  <script src="uwg-core.js"></script>
+  <script>
+    const CORE = window.UWGCore;
+    const feed = document.getElementById("feed");
+    const themesBox = document.getElementById("themes");
+    const intensityBox = document.getElementById("intensity");
+    const langSel = document.getElementById("lang");
+    const countEl = document.getElementById("count");
+
+    const state = { theme: "nounours", intensity: "medium", lang: "" };
+    let count = 0;
+
+    // boutons de theme
+    for (const t of CORE.THEMES) {
+      const b = document.createElement("button");
+      b.className = "theme" + (t.id === state.theme ? " active" : "");
+      b.dataset.v = t.id;
+      b.textContent = t.emoji;
+      b.title = t.label;
+      themesBox.appendChild(b);
+    }
+
+    const AVATARS = ["😺", "👿", "🙃", "🤖", "🌸", "🦄", "👻", "🐸"];
+    let avi = 0;
+
+    // cœurs persistants semés autour de chaque message filtre
+    const HEARTS = ["💛", "💕", "💖", "💗", "💞", "🩷"];
+    function sprinkleHearts(span) {
+      const layer = document.createElement("span");
+      layer.className = "uwg-hearts";
+      layer.setAttribute("aria-hidden", "true");
+      const n = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < n; i++) {
+        const slot = document.createElement("span");
+        slot.className = "uwg-heart";
+        slot.style.left = (8 + Math.random() * 84).toFixed(0) + "%";
+        slot.style.top = (Math.random() * 100).toFixed(0) + "%";
+        const inner = document.createElement("span");
+        inner.textContent = HEARTS[Math.floor(Math.random() * HEARTS.length)];
+        inner.style.fontSize = (11 + Math.random() * 7).toFixed(0) + "px";
+        const d = (Math.random() * 1.8).toFixed(2) + "s";
+        inner.style.animationDelay = d + ", " + d;
+        slot.appendChild(inner);
+        layer.appendChild(slot);
+      }
+      span.appendChild(layer);
+    }
+
+    function makeBubble(name, text) {
+      const lang = CORE.detect(text, state.lang || undefined);
+      const c = document.createElement("div");
+      c.className = "comment";
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = AVATARS[avi++ % AVATARS.length];
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      const nm = document.createElement("div");
+      nm.className = "name";
+      nm.textContent = name;
+      const tx = document.createElement("div");
+      tx.className = "text";
+
+      if (lang) {
+        const msg = CORE.reply({ theme: state.theme, intensity: state.intensity, lang, seed: text });
+        const span = document.createElement("span");
+        span.className = "soft";
+        span.title = (CORE.HINT[lang] || CORE.HINT.en);
+        span.dataset.original = text;
+        span.dataset.soft = msg;
+        const inner = document.createElement("span");
+        inner.className = "uwg-msg";
+        inner.textContent = msg;
+        span.appendChild(inner);
+        span.addEventListener("click", () => {
+          inner.textContent = span.classList.toggle("revealed") ? span.dataset.original : span.dataset.soft;
+        });
+        sprinkleHearts(span);
+        tx.appendChild(span);
+        const tag = document.createElement("span");
+        tag.className = "nice";
+        tag.textContent = "[" + lang + "]";
+        tx.appendChild(tag);
+        count++;
+        countEl.textContent = String(count);
+      } else {
+        tx.textContent = text;
+        const tag = document.createElement("span");
+        tag.className = "nice";
+        tag.textContent = "gentil ✓";
+        tx.appendChild(tag);
+      }
+
+      bubble.appendChild(nm);
+      bubble.appendChild(tx);
+      c.appendChild(avatar);
+      c.appendChild(bubble);
+      return c;
+    }
+
+    function add(name, text) {
+      feed.appendChild(makeBubble(name, text));
+    }
+
+    // commentaires d'amorçage (multilingues)
+    const SEED = [
+      ["Lucas", "C'est vraiment joli, bravo à toi !"],
+      ["TrollMaster92", "Franchement c'est nul a chier, t es nul, degage."],
+      ["xX_hater_Xx", "You are pathetic and this is garbage. Loser."],
+      ["ElTroll", "Cállate, eres basura, idiota."],
+      ["DerTroll", "Halt die Klappe, du Versager, hässlich."],
+      ["Sophie", "Les couleurs sont douces, j'adore l'ambiance."]
+    ];
+    function reseed() {
+      feed.innerHTML = "";
+      count = 0; countEl.textContent = "0"; avi = 0;
+      for (const [n, t] of SEED) add(n, t);
+    }
+
+    themesBox.addEventListener("click", (e) => {
+      const el = e.target.closest(".theme");
+      if (!el) return;
+      state.theme = el.dataset.v;
+      themesBox.querySelectorAll(".theme").forEach((x) => x.classList.toggle("active", x === el));
+      reseed();
+    });
+    intensityBox.addEventListener("click", (e) => {
+      if (e.target.tagName !== "BUTTON") return;
+      state.intensity = e.target.dataset.v;
+      intensityBox.querySelectorAll("button").forEach((x) => x.classList.toggle("active", x === e.target));
+      reseed();
+    });
+    langSel.addEventListener("change", () => { state.lang = langSel.value; reseed(); });
+
+    const input = document.getElementById("input");
+    function submit() {
+      const v = input.value.trim();
+      if (!v) return;
+      add("Toi", v);
+      input.value = "";
+      input.focus();
+    }
+    document.getElementById("send").addEventListener("click", submit);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+    reseed();
+  </script>
+</body>
+</html>
