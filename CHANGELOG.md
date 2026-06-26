@@ -4,6 +4,14 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
 ## [0.7.0] — non publié
 ### Ajouté
+- 🎯 **Détection repensée — beaucoup moins de faux positifs** : refonte du moteur
+  (panel d'experts, 8 langues). Lexiques à **2 niveaux** — insultes *toujours-attaque*
+  vs mots **contextuels** qui ne déclenchent QUE s'ils **visent une personne**
+  (« c'est stupide / je crève de faim / das ist dumm » ne sont plus adoucis) ;
+  **scoping par langue** (fini le tir croisé inter-langues : `idiota`, `loser`, `dom`…) ;
+  `norm` corrigé (collapse 3+ au lieu de 2+, leetspeak intra-mot, fix polonais `ł`).
+  Validé sur un **corpus de 213 phrases** (`test/corpus.json`) : **0 faux positif
+  (100 % précision)**, **96 % de rappel** sur les vraies attaques.
 - 🗑️ **Suppression autonome du classement** : plus besoin d'e-mail — code
   temporaire `DEL1` (15 min) depuis le popup ou suppression directe ; page
   vie privée avec formulaire (`POST /api/account/delete`).

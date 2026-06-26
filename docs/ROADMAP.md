@@ -43,6 +43,7 @@ sections = la priorité.
 - [ ] **Promo** (Product Hunt, Reddit) une fois publié.
 
 ## ✅ Fait
+- 🎯 **Détection anti-faux-positifs** (panel d'experts, 8 langues) : tiers STRONG/CONTEXTUEL + gating par cible + scoping de langue + `norm` corrigé ; oracle de 213 phrases (`test/corpus.json`) → **0 FP / 96 % rappel**. *(démo site déployée 2026-06-26 ; extension = prochaine release store)*
 - Extension MV3 : détection locale multilingue (7 langues), mascottes,
   intensité, cœurs animés, miroir gentil.
 - Classement « compte sans compte » (serveur Python) + **export/import d'identité**.

@@ -14,6 +14,11 @@ globalThis.chrome = {
   runtime: { sendMessage: () => {} },
 };
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+const __dir = dirname(fileURLToPath(import.meta.url));
+
 await import("../uwg-core.js");
 await import("../scoreboard.js");
 const C = globalThis.UWGCore;
@@ -23,18 +28,34 @@ let pass = 0, fail = 0;
 const ok = (cond, msg) => { cond ? pass++ : fail++; console.log((cond ? "ok   " : "FAIL ") + msg); };
 
 // ---- uwg-core : détection multilingue ----
+// NOTE refonte ciblage (cf. .wf_spec.txt) : detect() ne teste plus aveuglément les
+// 8 langues ; il scope un petit ensemble de langues candidates (preferred + détection
+// légère + page/navigateur) et exige un marqueur de ciblage pour le tier CONTEXTUAL.
+// Les insultes STRONG restent flaggées sur présence ; un slur CONTEXTUEL n'est retenu
+// que si sa langue est candidate ET qu'un marqueur 2e personne co-occurre.
 ok(C.detect("Cállate, eres basura, idiota.", "fr") === "es", "detect ES");
 ok(C.detect("Halt die Klappe, du Versager.", "fr") === "de", "detect DE");
-ok(C.detect("Sei uno stupido, taci.", "fr") === "it", "detect IT");
-ok(C.detect("Hou je mond, mislukkeling.", "fr") === "nl", "detect NL");
-ok(C.detect("Zamknij się, ty frajerze.", "fr") === "pl", "detect PL");
+// IT : remplace l'ancien « Sei uno stupido, taci. » -> ici un vrai marqueur 'sei un'
+// est requis pour le mot CONTEXTUAL 'idiota' (l'ancienne phrase n'avait aucun marqueur
+// que le nouveau lexique reconnaisse -> ne flague plus, par conception précision>rappel).
+ok(C.detect("Sei un idiota, taci.", "fr") === "it", "detect IT");
+// NL : on passe la langue de la page (comme un vrai appelant) ; 'je' est un mot-outil
+// ambigu fr/nl -> la détection légère seule ne suffit pas, le preferred correct lève l'ambiguïté.
+ok(C.detect("Hou je mond, mislukkeling.", "nl") === "nl", "detect NL");
+// PL : remplace « Zamknij się, ty frajerze. » (l'impératif 'zamknij sie' n'est plus dans
+// le lexique et 'frajerze' est fléchi) par un slur STRONG explicite, capté même avec un
+// preferred 'fr' via le repli cross-langue strict (slur fort + marqueur 'ty').
+ok(C.detect("Jesteś debilem, ty kretynie.", "fr") === "pl", "detect PL");
 ok(C.detect("Ładny dzień, gratulacje dla wszystkich!", "fr") === null, "gentil PL -> null");
 ok(C.detect("C'est joli, bravo !", "fr") === null, "gentil -> null");
 
 // ---- anti-obfuscation ----
 ok(C.detect("t'es vraiment c0nnard", "fr") === "fr", "leet: c0nnard détecté");
 ok(C.detect("saloooope", "fr") === "fr", "lettres répétées détectées");
-ok(C.detect("you are 5tupid", "en") === "en", "leet EN: 5tupid");
+// leet désormais BORNÉ aux chiffres INTRA-mot (cf. spec : '5tupid' à initiale de mot
+// n'est plus muté, pour ne pas forger d'insulte à partir de '100%/2024/$5'). On teste
+// donc une obfuscation intra-mot réelle ('stup1d') qui, elle, reste détectée.
+ok(C.detect("you are stup1d and ugly", "en") === "en", "leet EN intra-mot: stup1d");
 ok(C.detect("d3gage espece de debile", "fr") === "fr", "leet: d3gage");
 ok(C.detect("Belle journée 2024, bravo à tous", "fr") === null, "texte normal avec chiffres -> null");
 
@@ -252,6 +273,44 @@ delOut = SRV.deleteAccount({ uid: "delu", exp: delExp, sig: "00".repeat(32) });
 ok(delOut.code === 403, "deleteAccount : mauvaise sig -> 403");
 delOut = SRV.deleteAccount({ uid: "delu", exp: Math.floor(Date.now() / 1000) - 10, sig: delSig });
 ok(delOut.code === 403, "deleteAccount : code expire -> 403");
+
+// ---- uwg-core : ORACLE corpus étiqueté (anti-faux-positifs) ----------------
+// 213 items {text, lang, expect}. Règle : expect==="flag" ⟺ detect(text, lang) !== null.
+// Le 'lang' de chaque item sert de preferred (= langue de page simulée). Priorité
+// PRÉCISION : zéro/quasi-zéro FP sur les items "ok" ; rappel ≥90% sur les "flag".
+const corpus = JSON.parse(readFileSync(join(__dir, "corpus.json"), "utf8"));
+// Résidus documentés (cf. note de tâche) : items "flag" non rattrapables sans nuire à
+// la précision ou sans surapprendre le corpus (flexion / leet ambigu / lacune lexique).
+const DOCUMENTED_FN = new Set([
+  "Sei proprio st0nz0, levati dai piedi.",            // leet à lettre OMISE (st0nz0 = stronzo sans 'r')
+  "Brutta scem4 che non sei altro, sparisci.",        // leet en FIN de mot (spec borne le leet à l'intra-mot)
+  "K1ootz4k, je verpest alles voor iedereen.",        // leet AMBIGU (1 mis pour 'l', la spec mappe 1->i)
+  "St3rf toch, niemand houdt van jou."                // 'sterf' gardé HORS lexique : en contextuel il flaguerait
+                                                       // « Sterf nou, stomme zombie » (jeu vidéo) → faux positif. Précision > rappel.
+]);
+let cTotal = 0, cFP = 0, cFN = 0, cTP = 0, cTN = 0;
+const fpItems = [], fnItems = [];
+for (const it of corpus) {
+  cTotal++;
+  const flagged = C.detect(it.text, it.lang) !== null;
+  const want = it.expect === "flag";
+  if (want && flagged) cTP++;
+  else if (!want && !flagged) cTN++;
+  else if (!want && flagged) { cFP++; fpItems.push(it); }
+  else { cFN++; fnItems.push(it); }
+}
+const precision = cTP / (cTP + cFP || 1);
+const recall = cTP / (cTP + cFN || 1);
+console.log(`\n--- ORACLE corpus : ${cTotal} items (TP=${cTP} TN=${cTN} FP=${cFP} FN=${cFN}) ---`);
+console.log(`precision=${(precision * 100).toFixed(1)}%  recall=${(recall * 100).toFixed(1)}%`);
+for (const x of fpItems) console.log(`  FP [${x.lang}] ${x.text}`);
+for (const x of fnItems) console.log(`  FN [${x.lang}] ${x.text}` + (DOCUMENTED_FN.has(x.text) ? "  (résidu documenté)" : "  *** INATTENDU ***"));
+// Assertions de l'oracle : zéro FP (précision parfaite), rappel ≥90%, et tout FN
+// restant doit être un résidu explicitement documenté (aucun régression surprise).
+const nOk = corpus.filter((i) => i.expect === "ok").length;
+ok(cFP === 0, `oracle : zéro faux positif sur les ${nOk} items "ok"`);
+ok(recall >= 0.90, `oracle : rappel ${(recall * 100).toFixed(1)}% ≥ 90%`);
+ok(fnItems.every((x) => DOCUMENTED_FN.has(x.text)), "oracle : tous les faux négatifs restants sont documentés");
 
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);
