@@ -21,8 +21,6 @@
   button:disabled{opacity:.5;cursor:wait;box-shadow:none}
   .chip{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:.86rem;padding:7px 12px;box-shadow:none}
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .dl{height:12px;border-radius:999px;background:#eee;overflow:hidden;margin:12px 0 4px;display:none}
-  .dl > i{display:block;height:100%;width:0;background:var(--honey);transition:width .2s}
   .meter{height:16px;border-radius:999px;background:#eee;overflow:hidden;margin:14px 0 6px}
   .meter > i{display:block;height:100%;width:0;transition:width .4s ease;background:linear-gradient(90deg,var(--mint),var(--honey),var(--coral))}
   .verdict{font-size:1.3rem;font-weight:800;margin-top:6px}
@@ -39,9 +37,8 @@
   <p class="sub">Un petit modèle de toxicité tourne <strong>100 % dans ton navigateur</strong> (rien n'est envoyé à un serveur). Au lieu de chercher des mots dans une liste, il <em>interprète</em> la phrase — donc il repère même une insulte mal orthographiée que les listes laissent passer.</p>
 
   <div class="card">
-    <span class="pill" id="loadpill">⏳ Préparation…</span>
-    <div class="dl" id="dl"><i id="dlbar"></i></div>
-    <p class="muted" id="status">Au premier chargement, le modèle se télécharge (~100 Mo, ça peut prendre une à deux minutes), puis il est <strong>mis en cache</strong> → instantané et 100 % hors-ligne ensuite. La barre ci-dessus montre la progression.</p>
+    <span class="pill" id="loadpill">⏳ Chargement du modèle…</span>
+    <p class="muted" id="status">Au premier chargement, le modèle (~25 Mo) se télécharge, puis il est mis en cache → instantané ensuite. Quelques secondes selon ta connexion.</p>
   </div>
 
   <div class="card">
@@ -59,23 +56,23 @@
 
   <div class="card">
     <strong>L'idée pour l'extension</strong>
-    <p class="muted" style="margin-top:8px">Ce serait <strong>hybride</strong> : la liste de mots tranche les cas évidents en 0 ms ; l'IA n'est appelée (hors-page, dans le contexte de l'extension) que sur les <strong>cas gris</strong>, en option « 🧠 IA locale ». Le <strong>seuil</strong> ci-dessus = ton curseur de précision : plus il est haut, plus on est sûr avant de câliner.</p>
+    <p class="muted" style="margin-top:8px">Ce serait <strong>hybride</strong> : la liste de mots tranche les cas évidents en 0 ms ; l'IA n'est appelée (hors-page, dans le contexte de l'extension) que sur les <strong>cas gris</strong>, en option « 🧠 IA locale ». Le <strong>seuil</strong> ci-dessus = ton curseur de précision.</p>
   </div>
 </div>
 
-<script type="module">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity@1.2.2/dist/toxicity.min.js"></script>
+<script>
   const $ = (id) => document.getElementById(id);
-  // Surface TOUTE erreur sur la page (jamais bloqué en silence).
   function fail(msg){
     $("loadpill").textContent = "⚠️ Souci de chargement";
     $("loadpill").className = "pill err";
-    $("status").innerHTML = "Détail : <code>" + String(msg).replace(/</g,"&lt;") + "</code><br>Essaie un rechargement forcé (Ctrl+Maj+R) ou une connexion plus stable.";
+    $("status").innerHTML = "Détail : <code>" + String(msg).replace(/</g,"&lt;") + "</code><br>Essaie un rechargement forcé (Ctrl+Maj+R).";
+    console.log("UWG_ERR " + msg);
   }
-  window.addEventListener("error", (e)=> fail(e.message || e.error || "erreur inconnue"));
-  window.addEventListener("unhandledrejection", (e)=> fail(e.reason && e.reason.message || e.reason || "promesse rejetée"));
+  window.addEventListener("error", (e)=> fail(e.message || "erreur"));
+  window.addEventListener("unhandledrejection", (e)=> fail((e.reason && e.reason.message) || e.reason || "promesse rejetée"));
 
-  // Exemples : libellé NEUTRE (pour ne pas déclencher l'extension sur cette page) +
-  // la vraie phrase en data-text, injectée dans le <textarea> (que l'extension ignore).
   const PRESETS = [
     ["🫥 Insulte voilée (faute de frappe)", "What a stupid moro"],
     ["😺 Expression / idiome",               "playing dumb is honestly a skill"],
@@ -88,45 +85,42 @@
   $("presets").addEventListener("click",(e)=>{const b=e.target.closest("button");if(b){$("txt").value=PRESETS[b.dataset.i][1];analyse();}});
   $("thr").addEventListener("input",()=>{$("thrv").textContent=(+$("thr").value).toFixed(2);render(last);});
 
-  let clf=null, last=null;
-  try{
-    const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/+esm");
-    env.allowLocalModels = false;
-    $("status").textContent = "Téléchargement du modèle…";
-    $("dl").style.display = "block";
-    clf = await pipeline("text-classification","Xenova/toxic-bert",{
-      quantized:true,
-      progress_callback:(p)=>{
-        if(p && p.status==="progress" && p.total){
-          const pct = Math.round((p.loaded/p.total)*100);
-          $("dlbar").style.width = pct + "%";
-          $("status").textContent = "Téléchargement du modèle : " + pct + "%  (" + Math.round(p.loaded/1e6) + " / " + Math.round(p.total/1e6) + " Mo) — une seule fois, ensuite c'est caché.";
-        }
-      }
-    });
-    $("dl").style.display = "none";
-    $("loadpill").textContent = "✅ Modèle prêt — 100 % local";
-    $("loadpill").className = "pill ok";
-    $("status").innerHTML = "Le modèle tourne <strong>dans ton navigateur</strong>. Tape un commentaire ou clique un exemple.";
-    $("go").disabled = false;
-    analyse();
-  }catch(err){ fail(err && err.message || err); }
+  let model=null, last=null;
+  const LABELS = ["toxicity","insult","identity_attack","obscene","threat","severe_toxicity"];
 
+  (async ()=>{
+    try{
+      if (typeof toxicity === "undefined" || typeof tf === "undefined") throw new Error("librairie tf/toxicity non chargée (CDN bloqué ?)");
+      await tf.ready();
+      model = await toxicity.load(0.5, LABELS);
+      $("loadpill").textContent = "✅ Modèle prêt — 100 % local";
+      $("loadpill").className = "pill ok";
+      $("status").innerHTML = "Le modèle tourne <strong>dans ton navigateur</strong>. Tape un commentaire ou clique un exemple.";
+      $("go").disabled = false;
+      const s = await score($("txt").value.trim());
+      console.log("UWG_RESULT score=" + s.toFixed(3) + " text=\"" + $("txt").value + "\"");
+      renderScore(s);
+    }catch(err){ fail((err && err.message) || err); }
+  })();
+
+  async function score(text){
+    const preds = await model.classify([text]);
+    let max = 0;
+    for (const p of preds){ const pr = p.results[0].probabilities[1]; if (pr > max) max = pr; }
+    return max;
+  }
   async function analyse(){
     const t = $("txt").value.trim();
-    if(!t || !clf) return;
+    if(!t || !model) return;
     $("go").disabled = true; $("go").textContent = "…";
-    try{
-      const out = await clf(t,{topk:null});
-      last = out.sort((a,b)=>b.score-a.score)[0];
-      render(last);
-    }catch(err){ fail(err && err.message || err); }
+    try{ renderScore(await score(t)); }catch(err){ fail((err && err.message) || err); }
     $("go").disabled = false; $("go").textContent = "Analyser";
   }
-  function render(top){
-    if(!top) return;
-    const s = top.score, thr = +$("thr").value, flag = s >= thr;
-    $("score").textContent = s.toFixed(2) + "  (" + top.label + ")";
+  function renderScore(s){ last = s; render(s); }
+  function render(s){
+    if(s == null) return;
+    const thr = +$("thr").value, flag = s >= thr;
+    $("score").textContent = s.toFixed(2);
     $("bar").style.width = Math.round(s*100) + "%";
     $("verdict").textContent = flag ? "🧸 serait CÂLINÉ (adouci)" : "· laissé tranquille (pas une attaque)";
     $("verdict").className = "verdict " + (flag ? "flag" : "ok");
