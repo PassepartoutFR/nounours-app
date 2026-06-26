@@ -35,13 +35,15 @@
   }
 
   const STORAGE_KEY = "uwg_state";
+  const LISTS_KEY = "uwg_lists"; // Feature #2 : overrides distants en cache (DATA ONLY)
   const DEFAULTS = {
     enabled: true,
     total: 0,
     theme: "nounours",
     intensity: "medium",
     celebrate: true,
-    highlightOnly: false
+    highlightOnly: false,
+    remoteLists: false // opt-in listes en ligne : 100% LOCAL PAR DÉFAUT (OFF)
   };
 
   const PAGE_LANG = (
@@ -294,6 +296,17 @@
     });
   }
 
+  // Feature #2 — fusionne les overrides distants en cache (DATA ONLY) AVANT de
+  // traiter la page. N'a d'effet QUE si l'opt-in est ON (remoteLists). Ne lance
+  // jamais d'exception (le noyau valide déjà ; on protège quand même).
+  function applyCachedLists(lists) {
+    if (!state.remoteLists) return; // opt-in OFF : on ignore tout cache éventuel
+    if (!lists || typeof lists !== "object") return;
+    try {
+      if (typeof CORE.applyOverrides === "function") CORE.applyOverrides(lists);
+    } catch (_) { /* fail-safe : on garde les listes intégrées */ }
+  }
+
   function run() {
     walk(document.body);
     flushCount();
@@ -301,8 +314,9 @@
     startObserver();
   }
 
-  chrome.storage.local.get(STORAGE_KEY, (res) => {
+  chrome.storage.local.get([STORAGE_KEY, LISTS_KEY], (res) => {
     Object.assign(state, DEFAULTS, res[STORAGE_KEY]);
+    applyCachedLists(res[LISTS_KEY]); // overrides en cache (no-op si opt-in OFF)
     if (state.enabled) run();
   });
 

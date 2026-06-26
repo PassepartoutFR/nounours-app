@@ -421,10 +421,97 @@
 
   // --- detection --------------------------------------------------------------
   const escapeRe = (w) => norm(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Mots ajoutes a distance (Feature #2). DATA-ONLY : jamais evalues. On garde les
+  // ajouts a part pour pouvoir recompiler les regex et tout remettre a zero.
+  const EXTRA_LEX = {}; // lg -> [mots normalises ajoutes]
+  function buildRe(lg) {
+    const words = LEX[lg].concat(EXTRA_LEX[lg] || []);
+    const alt = words.map(escapeRe).join("|");
+    return new RegExp("(^|[^\\p{L}])(" + alt + ")([^\\p{L}]|$)", "u");
+  }
   const RES = {};
-  for (const lg of LANGS) {
-    const alt = LEX[lg].map(escapeRe).join("|");
-    RES[lg] = new RegExp("(^|[^\\p{L}])(" + alt + ")([^\\p{L}]|$)", "u");
+  for (const lg of LANGS) RES[lg] = buildRe(lg);
+
+  // --- Feature #2 : listes editables a distance (DATA ONLY, defensif) ----------
+  // Bornes dures : tout reste de simples chaines, comptees et tronquees. AUCUN
+  // contenu n'est jamais execute (zero eval/Function). En cas de souci, on ignore.
+  // Instantane des banques livrees (built-in) pour pouvoir tout remettre a zero.
+  const BUILTIN_BANKS = {};
+  for (const theme of Object.keys(BANKS)) {
+    BUILTIN_BANKS[theme] = {};
+    for (const lg of Object.keys(BANKS[theme])) BUILTIN_BANKS[theme][lg] = BANKS[theme][lg].slice();
+  }
+  const OV_MAX_ARRAY = 500;   // entrees max par liste fusionnee
+  const OV_MAX_LEN = 200;     // caracteres max par entree
+  function cleanStrList(arr) {
+    if (!Array.isArray(arr)) return [];
+    const out = [];
+    for (const v of arr) {
+      if (typeof v !== "string") continue; // DATA ONLY : on ignore tout non-chaine
+      const s = v.slice(0, OV_MAX_LEN);
+      if (s.length) out.push(s);
+      if (out.length >= OV_MAX_ARRAY) break;
+    }
+    return out;
+  }
+  // Fusionne des mots de lexique et des repliques supplementaires. Idempotent-ish :
+  // re-appeler avec le meme objet ne duplique pas (les mots deja presents sont
+  // ignores). Ne casse JAMAIS la detection/les reponses existantes.
+  function applyOverrides(obj) {
+    if (!obj || typeof obj !== "object") return;
+    // 1) lexique : { lex: { fr:[...], en:[...] } }
+    const lex = obj.lex;
+    if (lex && typeof lex === "object") {
+      for (const lg of LANGS) {
+        const added = cleanStrList(lex[lg]);
+        if (!added.length) continue;
+        const seen = new Set(LEX[lg].map(norm));
+        for (const w of (EXTRA_LEX[lg] || [])) seen.add(norm(w));
+        const list = EXTRA_LEX[lg] || (EXTRA_LEX[lg] = []);
+        for (const w of added) {
+          const n = norm(w);
+          if (!n || seen.has(n)) continue; // anti-doublon (idempotent-ish)
+          seen.add(n);
+          list.push(w);
+          if (list.length >= OV_MAX_ARRAY) break;
+        }
+        RES[lg] = buildRe(lg); // recompile la regex de cette langue
+      }
+    }
+    // 2) repliques : { replies: { nounours:{fr:[...]}, ... } }
+    const reps = obj.replies;
+    if (reps && typeof reps === "object") {
+      for (const theme of Object.keys(BANKS)) {
+        const byLang = reps[theme];
+        if (!byLang || typeof byLang !== "object") continue;
+        for (const lg of LANGS) {
+          const added = cleanStrList(byLang[lg]);
+          if (!added.length) continue;
+          const bank = BANKS[theme][lg] || (BANKS[theme][lg] = []);
+          const seen = new Set(bank);
+          for (const line of added) {
+            if (seen.has(line)) continue; // anti-doublon
+            seen.add(line);
+            bank.push(line);
+            if (bank.length >= OV_MAX_ARRAY) break;
+          }
+        }
+      }
+    }
+  }
+  // Remet detection + banques a l'etat livre (built-ins). Annule applyOverrides.
+  function clearOverrides() {
+    for (const lg of LANGS) {
+      if (EXTRA_LEX[lg]) EXTRA_LEX[lg].length = 0;
+      RES[lg] = buildRe(lg);
+    }
+    for (const theme of Object.keys(BANKS)) {
+      for (const lg of Object.keys(BANKS[theme])) {
+        const built = BUILTIN_BANKS[theme] && BUILTIN_BANKS[theme][lg];
+        if (built) BANKS[theme][lg] = built.slice();
+        else if (!(BUILTIN_BANKS[theme] && lg in BUILTIN_BANKS[theme])) delete BANKS[theme][lg];
+      }
+    }
   }
 
   function detect(text, preferred) {
@@ -482,7 +569,8 @@
   const api = {
     LANGS, THEMES, LEVELS, HINT,
     norm, detect, reply, levelFor, themeEmoji, isLegendary,
-    BADGES, earnedBadges, updateStreak
+    BADGES, earnedBadges, updateStreak,
+    applyOverrides, clearOverrides
   };
 
   if (typeof window !== "undefined") window.UWGCore = api;

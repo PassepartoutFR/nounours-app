@@ -210,6 +210,24 @@
     @media (max-width: 540px) { .wx .wx-gauge { order: 3; flex-basis: 100%; } }
     @media (prefers-reduced-motion: reduce) { .ticker .tk-emo, .wx .wx-emo { animation: none; } .wx .wx-gauge i { transition: none; } }
 
+    /* ===== Carte de chaleur de la gentillesse (#6) — ADDITIF ===== */
+    .geo { margin-top: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px; box-shadow: var(--shadow); }
+    .geo-list { display: grid; gap: 14px; }
+    .geo-row {
+      display: grid; column-gap: 12px; row-gap: 6px; align-items: center;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "flag name count" "flag track track";
+    }
+    .geo-flag { grid-area: flag; font-size: 26px; line-height: 1; width: 1.5em; text-align: center; align-self: center; }
+    .geo-name { grid-area: name; font-family: "Fredoka", sans-serif; font-weight: 600; font-size: .98rem; color: var(--ink); }
+    .geo-count { grid-area: count; font-family: "Fredoka", sans-serif; font-weight: 700; color: var(--coral); font-variant-numeric: tabular-nums; min-width: 3ch; text-align: right; }
+    .geo-track { grid-area: track; position: relative; height: 14px; border-radius: 999px; background: color-mix(in srgb, var(--honey) 14%, transparent); overflow: hidden; }
+    .geo-bar { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--honey), var(--coral)); transition: width 1s cubic-bezier(.34,1.56,.64,1); }
+    .geo-cap { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .85rem; margin-top: 16px; }
+    .geo-cap .lock { font-size: 1em; }
+    .geo-empty { color: var(--muted); font-size: .95rem; }
+    @media (prefers-reduced-motion: reduce) { .geo-bar { transition: none; } }
+
     .install { text-align: center; }
     .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 24px; text-align: left; }
     .steps .s { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
@@ -401,6 +419,15 @@
           <span>🔒 <span data-i18n="data_privacy_note">Données anonymes & agrégées · zéro cookie · zéro pistage.</span> <a href="/privacy.html" data-i18n="data_privacy_link">Comment ?</a></span>
           <span class="dash-err" id="dashError" style="display:none" data-i18n="data_error">Données momentanément indisponibles 🙈</span>
         </div>
+      </div>
+
+      <!-- Carte de chaleur de la gentillesse (#6) — ADDITIF -->
+      <div class="geo" id="geoBlock" style="display:none;">
+        <div class="eyebrow" data-i18n="geo_eyebrow">Carte de chaleur</div>
+        <h2 style="margin:6px 0 8px;" data-i18n="geo_h2">D'où vient la gentillesse</h2>
+        <p class="sub" style="margin:0 0 18px;" data-i18n="geo_sub">Les langues où l'on câline le plus de trolls.</p>
+        <div class="geo-list" id="geoList"></div>
+        <div class="geo-cap"><span class="lock" aria-hidden="true">🔒</span> <span data-i18n="geo_caption">Estimé par la langue du navigateur (approximatif) — jamais ta position précise, jamais ton IP.</span></div>
       </div>
     </div>
   </section>
@@ -659,10 +686,79 @@
       return { init, onLang };
     })();
 
+    // ====== Carte de chaleur de la gentillesse (#6) ======
+    // Strictement additif : réutilise /api/geo, t(), LANG, escapeHtml.
+    // Données par LANGUE de navigateur (approximatif) — jamais position ni IP.
+    // Échec réseau / vide = bloc masqué (aucune erreur console).
+    const GEO = (function () {
+      const block = document.getElementById("geoBlock");
+      const list = document.getElementById("geoList");
+      // Code langue (2 lettres) -> drapeau + nom humain. Inconnu/"??" -> 🌍 « Ailleurs ».
+      const MAP = {
+        fr: ["🇫🇷", "Français"], en: ["🇬🇧", "English"], es: ["🇪🇸", "Español"],
+        de: ["🇩🇪", "Deutsch"], it: ["🇮🇹", "Italiano"], pt: ["🇵🇹", "Português"],
+        nl: ["🇳🇱", "Nederlands"], pl: ["🇵🇱", "Polski"], ru: ["🇷🇺", "Русский"],
+        ja: ["🇯🇵", "日本語"], zh: ["🇨🇳", "中文"], ko: ["🇰🇷", "한국어"],
+        ar: ["🇸🇦", "العربية"], tr: ["🇹🇷", "Türkçe"], sv: ["🇸🇪", "Svenska"],
+        no: ["🇳🇴", "Norsk"], da: ["🇩🇰", "Dansk"], fi: ["🇫🇮", "Suomi"],
+        cs: ["🇨🇿", "Čeština"], el: ["🇬🇷", "Ελληνικά"], uk: ["🇺🇦", "Українська"],
+        hu: ["🇭🇺", "Magyar"], ro: ["🇷🇴", "Română"], he: ["🇮🇱", "עברית"],
+        hi: ["🇮🇳", "हिन्दी"], id: ["🇮🇩", "Indonesia"], vi: ["🇻🇳", "Tiếng Việt"],
+        th: ["🇹🇭", "ไทย"]
+      };
+      let regions = null;     // dernier /api/geo reçu (pour re-render i18n)
+
+      function info(code) {
+        const c = String(code || "").slice(0, 2).toLowerCase();
+        if (c && c !== "??" && MAP[c]) return { flag: MAP[c][0], name: MAP[c][1] };
+        return { flag: "🌍", name: t("geo_elsewhere") };
+      }
+
+      function render() {
+        if (!regions || !regions.length) { block.style.display = "none"; return; }
+        // top 8, agrège le reste sous « Ailleurs » ; barres proportionnelles au max.
+        const top = regions.slice(0, 8);
+        const max = top.reduce((m, r) => Math.max(m, Number(r.n) || 0), 0) || 1;
+        list.innerHTML = top.map((r) => {
+          const meta = info(r.c);
+          const n = Math.max(0, Number(r.n) || 0);
+          const w = Math.max(4, Math.round((n / max) * 100));
+          return '<div class="geo-row">' +
+            '<span class="geo-flag" aria-hidden="true">' + meta.flag + "</span>" +
+            '<span class="geo-name">' + escapeHtml(meta.name) + "</span>" +
+            '<span class="geo-count">' + n.toLocaleString(LANG) + "</span>" +
+            '<span class="geo-track"><i class="geo-bar" data-w="' + w + '"></i></span>' +
+            "</div>";
+        }).join("");
+        block.style.display = "block";
+        // largeur posée après insertion pour déclencher la transition.
+        requestAnimationFrame(() => {
+          list.querySelectorAll(".geo-bar").forEach((b) => { b.style.width = (b.dataset.w || 0) + "%"; });
+        });
+      }
+
+      async function pull() {
+        try {
+          const r = await fetch("/api/geo", { cache: "no-store" });
+          if (!r.ok) throw new Error("bad status");
+          const data = await r.json();
+          regions = (data && Array.isArray(data.regions)) ? data.regions : [];
+          render();
+        } catch (e) { block.style.display = "none"; }
+      }
+
+      function init() { pull(); setInterval(pull, 20000); }   // même cadence que les stats
+      function onLang() { if (regions) render(); }            // re-traduit « Ailleurs » + sépare. milliers
+
+      return { init, onLang };
+    })();
+
     // ====== boot ======
     apply();
     KIND.init();
+    GEO.init();
     langSel.addEventListener("change", KIND.onLang);
+    langSel.addEventListener("change", GEO.onLang);
     if (window.UWGStats) UWGStats.mount({ getLang: function () { return LANG; } });
   </script>
 </body>

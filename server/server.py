@@ -167,6 +167,121 @@ def record_report(lang):
     return stats["reports"][k]
 
 
+# Feature #6 — carte de chaleur de la gentillesse : compteur AGREGE par langue derive
+# de l'en-tete Accept-Language. VIE PRIVEE : un nombre par code de langue (2 lettres),
+# JAMAIS l'IP, jamais par utilisateur, zero texte.
+stats.setdefault("geo", {})
+
+
+def primary_lang(accept_language):
+    # 1er sous-tag primaire (2 lettres a-z) d'un Accept-Language, sinon "??".
+    # Ex. "fr-CA,fr;q=0.9,en;q=0.8" -> "fr". Tout le reste -> "??" (zero texte).
+    first = ("" if accept_language is None else str(accept_language)).split(",")[0]
+    tag = first.split(";")[0].split("-")[0].strip().lower()
+    out = ""
+    for ch in tag:
+        if "a" <= ch <= "z":
+            out += ch
+        else:
+            break
+        if len(out) >= 2:
+            break
+    return out if len(out) == 2 else "??"
+
+
+def record_geo(accept_language):
+    k = primary_lang(accept_language)
+    stats["geo"][k] = int(stats["geo"].get(k, 0)) + 1
+    return k
+
+
+def geo(limit):
+    # Vue publique : {"regions": [{"c": code, "n": nombre}, ...]} tri decroissant, top ~20.
+    arr = sorted(
+        ({"c": c, "n": int(stats["geo"].get(c, 0))} for c in stats["geo"] if int(stats["geo"].get(c, 0)) > 0),
+        key=lambda e: (-e["n"], e["c"]),
+    )
+    n = limit if isinstance(limit, int) and limit > 0 else 20
+    return {"regions": arr[:n]}
+
+
+# ---- Feature #2 : overrides (listes de detection editables a distance) -------
+# Objet persiste : {"lex": {"fr": [...], ...}, "replies": {"nounours": {"fr": [...]}, ...}}.
+# DATA ONLY : uniquement des tableaux de chaines. Jamais execute cote serveur ; le
+# client (uwg-core.applyOverrides) les fusionne en pures donnees. Bornes dures.
+OV_FILE = os.path.join(HERE, "overrides.json")
+OV_MAX_ARRAY = 500   # entrees max par tableau
+OV_MAX_LEN = 200     # caracteres max par entree
+ov_lock = threading.Lock()
+try:
+    with open(OV_FILE, "r", encoding="utf-8") as f:
+        overrides = json.load(f)
+    if not isinstance(overrides, dict):
+        overrides = {}
+except Exception:
+    overrides = {}
+
+
+def save_overrides():
+    tmp = OV_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(overrides, f)
+    os.replace(tmp, OV_FILE)
+
+
+def _sanitize_lang_map(m):
+    # Valide+nettoie un dictionnaire {code: [chaines]}. Retourne None si une valeur
+    # n'est PAS un tableau de chaines (=> 400). Sinon une copie nettoyee.
+    if m is None:
+        return {}
+    if not isinstance(m, dict):
+        return None
+    out = {}
+    for key in m:
+        arr = m[key]
+        if not isinstance(arr, list):
+            return None
+        if len(arr) > OV_MAX_ARRAY:
+            return None
+        clean = []
+        for v in arr:
+            if not isinstance(v, str):
+                return None
+            if len(v) > OV_MAX_LEN:
+                return None
+            clean.append(v)
+        out[str(key)[:32]] = clean
+    return out
+
+
+def sanitize_overrides(obj):
+    # Valide {lex?, replies?}. Renvoie (True, value) ou (False, None) (=> 400).
+    # Tout ce qui n'est pas "tableaux de chaines" est rejete.
+    if not isinstance(obj, dict):
+        return (False, None)
+    value = {}
+    if "lex" in obj:
+        lex = _sanitize_lang_map(obj["lex"])
+        if lex is None:
+            return (False, None)
+        value["lex"] = lex
+    if "replies" in obj:
+        reps = obj["replies"]
+        if reps is None:
+            value["replies"] = {}
+        elif not isinstance(reps, dict):
+            return (False, None)
+        else:
+            out_reps = {}
+            for theme in reps:
+                by_lang = _sanitize_lang_map(reps[theme])
+                if by_lang is None:
+                    return (False, None)
+                out_reps[str(theme)[:32]] = by_lang
+            value["replies"] = out_reps
+    return (True, value)
+
+
 def clean_team(t):
     # Code d'equipe : caracteres imprimables, <= 24. Vide -> "" (quitter / sans equipe).
     s = "" if t is None else str(t)
@@ -300,6 +415,24 @@ class H(BaseHTTPRequestHandler):
             with lock:
                 out = teams(limit)
             return self._json(200, {"teams": out})
+        if u.path == "/geo":
+            # Feature #6 — carte de chaleur (PUBLIC) : {"regions": [{"c","n"}, ...]}.
+            with stats_lock:
+                out = geo(20)
+            return self._json(200, out)
+        if u.path == "/lists":
+            # Feature #2 — overrides (PUBLIC, lecture seule, cacheable). DATA ONLY.
+            with ov_lock:
+                out = dict(overrides) if isinstance(overrides, dict) else {}
+            body = json.dumps(out).encode("utf-8")
+            self.send_response(200)
+            self._cors()
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "public, max-age=300")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if u.path == "/admin/overview":
             if not self._admin_gate():
                 return
@@ -341,6 +474,13 @@ class H(BaseHTTPRequestHandler):
         now_mono, now_wall = time.monotonic(), time.time()
         with stats_lock:
             live = record_beat(sid, self._client_ip(), now_mono, now_wall)
+            # Feature #6 — carte de chaleur : compteur agrege par langue (Accept-Language).
+            # VIE PRIVEE : un nombre par code de langue, jamais l'IP, jamais par utilisateur.
+            record_geo(self.headers.get("Accept-Language"))
+            try:
+                save_stats()
+            except Exception as e:
+                sys.stderr.write("save_stats failed: %s\n" % e)
         return self._json(200, {"ok": True, "live": live})
 
     def do_POST(self):
@@ -431,6 +571,33 @@ class H(BaseHTTPRequestHandler):
                     except Exception as e:
                         sys.stderr.write("save failed: %s\n" % e)
             return self._json(200, {"ok": True, "removed": removed})
+        if u.path == "/admin/lists":
+            # Feature #2 — remplace les overrides (DATA ONLY). Gardee par X-Admin-Key.
+            # Corps borne a ~512 Ko ; VALIDE strictement (tableaux de chaines) sinon 400.
+            if not self._admin_gate():
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except Exception:
+                length = 0
+            if length < 0 or length > 524288:
+                return self._json(400, {"error": "corps invalide"})
+            raw = self.rfile.read(length) if length else b""
+            try:
+                d = json.loads(raw.decode("utf-8")) if raw else {}
+            except Exception:
+                return self._json(400, {"error": "bad json"})
+            okv, value = sanitize_overrides(d)
+            if not okv:
+                return self._json(400, {"error": "overrides invalides (tableaux de chaines uniquement)"})
+            global overrides
+            with ov_lock:
+                overrides = value
+                try:
+                    save_overrides()
+                except Exception as e:
+                    sys.stderr.write("save_overrides failed: %s\n" % e)
+            return self._json(200, {"ok": True})
         if u.path != "/score":
             return self._json(404, {"error": "not found"})
         if not rate_ok(self._client_ip()):
@@ -478,7 +645,7 @@ def _selftest():
         print(("ok   " if cond else "FAIL ") + msg)
         if not cond:
             fails[0] += 1
-    stats = {"total": 0, "days": {}, "reports": {}}
+    stats = {"total": 0, "days": {}, "reports": {}, "geo": {}}
     _live.clear(); _counted.clear(); scores.clear()
     t0, w0 = 1000.0, 1_700_000_000.0  # mono + wall (UTC) fixes
 
@@ -539,7 +706,29 @@ def _selftest():
     ok(tt[0]["team"] == "Solo" and tt[0]["total"] >= tt[1]["total"], "equipes triees decroissant")
     ok(clean_team("x" * 40) == "x" * 24, "clean_team borne a 24")
 
-    total = 21
+    # ---- Feature #6 : carte de chaleur (compteur agrege par langue) ----
+    stats["geo"] = {}
+    ok(primary_lang("fr-CA,fr;q=0.9,en;q=0.8") == "fr", "primary_lang : 1er sous-tag (fr-CA -> fr)")
+    ok(primary_lang("EN-US") == "en", "primary_lang : casse normalisee")
+    ok(primary_lang("") == "??" and primary_lang(None) == "??", "primary_lang : vide -> ??")
+    ok(primary_lang("12-x") == "??", "primary_lang : non-lettres -> ?? (zero texte)")
+    record_geo("fr-FR"); record_geo("fr"); record_geo("en-GB"); record_geo("zzz-zz")
+    ok(stats["geo"]["fr"] == 2 and stats["geo"]["en"] == 1, "geo : compte agrege par langue")
+    g = geo(20)
+    ok(g["regions"][0]["c"] == "fr" and g["regions"][0]["n"] == 2, "geo : trie decroissant, forme {c,n}")
+    ok(all(set(r.keys()) == {"c", "n"} for r in g["regions"]), "geo : uniquement {c,n} (zero IP, zero identifiant)")
+
+    # ---- Feature #2 : overrides (validation : tableaux de chaines uniquement) ----
+    okv, val = sanitize_overrides({"lex": {"fr": ["nouveau-mechant"]}, "replies": {"nounours": {"fr": ["bisou"]}}})
+    ok(okv and val["lex"]["fr"] == ["nouveau-mechant"], "overrides : payload valide accepte")
+    ok(sanitize_overrides({"lex": {"fr": [123]}})[0] is False, "overrides : non-chaine rejete (400)")
+    ok(sanitize_overrides({"lex": {"fr": "pas-un-tableau"}})[0] is False, "overrides : non-tableau rejete (400)")
+    ok(sanitize_overrides({"lex": {"fr": ["x" * 999]}})[0] is False, "overrides : entree trop longue rejetee (400)")
+    ok(sanitize_overrides({"lex": {"fr": ["ok"] * 999}})[0] is False, "overrides : tableau trop grand rejete (400)")
+    ok(sanitize_overrides([])[0] is False, "overrides : racine non-objet rejetee (400)")
+    ok(sanitize_overrides({})[0] is True, "overrides : objet vide accepte")
+
+    total = 38
     print("\n%d/%d selftest verts" % (total - fails[0], total))
     return fails[0]
 

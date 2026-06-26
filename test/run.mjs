@@ -168,5 +168,63 @@ SRV.scores.u = { token: "good", pseudo: "U", total: 7 };
 SRV.scores.u.team = SRV.cleanTeam("Équipe ☀️");
 ok(SRV.teams(5)[0].team === "Équipe ☀️" && SRV.teams(5)[0].members === 1, "joindre une équipe la crée");
 
+// ---- uwg-core : Feature #2 — applyOverrides / clearOverrides (DATA ONLY) ----
+ok(typeof C.applyOverrides === "function" && typeof C.clearOverrides === "function", "applyOverrides/clearOverrides exposés");
+C.clearOverrides(); // état propre avant
+// 1) un mot de lexique ajouté rend détectable une phrase qui ne l'était pas
+ok(C.detect("you are such a wibblywomp", "en") === null, "avant override : phrase non détectée");
+C.applyOverrides({ lex: { en: ["wibblywomp"] } });
+ok(C.detect("you are such a wibblywomp", "en") === "en", "après override : mot ajouté détecté");
+// 2) une réplique ajoutée entre dans la banque (atteignable par un seed)
+C.applyOverrides({ replies: { nounours: { en: ["ZZ_OVERRIDE_LINE_ZZ"] } } });
+let ovHit = false;
+for (let i = 0; i < 600; i++) { if (C.reply({ theme: "nounours", lang: "en", seed: "ov" + i }) === "ZZ_OVERRIDE_LINE_ZZ") { ovHit = true; break; } }
+ok(ovHit, "réplique ajoutée atteignable dans la banque");
+// 3) garbage / non-tableaux / non-chaines ignorés, ne cassent rien
+C.applyOverrides({ lex: { en: [123, null, {}, ["x"], "realword"] }, replies: "pas-un-objet", lex2: 42 });
+ok(C.detect("here is a realword test", "en") === "en", "chaîne valide parmi du garbage : ajoutée");
+ok(C.detect("the number 123 stands alone", "en") === null, "nombre 123 ignoré (DATA ONLY)");
+ok(C.detect("you are such a wibblywomp", "en") === "en", "override précédent toujours actif (non cassé)");
+// 4) idempotent-ish : ré-appliquer le même mot ne le duplique pas (détection stable)
+C.applyOverrides({ lex: { en: ["wibblywomp"] } });
+ok(C.detect("you are such a wibblywomp", "en") === "en", "ré-appliquer le même mot reste détecté");
+// 5) borne de taille : >500 entrées capées, pas de crash
+const huge = []; for (let i = 0; i < 700; i++) huge.push("capword" + i);
+C.applyOverrides({ lex: { en: huge } });
+ok(C.detect("capword0 here", "en") === "en", "1re entrée d'une grosse liste capée détectée");
+// 6) clearOverrides remet l'état livré : mots ajoutés ET répliques disparaissent
+C.clearOverrides();
+ok(C.detect("you are such a wibblywomp", "en") === null, "clearOverrides : mot ajouté retiré");
+let ovGone = true;
+for (let i = 0; i < 600; i++) { if (C.reply({ theme: "nounours", lang: "en", seed: "ov" + i }) === "ZZ_OVERRIDE_LINE_ZZ") { ovGone = false; break; } }
+ok(ovGone, "clearOverrides : réplique ajoutée retirée");
+// la détection/réponse d'origine reste intacte après clear
+ok(C.detect("you suck", "en") === "en", "détection built-in intacte après clear");
+ok(C.reply({ theme: "nounours", intensity: "medium", lang: "fr", seed }).startsWith("🧸"), "réponse built-in intacte après clear");
+
+// ---- server.js : Feature #6 — carte de chaleur (compteur agrégé par langue) ----
+SRV._reset();
+ok(typeof SRV.recordGeo === "function" && typeof SRV.geo === "function", "recordGeo/geo exposés");
+ok(SRV.primaryLang("fr-CA,fr;q=0.9,en;q=0.8") === "fr", "primaryLang : 1er sous-tag (fr-CA -> fr)");
+ok(SRV.primaryLang("EN-US") === "en", "primaryLang : casse normalisée");
+ok(SRV.primaryLang("") === "??" && SRV.primaryLang(undefined) === "??", "primaryLang : vide -> ??");
+ok(SRV.primaryLang("12-x") === "??", "primaryLang : non-lettres -> ?? (zéro texte)");
+SRV.recordGeo("fr-FR"); SRV.recordGeo("fr"); SRV.recordGeo("en-GB"); SRV.recordGeo("zzz");
+ok(SRV.stats.geo.fr === 2 && SRV.stats.geo.en === 1, "geo : compté agrégé par langue");
+const _g = SRV.geo(20);
+ok(_g.regions[0].c === "fr" && _g.regions[0].n === 2, "geo : trié décroissant, forme {c,n}");
+ok(_g.regions.every((r) => Object.keys(r).sort().join(",") === "c,n"), "geo : uniquement {c,n} (zéro IP, zéro identifiant)");
+
+// ---- server.js : Feature #2 — validation des overrides (tableaux de chaines) ----
+ok(typeof SRV.sanitizeOverrides === "function", "sanitizeOverrides exposé");
+const _okOv = SRV.sanitizeOverrides({ lex: { fr: ["nouveau-mechant"] }, replies: { nounours: { fr: ["bisou"] } } });
+ok(_okOv.ok && _okOv.value.lex.fr[0] === "nouveau-mechant", "overrides : payload valide accepté");
+ok(SRV.sanitizeOverrides({ lex: { fr: [123] } }).ok === false, "overrides : non-chaine rejeté (400)");
+ok(SRV.sanitizeOverrides({ lex: { fr: "pas-un-tableau" } }).ok === false, "overrides : non-tableau rejeté (400)");
+ok(SRV.sanitizeOverrides({ lex: { fr: ["x".repeat(999)] } }).ok === false, "overrides : entrée trop longue rejetée (400)");
+ok(SRV.sanitizeOverrides({ lex: { fr: new Array(999).fill("ok") } }).ok === false, "overrides : tableau trop grand rejeté (400)");
+ok(SRV.sanitizeOverrides([]).ok === false, "overrides : racine non-objet rejetée (400)");
+ok(SRV.sanitizeOverrides({}).ok === true, "overrides : objet vide accepté");
+
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);

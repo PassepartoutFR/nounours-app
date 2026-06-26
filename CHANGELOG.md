@@ -38,6 +38,12 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
   sur la home, rafraîchi en direct, avec éclat aux paliers ronds.
 - ☀️ **Météo de la gentillesse** (site) : humeur du jour calculée sur les stats
   agrégées (« ensoleillé câlin · 92 % de douceur »), traduite, **100 % côté client**.
+- 🔄 **Listes de détection éditables à distance** (opt-in, **défaut OFF**) : le
+  mainteneur ajuste les mots détectés / répliques depuis l'admin (clé), servis en
+  JSON ; l'extension reste **100 % locale par défaut** et, si activé, fusionne les
+  listes (données seulement, jamais de code, plafonnées, repli sûr sur l'intégré).
+- 🌍 **Carte de chaleur de la gentillesse** (site) : d'où vient la gentillesse, par
+  **langue du navigateur (approximatif, jamais l'IP)**, agrégé, traduit, honnête.
 
 ## [0.6.0] — non publié
 ### Ajouté

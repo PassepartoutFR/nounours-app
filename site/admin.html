@@ -115,6 +115,26 @@
         <div id="reportsWrap"></div>
       </div>
 
+      <h2>Listes de détection</h2>
+      <div class="card" style="padding:14px 16px">
+        <div class="hint" style="margin:0 0 10px">
+          Mots ajoutés à la détection et répliques ajoutées aux banques, <b>éditables sans redéployer</b>.
+          Format <b>données pures</b> : uniquement des tableaux de chaînes —
+          <code>{ "lex": { "fr": ["mot"], … }, "replies": { "nounours": { "fr": ["réplique"] }, … } }</code>.
+          Jamais exécuté côté client. L'extension ne les récupère que si l'utilisateur a activé l'option (par défaut : 100 % local).
+        </div>
+        <div class="field">
+          <textarea id="listsText" rows="12" spellcheck="false"
+            style="width:100%; font:inherit; font-family:ui-monospace,Menlo,monospace; font-size:.85rem; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); resize:vertical;"
+            placeholder='{ "lex": { "fr": [] }, "replies": {} }'></textarea>
+        </div>
+        <div class="row">
+          <button class="secondary" id="listsLoadBtn">↧ Charger</button>
+          <button id="listsSaveBtn">💾 Enregistrer</button>
+        </div>
+        <div id="listsMsg" class="msg"></div>
+      </div>
+
       <h2>Classement (modération)</h2>
       <div class="card" style="padding:14px 16px">
         <div class="hint" style="margin:0 0 8px">Supprimer une entrée abusive la retire définitivement du classement (persisté côté serveur).</div>
@@ -256,6 +276,10 @@
       }).then(function (res) {
         if (!res.ok) throw res;
         renderScores(res.data);
+        // pré-remplit l'éditeur de listes (best-effort : n'échoue pas le dashboard)
+        api("/lists").then(function (lr) {
+          if (lr.ok) $("listsText").value = JSON.stringify((lr.data && typeof lr.data === "object") ? lr.data : {}, null, 2);
+        }).catch(function () {});
       });
     }
 
@@ -310,6 +334,45 @@
       exitDash();
     }
 
+    // ---- Feature #2 : listes de détection éditables -------------------------
+    // Charger : GET /lists (public). Enregistrer : POST /admin/lists (clé requise).
+    // On valide le JSON localement avant l'envoi pour un message clair côté admin.
+    function onListsLoad() {
+      var b = $("listsLoadBtn"); b.disabled = true;
+      hideMsg($("listsMsg"));
+      api("/lists").then(function (res) {
+        if (!res.ok) { showMsg($("listsMsg"), explain(res), "err"); return; }
+        var obj = res.data && typeof res.data === "object" ? res.data : {};
+        $("listsText").value = JSON.stringify(obj, null, 2);
+        showMsg($("listsMsg"), "Listes chargées.", "ok");
+      }).catch(function () {
+        showMsg($("listsMsg"), "Serveur injoignable.", "err");
+      }).then(function () { b.disabled = false; });
+    }
+
+    function onListsSave() {
+      var b = $("listsSaveBtn"); b.disabled = true;
+      hideMsg($("listsMsg"));
+      var raw = $("listsText").value.trim();
+      var parsed;
+      try { parsed = raw ? JSON.parse(raw) : {}; }
+      catch (e) {
+        showMsg($("listsMsg"), "JSON invalide : " + e.message, "err");
+        b.disabled = false; return;
+      }
+      api("/admin/lists", { method: "POST", body: JSON.stringify(parsed) }).then(function (res) {
+        if (!res.ok) {
+          var why = (res.data && res.data.error) ? res.data.error : explain(res);
+          showMsg($("listsMsg"), "Refusé : " + why, "err");
+          if (res.status === 403) exitDash();
+          return;
+        }
+        showMsg($("listsMsg"), "Listes enregistrées ✓ (effectives sans redéploiement).", "ok");
+      }).catch(function () {
+        showMsg($("listsMsg"), "Serveur injoignable.", "err");
+      }).then(function () { b.disabled = false; });
+    }
+
     // ---- init ----
     (function init() {
       var savedBase = ""; var savedKey = "";
@@ -320,6 +383,8 @@
       $("key").addEventListener("keydown", function (e) { if (e.key === "Enter") onLogin(); });
       $("refreshBtn").addEventListener("click", onRefresh);
       $("logoutBtn").addEventListener("click", onLogout);
+      $("listsLoadBtn").addEventListener("click", onListsLoad);
+      $("listsSaveBtn").addEventListener("click", onListsSave);
       // si une clé est déjà en session, on tente une connexion auto
       if (savedKey) onLogin();
     })();

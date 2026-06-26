@@ -282,3 +282,69 @@ window.I18N = {
   };
   for (var lang in D) { if (I[lang]) { for (var k in D[lang]) I[lang][k] = D[lang][k]; } else { I[lang] = D[lang]; } }
 })(window.I18N);
+
+// --- Carte de chaleur de la gentillesse (#6) : ADDITIF 2026-06-26 -------------
+// Bloc strictement additif : fusionne ses clés dans chaque langue sans toucher
+// aux dictionnaires ci-dessus. t() retombe sur le FR si une clé manque.
+// Données par LANGUE de navigateur (approximatif), jamais position ni IP.
+(function (I) {
+  var D = {
+    fr: {
+      "geo_eyebrow": "Carte de chaleur",
+      "geo_h2": "D'où vient la gentillesse",
+      "geo_sub": "Les langues où l'on câline le plus de trolls. Plus la barre est longue, plus la région est douce.",
+      "geo_caption": "Estimé par la langue du navigateur (approximatif) — jamais ta position précise, jamais ton IP.",
+      "geo_empty": "Pas encore assez de gentillesse pour dessiner la carte 🧸",
+      "geo_elsewhere": "Ailleurs dans le monde"
+    },
+    en: {
+      "geo_eyebrow": "Kindness heatmap",
+      "geo_h2": "Where the kindness comes from",
+      "geo_sub": "The languages hugging the most trolls. The longer the bar, the softer the region.",
+      "geo_caption": "Estimated by browser language (approximate) — never your precise location, never your IP.",
+      "geo_empty": "Not quite enough kindness to draw the map yet 🧸",
+      "geo_elsewhere": "Elsewhere in the world"
+    },
+    es: {
+      "geo_eyebrow": "Mapa de calor",
+      "geo_h2": "De dónde viene la gentileza",
+      "geo_sub": "Los idiomas que más trolls abrazan. Cuanto más larga la barra, más dulce la región.",
+      "geo_caption": "Estimado por el idioma del navegador (aproximado) — nunca tu ubicación precisa, nunca tu IP.",
+      "geo_empty": "Aún no hay suficiente gentileza para dibujar el mapa 🧸",
+      "geo_elsewhere": "En otras partes del mundo"
+    },
+    it: {
+      "geo_eyebrow": "Mappa di calore",
+      "geo_h2": "Da dove viene la gentilezza",
+      "geo_sub": "Le lingue che abbracciano più troll. Più lunga la barra, più dolce la regione.",
+      "geo_caption": "Stimato dalla lingua del browser (approssimativo) — mai la tua posizione precisa, mai il tuo IP.",
+      "geo_empty": "Non ancora abbastanza gentilezza per disegnare la mappa 🧸",
+      "geo_elsewhere": "Altrove nel mondo"
+    },
+    de: {
+      "geo_eyebrow": "Wärmekarte",
+      "geo_h2": "Woher die Nettigkeit kommt",
+      "geo_sub": "Die Sprachen, die die meisten Trolle knuddeln. Je länger der Balken, desto sanfter die Region.",
+      "geo_caption": "Geschätzt anhand der Browsersprache (ungefähr) — nie dein genauer Standort, nie deine IP.",
+      "geo_empty": "Noch nicht genug Nettigkeit, um die Karte zu zeichnen 🧸",
+      "geo_elsewhere": "Anderswo auf der Welt"
+    },
+    pt: {
+      "geo_eyebrow": "Mapa de calor",
+      "geo_h2": "De onde vem a gentileza",
+      "geo_sub": "As línguas que mais abraçam trolls. Quanto mais comprida a barra, mais doce a região.",
+      "geo_caption": "Estimado pela língua do navegador (aproximado) — nunca a tua localização precisa, nunca o teu IP.",
+      "geo_empty": "Ainda não há gentileza suficiente para desenhar o mapa 🧸",
+      "geo_elsewhere": "Noutras partes do mundo"
+    },
+    nl: {
+      "geo_eyebrow": "Warmtekaart",
+      "geo_h2": "Waar de vriendelijkheid vandaan komt",
+      "geo_sub": "De talen die de meeste trollen knuffelen. Hoe langer de balk, hoe liever de regio.",
+      "geo_caption": "Geschat op basis van browsertaal (bij benadering) — nooit je precieze locatie, nooit je IP.",
+      "geo_empty": "Nog niet genoeg vriendelijkheid om de kaart te tekenen 🧸",
+      "geo_elsewhere": "Elders in de wereld"
+    }
+  };
+  for (var lang in D) { if (I[lang]) { for (var k in D[lang]) I[lang][k] = D[lang][k]; } else { I[lang] = D[lang]; } }
+})(window.I18N);

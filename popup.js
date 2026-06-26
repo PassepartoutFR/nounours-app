@@ -2,7 +2,7 @@
 const STORAGE_KEY = "uwg_state";
 const DEFAULTS = {
   enabled: true, total: 0, theme: "nounours", intensity: "medium",
-  celebrate: true, mirror: true, highlightOnly: false
+  celebrate: true, mirror: true, highlightOnly: false, remoteLists: false
 };
 const CORE = window.UWGCore;
 
@@ -11,6 +11,7 @@ const toggle = $("toggle");
 const celebrate = $("celebrate");
 const mirror = $("mirror");
 const highlightOnly = $("highlightOnly");
+const remoteLists = $("remoteLists");
 const intensityBox = $("intensity");
 const themesBox = $("themes");
 
@@ -35,6 +36,7 @@ function render(st) {
   celebrate.checked = !!st.celebrate;
   mirror.checked = !!st.mirror;
   highlightOnly.checked = !!st.highlightOnly;
+  remoteLists.checked = !!st.remoteLists;
 
   themesBox.querySelectorAll(".theme").forEach((el) => {
     el.classList.toggle("active", el.dataset.v === st.theme);
@@ -86,6 +88,9 @@ toggle.addEventListener("change", () => patch({ enabled: toggle.checked }));
 celebrate.addEventListener("change", () => patch({ celebrate: celebrate.checked }));
 mirror.addEventListener("change", () => patch({ mirror: mirror.checked }));
 highlightOnly.addEventListener("change", () => patch({ highlightOnly: highlightOnly.checked }));
+// Feature #2 — opt-in listes en ligne (défaut OFF). Activer => le service worker
+// récupérera /lists au prochain cycle ; désactiver => zéro appel réseau pour les listes.
+remoteLists.addEventListener("change", () => patch({ remoteLists: remoteLists.checked }));
 
 themesBox.addEventListener("click", (e) => {
   const el = e.target.closest(".theme");

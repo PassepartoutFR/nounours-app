@@ -103,7 +103,7 @@ function computeStats(nowMs, wallMs) {
 }
 function _reset() { // utilitaire de test : remet l'etat a zero
   for (const k in scores) delete scores[k];
-  stats.total = 0; stats.days = {}; stats.reports = {}; live.clear(); counted.clear();
+  stats.total = 0; stats.days = {}; stats.reports = {}; stats.geo = {}; live.clear(); counted.clear();
 }
 
 // retire les caracteres de controle sans regex (zero octet de controle dans la source)
@@ -141,6 +141,112 @@ function recordReport(lang) {
   const k = cleanLang(lang);
   stats.reports[k] = (Number(stats.reports[k]) || 0) + 1;
   return stats.reports[k];
+}
+
+// Feature #6 — carte de chaleur de la gentillesse : compteur AGREGE par langue
+// derive de l'en-tete Accept-Language. VIE PRIVEE : on n'incremente qu'un nombre
+// par code de langue (2 lettres), JAMAIS l'IP, jamais par utilisateur, zero texte.
+if (!stats.geo || typeof stats.geo !== "object") stats.geo = {};
+
+// Extrait le 1er sous-tag primaire (2 lettres a-z) d'un Accept-Language, sinon "??".
+// Ex. "fr-CA,fr;q=0.9,en;q=0.8" -> "fr". Tout le reste -> "??" (zero texte stocke).
+function primaryLang(acceptLanguage) {
+  const first = String(acceptLanguage == null ? "" : acceptLanguage).split(",")[0] || "";
+  const tag = first.split(";")[0].split("-")[0].trim().toLowerCase();
+  let out = "";
+  for (const ch of tag) {
+    const c = ch.codePointAt(0);
+    if (c >= 97 && c <= 122) out += ch; else break;
+    if (out.length >= 2) break;
+  }
+  return out.length === 2 ? out : "??";
+}
+function recordGeo(acceptLanguage) {
+  const k = primaryLang(acceptLanguage);
+  stats.geo[k] = (Number(stats.geo[k]) || 0) + 1;
+  return k;
+}
+// Vue publique : { regions: [ {c, n}, ... ] } triee decroissant, top ~20.
+function geo(limit) {
+  const arr = Object.keys(stats.geo)
+    .map((c) => ({ c, n: Number(stats.geo[c]) || 0 }))
+    .filter((e) => e.n > 0)
+    .sort((a, b) => b.n - a.n || a.c.localeCompare(b.c));
+  const n = Number.isFinite(limit) && limit > 0 ? limit : 20;
+  return { regions: arr.slice(0, n) };
+}
+
+// ---- Feature #2 : overrides (listes de detection editables a distance) -------
+// Objet persiste sur disque : { lex:{fr:[...],...}, replies:{nounours:{fr:[...]},...} }.
+// DATA ONLY : uniquement des tableaux de chaines. Jamais execute cote serveur ; le
+// client (uwg-core.applyOverrides) les fusionne en pures donnees. Bornes dures.
+const OV_FILE = path.join(__dirname, "overrides.json");
+const OV_MAX_ARRAY = 500;  // entrees max par tableau
+const OV_MAX_LEN = 200;    // caracteres max par entree
+let overrides = {};
+try {
+  const raw = JSON.parse(fs.readFileSync(OV_FILE, "utf8"));
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) overrides = raw;
+} catch (_) { overrides = {}; }
+
+let ovTimer = null;
+function saveOverrides() {
+  clearTimeout(ovTimer);
+  ovTimer = setTimeout(() => {
+    try { fs.writeFileSync(OV_FILE, JSON.stringify(overrides)); }
+    catch (e) { console.error("saveOverrides failed:", e.message); }
+  }, 250);
+}
+
+// Valide+nettoie un dictionnaire { code: [chaines] } (lex par langue, replies par
+// langue). Retourne null si une valeur n'est PAS un tableau de chaines (=> 400).
+// Sinon retourne une copie nettoyee. Cles bornees a 32 car.
+function sanitizeLangMap(map) {
+  if (map == null) return {};
+  if (typeof map !== "object" || Array.isArray(map)) return null;
+  const out = {};
+  for (const key of Object.keys(map)) {
+    const arr = map[key];
+    if (!Array.isArray(arr)) return null; // rejette tout non-tableau
+    if (arr.length > OV_MAX_ARRAY) return null;
+    const clean = [];
+    for (const v of arr) {
+      if (typeof v !== "string") return null; // rejette tout non-chaine
+      if (v.length > OV_MAX_LEN) return null;
+      clean.push(v);
+    }
+    out[String(key).slice(0, 32)] = clean;
+  }
+  return out;
+}
+
+// Valide le payload complet { lex?, replies? }. Renvoie {ok:true, value} ou
+// {ok:false} (=> 400). Tout ce qui n'est pas "tableaux de chaines" est rejete.
+function sanitizeOverrides(obj) {
+  if (obj == null || typeof obj !== "object" || Array.isArray(obj)) return { ok: false };
+  const value = {};
+  if ("lex" in obj) {
+    const lex = sanitizeLangMap(obj.lex);
+    if (lex === null) return { ok: false };
+    value.lex = lex;
+  }
+  if ("replies" in obj) {
+    const reps = obj.replies;
+    if (reps == null) {
+      value.replies = {};
+    } else if (typeof reps !== "object" || Array.isArray(reps)) {
+      return { ok: false };
+    } else {
+      const outReps = {};
+      for (const theme of Object.keys(reps)) {
+        const byLang = sanitizeLangMap(reps[theme]);
+        if (byLang === null) return { ok: false };
+        outReps[String(theme).slice(0, 32)] = byLang;
+      }
+      value.replies = outReps;
+    }
+  }
+  return { ok: true, value };
 }
 
 // Code d'equipe nettoye : caracteres imprimables, <= 24, sans donnee perso imposee.
@@ -246,8 +352,21 @@ const server = http.createServer((req, res) => {
     return sendJson(res, 200, { teams: teams(limit) });
   }
 
+  // Feature #6 — carte de chaleur (PUBLIC) : { regions: [{c, n}, ...] } top ~20.
+  if (req.method === "GET" && u.pathname === "/geo") {
+    return sendJson(res, 200, geo(20));
+  }
+
+  // Feature #2 — listes editables (PUBLIC, lecture seule, cacheable) : renvoie les
+  // overrides courants (DATA ONLY) ou {} si aucun. Le client les fusionne en donnees.
+  if (req.method === "GET" && u.pathname === "/lists") {
+    res.setHeader("Cache-Control", "public, max-age=300");
+    return sendJson(res, 200, overrides || {});
+  }
+
   // ---- Routes admin (gardees par X-Admin-Key vs NOUNOURS_ADMIN_KEY) ----------
-  if (u.pathname === "/admin/overview" || u.pathname === "/admin/scores" || u.pathname === "/admin/delete") {
+  if (u.pathname === "/admin/overview" || u.pathname === "/admin/scores" ||
+      u.pathname === "/admin/delete" || u.pathname === "/admin/lists") {
     const envKey = process.env.NOUNOURS_ADMIN_KEY || "";
     if (!envKey) return sendJson(res, 403, { error: "admin disabled" });
     const provided = req.headers["x-admin-key"];
@@ -288,6 +407,24 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // Feature #2 — remplace les overrides (DATA ONLY). Corps borne a ~512 Ko (les
+    // listes peuvent etre volumineuses : 500 entrees x 200 car x N langues). On
+    // VALIDE strictement (tableaux de chaines, bornes) ; tout le reste -> 400.
+    if (req.method === "POST" && u.pathname === "/admin/lists") {
+      let body = "";
+      req.on("data", (c) => { body += c; if (body.length > 524288) req.destroy(); });
+      req.on("end", () => {
+        let d;
+        try { d = JSON.parse(body || "{}"); } catch (_) { return sendJson(res, 400, { error: "bad json" }); }
+        const v = sanitizeOverrides(d);
+        if (!v.ok) return sendJson(res, 400, { error: "overrides invalides (tableaux de chaines uniquement)" });
+        overrides = v.value;
+        saveOverrides();
+        return sendJson(res, 200, { ok: true });
+      });
+      return;
+    }
+
     return sendJson(res, 404, { error: "not found" });
   }
 
@@ -300,7 +437,12 @@ const server = http.createServer((req, res) => {
       const sid = String(d.sid || "").slice(0, 64);
       const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || "";
       const now = Date.now();
-      return sendJson(res, 200, { ok: true, live: recordBeat(sid, ip, now, now) });
+      const live = recordBeat(sid, ip, now, now);
+      // Feature #6 — carte de chaleur : compteur agrege par langue (Accept-Language).
+      // VIE PRIVEE : un nombre par code de langue, jamais l'IP, jamais par utilisateur.
+      recordGeo(req.headers["accept-language"]);
+      saveStats();
+      return sendJson(res, 200, { ok: true, live });
     });
     return;
   }
@@ -382,5 +524,7 @@ module.exports = {
   leaderboard, recordBeat, computeLive, computeStats, _reset,
   checkAdminKey, adminScores,
   recordReport, cleanLang, teams, cleanTeam,
+  recordGeo, primaryLang, geo,
+  sanitizeOverrides,
   scores, stats, LIVE_CAP_PER_IP, LIVE_WINDOW,
 };
