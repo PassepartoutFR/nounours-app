@@ -5,12 +5,16 @@
   "use strict";
 
   // --- normalisation : minuscule, sans accents, apostrophes droites -----------
+  // anti-obfuscation : leetspeak (c0nnard) + lettres répétées (saloooope)
+  const LEET = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s" };
   const norm = (s) =>
     s
       .toLowerCase()
       .normalize("NFD")
       .replace(/[̀-ͯ]/g, "")
-      .replace(/[‘’ʼ]/g, "'");
+      .replace(/[‘’ʼ]/g, "'")
+      .replace(/[013457@$]/g, (c) => LEET[c])
+      .replace(/(.)\1+/g, "$1");
 
   const LANGS = ["fr", "en", "es", "it", "de", "pt", "nl"];
 

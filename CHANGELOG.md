@@ -6,6 +6,8 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 ### Ajouté
 - 🌟 **Nounours Légendaire** : ~1 commentaire méchant sur 25 réveille une réponse
   **dorée et brillante** (rare, stable par texte, multilingue).
+- 🛡️ **Détection anti-obfuscation** : reconnaît le *leetspeak* (`c0nnard`, `5tupid`,
+  `d3gage`) et les **lettres répétées** (`saloooope`), sans surdétecter le texte normal.
 
 ## [0.6.0] — non publié
 ### Ajouté

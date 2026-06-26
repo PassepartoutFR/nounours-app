@@ -29,6 +29,13 @@ ok(C.detect("Sei uno stupido, taci.", "fr") === "it", "detect IT");
 ok(C.detect("Hou je mond, mislukkeling.", "fr") === "nl", "detect NL");
 ok(C.detect("C'est joli, bravo !", "fr") === null, "gentil -> null");
 
+// ---- anti-obfuscation ----
+ok(C.detect("t'es vraiment c0nnard", "fr") === "fr", "leet: c0nnard détecté");
+ok(C.detect("saloooope", "fr") === "fr", "lettres répétées détectées");
+ok(C.detect("you are 5tupid", "en") === "en", "leet EN: 5tupid");
+ok(C.detect("d3gage espece de debile", "fr") === "fr", "leet: d3gage");
+ok(C.detect("Belle journée 2024, bravo à tous", "fr") === null, "texte normal avec chiffres -> null");
+
 // ---- uwg-core : réponses thèmes / intensité ----
 const seed = "quel idiot, t'es nul";
 ok(C.reply({ theme: "nounours", intensity: "medium", lang: "fr", seed }).startsWith("🧸"), "reply nounours");
