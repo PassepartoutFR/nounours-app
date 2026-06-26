@@ -89,6 +89,49 @@
     return res.json();
   }
 
+  // Feature #4 — signale un faux positif (« pas méchant »). N'envoie QUE le code de
+  // langue détecté (ex. "fr") : jamais le commentaire ni l'URL. Best-effort et
+  // silencieux : ne casse jamais la lecture si le serveur est absent.
+  async function reportFalsePositive(lang) {
+    try {
+      const ep = await endpoint();
+      const code = String(lang || "").slice(0, 2).toLowerCase();
+      await fetch(ep + "/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lang: code })
+      });
+      return { ok: true };
+    } catch (_) {
+      return { ok: false };
+    }
+  }
+
+  // Feature #10 — rejoint une équipe (code libre, ≤ 24, aucune donnée perso).
+  // Vérifié par token côté serveur (comme /score). "" = quitter l'équipe.
+  async function joinTeam(team) {
+    const acc = await ensureAccount();
+    const ep = await endpoint();
+    const clean = String(team || "").slice(0, 24);
+    const res = await fetch(ep + "/team/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: acc.uid, token: acc.token, team: clean })
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    await update({ team: (data && typeof data.team === "string") ? data.team : clean });
+    return data;
+  }
+
+  // Feature #10 — classement agrégé des équipes (public, sans identifiant).
+  async function fetchTeams(limit) {
+    const ep = await endpoint();
+    const res = await fetch(ep + "/teams?limit=" + (limit || 20));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }
+
   async function join(pseudo) {
     await update({ pseudo: String(pseudo || "").slice(0, 24), optedIn: true });
     return postScore();
@@ -121,7 +164,8 @@
   const api = {
     ensureAccount, getAccount: ensureAccount, update,
     postScore, fetchLeaderboard, join, leave, endpoint, DEFAULT_EP,
-    exportAccount, importAccount
+    exportAccount, importAccount,
+    reportFalsePositive, joinTeam, fetchTeams
   };
   if (typeof self !== "undefined") self.UWGBoard = api;
   if (typeof window !== "undefined") window.UWGBoard = api;

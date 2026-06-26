@@ -7,6 +7,33 @@
   const CORE = (typeof window !== "undefined" && window.UWGCore) || globalThis.UWGCore;
   if (!CORE) return; // noyau absent : on ne casse rien
 
+  // Board (compte sans compte) — présent dans le popup, PAS dans le content script
+  // (scoreboard.js n'est pas injecté ici). On l'utilise s'il existe, sinon on poste
+  // nous-mêmes le signalement (langue SEULE) via l'endpoint stocké.
+  const BOARD = (typeof window !== "undefined" && window.UWGBoard) || null;
+  const EP_KEY = "uwg_endpoint";
+  const DEFAULT_EP = "https://nounours.app/api";
+
+  // Envoie un signalement de faux positif. VIE PRIVÉE : transmet UNIQUEMENT le code
+  // de langue (2 lettres) — jamais le commentaire ni l'URL. Best-effort, silencieux.
+  function sendReport(lang) {
+    const code = String(lang || "").slice(0, 2).toLowerCase();
+    if (BOARD && typeof BOARD.reportFalsePositive === "function") {
+      try { BOARD.reportFalsePositive(code); } catch (_) {}
+      return;
+    }
+    try {
+      chrome.storage.local.get(EP_KEY, (r) => {
+        const ep = String((r && r[EP_KEY]) || DEFAULT_EP).replace(/\/+$/, "");
+        fetch(ep + "/report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lang: code })
+        }).catch(() => {});
+      });
+    } catch (_) { /* contexte sans storage : on ignore */ }
+  }
+
   const STORAGE_KEY = "uwg_state";
   const DEFAULTS = {
     enabled: true,
@@ -78,6 +105,54 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Feature #4 — Signalement « pas méchant » (boucle qualité, PRIVÉ)
+  // ---------------------------------------------------------------------------
+  // Petit drapeau ⚐ discret : invisible au repos, il apparaît au survol du passage
+  // adouci. Un clic envoie un signalement et donne un minuscule accusé visuel.
+  // VIE PRIVÉE : on ne transmet QUE le code de langue (span.dataset.lang) — jamais
+  // le commentaire ni l'URL. Tout est en styles inline (aucune dépendance CSS) et le
+  // clic n'altère NI le basculement révéler/cacher, NI les cœurs, NI les badges.
+  function addReportFlag(span) {
+    const flag = document.createElement("span");
+    flag.className = "uwg-report";
+    flag.setAttribute("role", "button");
+    flag.setAttribute("tabindex", "0");
+    flag.setAttribute("aria-label", "Signaler : pas méchant");
+    flag.title = "Pas méchant ? Signaler ce faux positif";
+    flag.textContent = "⚐";
+    // discret : minuscule, atténué, n'apparaît qu'au survol (géré plus bas).
+    flag.style.cssText =
+      "cursor:pointer;font-size:.8em;margin-left:.25em;opacity:0;" +
+      "transition:opacity .15s;vertical-align:super;line-height:1;" +
+      "color:#a47b53;user-select:none;";
+    const show = () => { if (!flag.dataset.done) flag.style.opacity = ".55"; };
+    const hide = () => { if (!flag.dataset.done) flag.style.opacity = "0"; };
+    span.addEventListener("mouseenter", show);
+    span.addEventListener("mouseleave", hide);
+    flag.addEventListener("mouseenter", () => { if (!flag.dataset.done) flag.style.opacity = "1"; });
+
+    function fire(e) {
+      e.preventDefault();
+      e.stopPropagation(); // ne pas déclencher revealToggle du span parent
+      if (flag.dataset.done) return;
+      flag.dataset.done = "1";
+      sendReport(span.dataset.lang || ""); // best-effort, silencieux, langue SEULE
+      // accusé minuscule : le drapeau devient un ✓ vert, figé visible.
+      flag.textContent = "✓";
+      flag.style.color = "#1f6b4d";
+      flag.style.opacity = "1";
+      flag.style.cursor = "default";
+      flag.title = "Merci, c'est signalé 🙏";
+      flag.setAttribute("aria-label", "Signalé : merci");
+    }
+    flag.addEventListener("click", fire);
+    flag.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") fire(e);
+    });
+    span.appendChild(flag);
+  }
+
+  // ---------------------------------------------------------------------------
   // Remplacement
   // ---------------------------------------------------------------------------
   let pending = 0;
@@ -144,6 +219,8 @@
     if (legendary) pendingLegendary++;
     // Cœurs sur TOUT endroit filtre — mais pas en mode surlignage (on n'altère rien).
     if (state.celebrate && !highlight) sprinkleHearts(span);
+    // Affordance « pas méchant » (faux positif) — discrète, sur tout passage adouci.
+    addReportFlag(span);
   }
 
   function walk(root) {

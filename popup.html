@@ -164,6 +164,17 @@
     <div id="boardView" style="display:none;">
       <div class="me-line" id="boardMe"></div>
       <ol id="boardList"></ol>
+      <div class="team">
+        <h4 style="margin:10px 0 5px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#a47b53;">🛡️ Équipe</h4>
+        <div id="teamJoin" class="join">
+          <input id="teamInput" placeholder="Code d'équipe" maxlength="24" />
+          <button id="teamJoinBtn">Rejoindre</button>
+        </div>
+        <div id="teamView" style="display:none;">
+          <div class="me-line" id="teamMe"></div>
+          <button class="linkbtn" id="teamLeaveBtn">Quitter l'équipe</button>
+        </div>
+      </div>
       <div class="links">
         <button class="linkbtn" id="renameBtn">Changer de pseudo</button>
         <button class="linkbtn" id="leaveBtn">Quitter</button>

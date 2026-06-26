@@ -109,6 +109,12 @@
       <div class="tiles" id="tiles"></div>
       <div class="stamp" id="stamp"></div>
 
+      <h2>Faux positifs signalés (par langue)</h2>
+      <div class="card" style="padding:14px 16px">
+        <div class="hint" style="margin:0 0 8px">Nombre de fois où des lecteurs ont signalé « pas méchant » sur un passage adouci. Données <b>agrégées</b> : uniquement des compteurs par code de langue — aucun texte, aucune URL, aucun identifiant.</div>
+        <div id="reportsWrap"></div>
+      </div>
+
       <h2>Classement (modération)</h2>
       <div class="card" style="padding:14px 16px">
         <div class="hint" style="margin:0 0 8px">Supprimer une entrée abusive la retire définitivement du classement (persisté côté serveur).</div>
@@ -195,6 +201,27 @@
           '<div class="k">' + esc(r[1]) + "</div></div>";
       }).join("");
       $("stamp").textContent = o.serverTime ? ("Heure serveur : " + o.serverTime) : "";
+      renderReports(o.reports);
+    }
+
+    // Faux positifs signalés : compteurs agrégés par code de langue {fr: n, ...}.
+    function renderReports(reports) {
+      var w = $("reportsWrap");
+      if (!w) return;
+      var entries = Object.keys(reports || {}).map(function (k) {
+        return { lang: k, n: Number((reports || {})[k]) || 0 };
+      }).filter(function (e) { return e.n > 0; });
+      if (!entries.length) {
+        w.innerHTML = '<div class="hint">Aucun faux positif signalé pour l\'instant. 🧸</div>';
+        return;
+      }
+      entries.sort(function (a, b) { return b.n - a.n || a.lang.localeCompare(b.lang); });
+      var body = entries.map(function (e) {
+        return "<tr><td>" + esc(e.lang) + '</td><td class="num">' + fmt(e.n) + "</td></tr>";
+      }).join("");
+      w.innerHTML =
+        '<table><thead><tr><th>Langue</th><th class="num">Signalements</th></tr></thead><tbody>' +
+        body + "</tbody></table>";
     }
 
     function renderScores(arr) {

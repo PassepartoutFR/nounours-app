@@ -148,11 +148,43 @@ async function refreshBoard() {
       ol.appendChild(li);
     }
     if (!lb.top.length) ol.innerHTML = "<li class='note'>Personne encore. Sois le premier 🧸</li>";
+    await refreshTeam();
   } catch (e) {
     $("boardList").innerHTML = "";
     $("boardMe").textContent = "";
     showErr("Serveur de classement hors-ligne. (Lance server/server.js)");
   }
+}
+
+// ---------------------------------------------------------------------------
+// Équipe / guilde (opt-in, code libre — aucune donnée perso)
+// ---------------------------------------------------------------------------
+async function refreshTeam() {
+  const acc = await Board.getAccount();
+  const team = (acc.team || "").trim();
+  const teamJoin = $("teamJoin");
+  const teamView = $("teamView");
+  if (!team) {
+    teamJoin.style.display = "flex";
+    teamView.style.display = "none";
+    $("teamInput").value = "";
+    return;
+  }
+  teamJoin.style.display = "none";
+  teamView.style.display = "block";
+  // affiche le nom de l'équipe + son rang dans le classement des équipes
+  let line = "Équipe : " + escapeHtml(team);
+  try {
+    const data = await Board.fetchTeams(50);
+    const list = (data && data.teams) || [];
+    const idx = list.findIndex((t) => t.team === team);
+    if (idx >= 0) {
+      const t = list[idx];
+      line = "🛡️ " + escapeHtml(team) + " — #" + t.rank + " · " + t.total + " câlin(s) · " +
+        t.members + " membre" + (t.members > 1 ? "s" : "");
+    }
+  } catch (_) { /* serveur offline : on garde juste le nom */ }
+  $("teamMe").innerHTML = line;
 }
 
 function escapeHtml(s) {
@@ -181,6 +213,27 @@ $("renameBtn").addEventListener("click", async () => {
 $("leaveBtn").addEventListener("click", async () => {
   await Board.leave();
   refreshBoard();
+});
+
+// --- équipe : rejoindre / quitter ---
+$("teamJoinBtn").addEventListener("click", async () => {
+  const t = $("teamInput").value.trim().slice(0, 24);
+  if (!t) { $("teamInput").focus(); return; }
+  try {
+    await Board.joinTeam(t);
+  } catch (_) {
+    showErr("Impossible de rejoindre l'équipe (serveur hors-ligne ?).");
+    return;
+  }
+  showErr("");
+  await refreshTeam();
+});
+$("teamInput").addEventListener("keydown", (e) => { if (e.key === "Enter") $("teamJoinBtn").click(); });
+
+$("teamLeaveBtn").addEventListener("click", async () => {
+  try { await Board.joinTeam(""); } catch (_) { /* serveur offline : on retire localement */ }
+  await Board.update({ team: "" });
+  await refreshTeam();
 });
 
 // --- export / import d'identité (ne jamais perdre son score) ---

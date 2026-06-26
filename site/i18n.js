@@ -189,3 +189,96 @@ window.I18N = {
   };
   for (var lang in D) { if (I[lang]) { for (var k in D[lang]) I[lang][k] = D[lang][k]; } else { I[lang] = D[lang]; } }
 })(window.I18N);
+
+// --- Compteur mondial live (#5) + Météo de la gentillesse (#7) : ADDITIF 2026-06-26
+// Bloc strictement additif : fusionne ses clés dans chaque langue sans toucher aux
+// dictionnaires ci-dessus. t() retombe sur le FR si une clé manque.
+(function (I) {
+  var D = {
+    fr: {
+      "ticker_label": "trolls câlinés dans le monde 🧸",
+      "ticker_hint": "et ça monte à chaque méchanceté adoucie",
+      "wx_eyebrow": "La météo du jour",
+      "wx_today": "Aujourd'hui",
+      "wx_softness": "de douceur",
+      "wx_0_emo": "🌧️", "wx_0_label": "bruine grognon",
+      "wx_1_emo": "⛅", "wx_1_label": "éclaircies tendres",
+      "wx_2_emo": "🌤️", "wx_2_label": "doux ensoleillé",
+      "wx_3_emo": "☀️", "wx_3_label": "ensoleillé câlin",
+      "wx_4_emo": "🌈", "wx_4_label": "arc-en-ciel de tendresse"
+    },
+    en: {
+      "ticker_label": "trolls hugged worldwide 🧸",
+      "ticker_hint": "and it climbs with every softened meanness",
+      "wx_eyebrow": "Today's weather",
+      "wx_today": "Today",
+      "wx_softness": "softness",
+      "wx_0_emo": "🌧️", "wx_0_label": "grumpy drizzle",
+      "wx_1_emo": "⛅", "wx_1_label": "tender clearings",
+      "wx_2_emo": "🌤️", "wx_2_label": "gently sunny",
+      "wx_3_emo": "☀️", "wx_3_label": "sunny & cuddly",
+      "wx_4_emo": "🌈", "wx_4_label": "rainbow of tenderness"
+    },
+    es: {
+      "ticker_label": "trolls abrazados en el mundo 🧸",
+      "ticker_hint": "y sube con cada maldad suavizada",
+      "wx_eyebrow": "El tiempo de hoy",
+      "wx_today": "Hoy",
+      "wx_softness": "de ternura",
+      "wx_0_emo": "🌧️", "wx_0_label": "llovizna gruñona",
+      "wx_1_emo": "⛅", "wx_1_label": "claros tiernos",
+      "wx_2_emo": "🌤️", "wx_2_label": "soleado suave",
+      "wx_3_emo": "☀️", "wx_3_label": "soleado y mimoso",
+      "wx_4_emo": "🌈", "wx_4_label": "arcoíris de ternura"
+    },
+    it: {
+      "ticker_label": "troll abbracciati nel mondo 🧸",
+      "ticker_hint": "e sale a ogni cattiveria addolcita",
+      "wx_eyebrow": "Il meteo di oggi",
+      "wx_today": "Oggi",
+      "wx_softness": "di tenerezza",
+      "wx_0_emo": "🌧️", "wx_0_label": "pioggerella brontolona",
+      "wx_1_emo": "⛅", "wx_1_label": "schiarite tenere",
+      "wx_2_emo": "🌤️", "wx_2_label": "dolce soleggiato",
+      "wx_3_emo": "☀️", "wx_3_label": "soleggiato coccoloso",
+      "wx_4_emo": "🌈", "wx_4_label": "arcobaleno di tenerezza"
+    },
+    de: {
+      "ticker_label": "geknuddelte Trolle weltweit 🧸",
+      "ticker_hint": "und es steigt mit jeder besänftigten Gemeinheit",
+      "wx_eyebrow": "Das Wetter heute",
+      "wx_today": "Heute",
+      "wx_softness": "Sanftheit",
+      "wx_0_emo": "🌧️", "wx_0_label": "grummeliger Nieselregen",
+      "wx_1_emo": "⛅", "wx_1_label": "zärtliche Auflockerungen",
+      "wx_2_emo": "🌤️", "wx_2_label": "sanft sonnig",
+      "wx_3_emo": "☀️", "wx_3_label": "sonnig & kuschelig",
+      "wx_4_emo": "🌈", "wx_4_label": "Regenbogen der Zärtlichkeit"
+    },
+    pt: {
+      "ticker_label": "trolls abraçados no mundo 🧸",
+      "ticker_hint": "e sobe a cada maldade suavizada",
+      "wx_eyebrow": "O tempo de hoje",
+      "wx_today": "Hoje",
+      "wx_softness": "de ternura",
+      "wx_0_emo": "🌧️", "wx_0_label": "chuvisco rabugento",
+      "wx_1_emo": "⛅", "wx_1_label": "abertas ternas",
+      "wx_2_emo": "🌤️", "wx_2_label": "sol suave",
+      "wx_3_emo": "☀️", "wx_3_label": "soalheiro e aconchegante",
+      "wx_4_emo": "🌈", "wx_4_label": "arco-íris de ternura"
+    },
+    nl: {
+      "ticker_label": "geknuffelde trollen wereldwijd 🧸",
+      "ticker_hint": "en het stijgt bij elke verzachte gemeenheid",
+      "wx_eyebrow": "Het weer van vandaag",
+      "wx_today": "Vandaag",
+      "wx_softness": "zachtheid",
+      "wx_0_emo": "🌧️", "wx_0_label": "knorrige motregen",
+      "wx_1_emo": "⛅", "wx_1_label": "tedere opklaringen",
+      "wx_2_emo": "🌤️", "wx_2_label": "zacht zonnig",
+      "wx_3_emo": "☀️", "wx_3_label": "zonnig & knuffelig",
+      "wx_4_emo": "🌈", "wx_4_label": "regenboog van tederheid"
+    }
+  };
+  for (var lang in D) { if (I[lang]) { for (var k in D[lang]) I[lang][k] = D[lang][k]; } else { I[lang] = D[lang]; } }
+})(window.I18N);

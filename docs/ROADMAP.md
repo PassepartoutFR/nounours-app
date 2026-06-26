@@ -49,6 +49,7 @@ sections = la priorité.
 - 🌟 **Nounours Légendaire** (easter egg doré) · 🛡️ **anti-obfuscation** (leetspeak / lettres répétées) · 🏅 **succès & badges** (10) + 🔥 **séries quotidiennes** · 🖼️ **carte sociale partageable** dans le popup · `CHANGELOG.md`.
 - 🇵🇱 **Polonais** (8ᵉ langue) · 🖍️ **mode surligner sans remplacer** · 📄 **README EN + FAQ**.
 - 🛠️ **Panneau admin** (`site/admin.html` + `/admin/*`, clé en env) : santé/stats + modération du classement. *(à déployer : poser `NOUNOURS_ADMIN_KEY`)*
+- 🚩 **Faux positifs signalables** (code de langue seul) · 🛡️ **équipes/guildes** · 🌍 **compteur mondial live** · ☀️ **météo de la gentillesse**. *(serveur + site à déployer)*
 - 📊 **Tableau des gentils** : données vivantes sur le site (visiteurs en direct +
   stats agrégées), respect total de la vie privée — **déployé + live 2026-06-26**.
 - Site **nounours.app** multilingue + page vie privée.

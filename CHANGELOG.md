@@ -29,6 +29,15 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
   du classement** (retirer une entrée), protégé par une **clé en variable d'env**
   (`NOUNOURS_ADMIN_KEY`, jamais commitée ; admin désactivé si absente). Endpoints
   `/admin/overview|scores|delete` sur les deux serveurs jumeaux (Node + Python).
+- 🚩 **Signalement « pas méchant »** (faux positif) : un drapeau discret sur chaque
+  message adouci permet de signaler une fausse détection — n'envoie **QUE le code de
+  langue** (jamais le texte ni l'URL). Compteur agrégé par langue, visible dans l'admin.
+- 🛡️ **Équipes / guildes** (opt-in) : rejoins une équipe avec un **code libre** ;
+  vos câlins se cumulent → **classement d'équipes**. Aucune donnée perso (juste le code).
+- 🌍 **Compteur mondial live** (site) : grand compteur animé « X trolls câlinés »
+  sur la home, rafraîchi en direct, avec éclat aux paliers ronds.
+- ☀️ **Météo de la gentillesse** (site) : humeur du jour calculée sur les stats
+  agrégées (« ensoleillé câlin · 92 % de douceur »), traduite, **100 % côté client**.
 
 ## [0.6.0] — non publié
 ### Ajouté

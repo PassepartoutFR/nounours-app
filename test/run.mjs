@@ -139,5 +139,34 @@ ok(SRV.checkAdminKey("mauvaise", "s3cr3t") === false, "cle admin erronee -> fals
 ok(SRV.checkAdminKey("peu importe", "") === false, "cle serveur vide (admin désactivé) -> false");
 ok(SRV.adminScores()[0].total >= SRV.adminScores()[1].total, "adminScores trié décroissant");
 
+// ---- server.js : Feature #4 — faux positifs signalés (compteur par langue) ----
+SRV._reset();
+ok(typeof SRV.recordReport === "function", "recordReport exposé");
+SRV.recordReport("fr"); SRV.recordReport("fr"); SRV.recordReport("en");
+ok(SRV.stats.reports.fr === 2 && SRV.stats.reports.en === 1, "reports comptés par langue");
+ok(SRV.cleanLang("FR") === "fr", "cleanLang normalise la casse");
+ok(SRV.cleanLang("texte du commentaire") === "te", "cleanLang ne garde que 2 lettres (zéro texte)");
+ok(SRV.cleanLang("9!") === "xx", "cleanLang : non-langue -> xx");
+
+// ---- server.js : Feature #10 — équipes (jointure + agrégation) ----
+SRV._reset();
+SRV.scores.a = { token: "t", pseudo: "A", total: 30, team: SRV.cleanTeam("Les Nounours") };
+SRV.scores.b = { token: "t", pseudo: "B", total: 12, team: SRV.cleanTeam("Les Nounours") };
+SRV.scores.c = { token: "t", pseudo: "C", total: 50, team: SRV.cleanTeam("Solo") };
+SRV.scores.d = { token: "t", pseudo: "D", total: 5 }; // sans équipe -> ignoré
+const _teams = SRV.teams(10);
+const _nounours = _teams.find((e) => e.team === "Les Nounours");
+ok(_nounours && _nounours.total === 42, "équipe : somme des totaux des membres");
+ok(_nounours && _nounours.members === 2, "équipe : nombre de membres");
+ok(_teams[0].team === "Solo" && _teams[0].total >= _teams[1].total, "équipes triées décroissant");
+ok(_teams.length === 2, "membres sans équipe non comptés");
+ok(_teams[0].rank === 1 && _teams[1].rank === 2, "rangs d'équipe attribués");
+ok(SRV.cleanTeam("x".repeat(40)).length === 24, "cleanTeam borne à 24");
+// jointure : verrouillée par token (comme /score)
+SRV._reset();
+SRV.scores.u = { token: "good", pseudo: "U", total: 7 };
+SRV.scores.u.team = SRV.cleanTeam("Équipe ☀️");
+ok(SRV.teams(5)[0].team === "Équipe ☀️" && SRV.teams(5)[0].members === 1, "joindre une équipe la crée");
+
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);

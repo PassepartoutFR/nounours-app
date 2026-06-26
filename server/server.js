@@ -43,6 +43,9 @@ try { stats = JSON.parse(fs.readFileSync(STATS, "utf8")); if (!stats || typeof s
 catch (_) { stats = {}; }
 if (typeof stats.total !== "number") stats.total = 0;
 if (!stats.days || typeof stats.days !== "object") stats.days = {};
+// Faux positifs signales : compteurs AGREGES par langue (vie privee : aucun texte,
+// aucune URL, jamais d'identifiant — juste {fr: n, en: n, ...}). Persiste avec stats.
+if (!stats.reports || typeof stats.reports !== "object") stats.reports = {};
 
 const live = new Map();   // sid -> { ts, ip }  (jamais persiste)
 const counted = new Set(); // sids deja comptes comme "visite"
@@ -100,7 +103,7 @@ function computeStats(nowMs, wallMs) {
 }
 function _reset() { // utilitaire de test : remet l'etat a zero
   for (const k in scores) delete scores[k];
-  stats.total = 0; stats.days = {}; live.clear(); counted.clear();
+  stats.total = 0; stats.days = {}; stats.reports = {}; live.clear(); counted.clear();
 }
 
 // retire les caracteres de controle sans regex (zero octet de controle dans la source)
@@ -117,6 +120,57 @@ function clampInt(n) {
   if (!Number.isFinite(n) || n < 0) n = 0;
   if (n > MAX_TOTAL) n = MAX_TOTAL;
   return n;
+}
+
+// Code de langue normalise : 2 lettres a-z minuscules (ex. "fr"). Tout le reste
+// (texte, casse, chiffres, separateurs) est rejete -> "xx" (inconnu). Garantit que
+// le compteur de faux positifs ne stocke QUE des codes de langue, jamais de texte.
+function cleanLang(l) {
+  let out = "";
+  for (const ch of String(l == null ? "" : l).toLowerCase()) {
+    const c = ch.codePointAt(0);
+    if (c >= 97 && c <= 122) out += ch; // a-z
+    if (out.length >= 2) break;
+  }
+  return out.length === 2 ? out : "xx";
+}
+
+// Feature #4 — incremente le compteur AGREGE de faux positifs pour une langue.
+// Ne stocke qu'un nombre par code de langue (zero texte, zero URL). Renvoie le total.
+function recordReport(lang) {
+  const k = cleanLang(lang);
+  stats.reports[k] = (Number(stats.reports[k]) || 0) + 1;
+  return stats.reports[k];
+}
+
+// Code d'equipe nettoye : caracteres imprimables, <= 24, sans donnee perso imposee.
+// Vide -> "" (= quitter / pas d'equipe).
+function cleanTeam(t) {
+  let out = "";
+  for (const ch of String(t == null ? "" : t)) {
+    const c = ch.codePointAt(0);
+    if (c >= 32 && c !== 127) out += ch;
+  }
+  return out.trim().slice(0, 24);
+}
+
+// Feature #10 — classement agrege des equipes : somme des totaux des membres par
+// equipe, tri decroissant. [{rank, team, total, members}].
+function teams(limit) {
+  const agg = new Map(); // team -> { total, members }
+  for (const v of Object.values(scores)) {
+    const t = v && typeof v.team === "string" ? v.team : "";
+    if (!t) continue;
+    const cur = agg.get(t) || { total: 0, members: 0 };
+    cur.total += clampInt(v.total || 0);
+    cur.members += 1;
+    agg.set(t, cur);
+  }
+  const arr = [...agg.entries()]
+    .map(([team, a]) => ({ team, total: a.total, members: a.members }))
+    .sort((a, b) => b.total - a.total || a.team.localeCompare(b.team));
+  const n = Number.isFinite(limit) && limit > 0 ? limit : arr.length;
+  return arr.slice(0, n).map((e, i) => ({ rank: i + 1, team: e.team, total: e.total, members: e.members }));
 }
 
 // ---- Admin (mainteneur) : sante + stats + moderation du classement ----------
@@ -187,6 +241,11 @@ const server = http.createServer((req, res) => {
     return sendJson(res, 200, computeStats(now, now));
   }
 
+  if (req.method === "GET" && u.pathname === "/teams") {
+    const limit = Math.min(100, Math.max(1, parseInt(u.searchParams.get("limit") || "20", 10)));
+    return sendJson(res, 200, { teams: teams(limit) });
+  }
+
   // ---- Routes admin (gardees par X-Admin-Key vs NOUNOURS_ADMIN_KEY) ----------
   if (u.pathname === "/admin/overview" || u.pathname === "/admin/scores" || u.pathname === "/admin/delete") {
     const envKey = process.env.NOUNOURS_ADMIN_KEY || "";
@@ -205,6 +264,7 @@ const server = http.createServer((req, res) => {
         live: s.live,
         today: s.today,
         total: s.total,
+        reports: Object.assign({}, stats.reports),
         serverTime: new Date(now).toISOString(),
       });
     }
@@ -241,6 +301,43 @@ const server = http.createServer((req, res) => {
       const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || "";
       const now = Date.now();
       return sendJson(res, 200, { ok: true, live: recordBeat(sid, ip, now, now) });
+    });
+    return;
+  }
+
+  // Feature #4 — signalement de faux positif (PUBLIC, corps minuscule). Le corps ne
+  // doit transporter QUE {lang}. On borne le corps a 256 o (anti-abus) et on
+  // n'incremente qu'un compteur agrege par langue (zero texte stocke).
+  if (req.method === "POST" && u.pathname === "/report") {
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 256) req.destroy(); });
+    req.on("end", () => {
+      let d = {};
+      try { d = JSON.parse(body || "{}"); } catch (_) { d = {}; }
+      const n = recordReport(d.lang);
+      saveStats();
+      return sendJson(res, 200, { ok: true, count: n });
+    });
+    return;
+  }
+
+  // Feature #10 — rejoindre une equipe (token verifie comme /score). Body {uid, token, team}.
+  if (req.method === "POST" && u.pathname === "/team/join") {
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 4096) req.destroy(); });
+    req.on("end", () => {
+      let d;
+      try { d = JSON.parse(body); } catch (_) { return sendJson(res, 400, { error: "bad json" }); }
+      const uid = String(d.uid || "").slice(0, 64);
+      const token = String(d.token || "").slice(0, 128);
+      if (!uid || !token) return sendJson(res, 400, { error: "uid/token requis" });
+      const cur = scores[uid];
+      if (!cur) return sendJson(res, 404, { error: "inconnu" });
+      if (cur.token !== token) return sendJson(res, 403, { error: "token invalide" });
+      const team = cleanTeam(d.team);
+      if (team) cur.team = team; else delete cur.team;
+      save();
+      return sendJson(res, 200, { ok: true, team });
     });
     return;
   }
@@ -284,5 +381,6 @@ if (require.main === module) {
 module.exports = {
   leaderboard, recordBeat, computeLive, computeStats, _reset,
   checkAdminKey, adminScores,
+  recordReport, cleanLang, teams, cleanTeam,
   scores, stats, LIVE_CAP_PER_IP, LIVE_WINDOW,
 };

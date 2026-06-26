@@ -64,6 +64,9 @@ except Exception:
     stats = {}
 stats.setdefault("total", 0)
 stats.setdefault("days", {})
+# Faux positifs signales : compteurs AGREGES par langue (vie privee : aucun texte,
+# aucune URL, jamais d'identifiant — juste {"fr": n, ...}). Persiste avec stats.
+stats.setdefault("reports", {})
 
 _live = {}        # sid -> (last_seen_monotonic, ip)  (jamais persiste)
 _counted = set()  # sids deja comptes comme "visite" (dedup par session)
@@ -141,6 +144,55 @@ def clamp_int(n):
     if n > MAX_TOTAL:
         n = MAX_TOTAL
     return n
+
+def clean_lang(l):
+    # Code de langue normalise : 2 lettres a-z minuscules (ex. "fr"). Tout le reste
+    # (texte, casse, chiffres) -> "xx". Garantit que le compteur de faux positifs ne
+    # stocke QUE des codes de langue, jamais de texte.
+    s = "" if l is None else str(l).lower()
+    out = ""
+    for ch in s:
+        if "a" <= ch <= "z":
+            out += ch
+        if len(out) >= 2:
+            break
+    return out if len(out) == 2 else "xx"
+
+
+def record_report(lang):
+    # Feature #4 — incremente le compteur AGREGE de faux positifs pour une langue.
+    # Ne stocke qu'un nombre par code de langue (zero texte, zero URL). Renvoie le total.
+    k = clean_lang(lang)
+    stats["reports"][k] = int(stats["reports"].get(k, 0)) + 1
+    return stats["reports"][k]
+
+
+def clean_team(t):
+    # Code d'equipe : caracteres imprimables, <= 24. Vide -> "" (quitter / sans equipe).
+    s = "" if t is None else str(t)
+    out = "".join(ch for ch in s if ord(ch) >= 32 and ord(ch) != 127)
+    return out.strip()[:24]
+
+
+def teams(limit):
+    # Feature #10 — classement agrege des equipes : somme des totaux des membres par
+    # equipe, tri decroissant. [{rank, team, total, members}].
+    agg = {}
+    for v in scores.values():
+        t = v.get("team") if isinstance(v, dict) else ""
+        if not isinstance(t, str) or not t:
+            continue
+        a = agg.setdefault(t, {"total": 0, "members": 0})
+        a["total"] += clamp_int(v.get("total", 0))
+        a["members"] += 1
+    arr = sorted(
+        ({"team": k, "total": a["total"], "members": a["members"]} for k, a in agg.items()),
+        key=lambda e: (-e["total"], e["team"]),
+    )
+    n = limit if isinstance(limit, int) and limit > 0 else len(arr)
+    return [{"rank": i + 1, "team": e["team"], "total": e["total"], "members": e["members"]}
+            for i, e in enumerate(arr[:n])]
+
 
 def leaderboard(limit, uid):
     arr = sorted(
@@ -239,18 +291,30 @@ class H(BaseHTTPRequestHandler):
             with stats_lock:
                 out = compute_stats(now_mono, now_wall)
             return self._json(200, out)
+        if u.path == "/teams":
+            q = parse_qs(u.query)
+            try:
+                limit = max(1, min(100, int(q.get("limit", ["20"])[0])))
+            except Exception:
+                limit = 20
+            with lock:
+                out = teams(limit)
+            return self._json(200, {"teams": out})
         if u.path == "/admin/overview":
             if not self._admin_gate():
                 return
             now_mono, now_wall = time.monotonic(), time.time()
             with stats_lock:
                 s = compute_stats(now_mono, now_wall)
+            with stats_lock:
+                reports = dict(stats.get("reports", {}))
             return self._json(200, {
                 "accounts": s["accounts"],
                 "transformed": s["transformed"],
                 "live": s["live"],
                 "today": s["today"],
                 "total": s["total"],
+                "reports": reports,
                 "serverTime": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(now_wall)),
             })
         if u.path == "/admin/scores":
@@ -283,6 +347,64 @@ class H(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path == "/beat":
             return self._beat()
+        if u.path == "/report":
+            # Feature #4 — signalement de faux positif (PUBLIC, corps minuscule).
+            # Le corps ne transporte QUE {lang}. Borne 256 o + rate-limit ; on
+            # n'incremente qu'un compteur agrege par langue (zero texte stocke).
+            if not rate_ok(self._client_ip()):
+                return self._json(429, {"error": "trop de requetes"})
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except Exception:
+                length = 0
+            if length < 0 or length > 256:
+                return self._json(400, {"error": "corps invalide"})
+            raw = self.rfile.read(length) if length else b""
+            try:
+                d = json.loads(raw.decode("utf-8")) if raw else {}
+            except Exception:
+                d = {}
+            with stats_lock:
+                n = record_report(d.get("lang"))
+                try:
+                    save_stats()
+                except Exception as e:
+                    sys.stderr.write("save_stats failed: %s\n" % e)
+            return self._json(200, {"ok": True, "count": n})
+        if u.path == "/team/join":
+            # Feature #10 — rejoindre une equipe (token verifie comme /score).
+            if not rate_ok(self._client_ip()):
+                return self._json(429, {"error": "trop de requetes"})
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except Exception:
+                length = 0
+            if length <= 0 or length > 4096:
+                return self._json(400, {"error": "corps invalide"})
+            try:
+                d = json.loads(self.rfile.read(length).decode("utf-8"))
+            except Exception:
+                return self._json(400, {"error": "bad json"})
+            uid = str(d.get("uid", ""))[:64]
+            token = str(d.get("token", ""))[:128]
+            if not uid or not token:
+                return self._json(400, {"error": "uid/token requis"})
+            with lock:
+                cur = scores.get(uid)
+                if cur is None:
+                    return self._json(404, {"error": "inconnu"})
+                if cur["token"] != token:
+                    return self._json(403, {"error": "token invalide"})
+                team = clean_team(d.get("team"))
+                if team:
+                    cur["team"] = team
+                elif "team" in cur:
+                    del cur["team"]
+                try:
+                    save()
+                except Exception as e:
+                    sys.stderr.write("save failed: %s\n" % e)
+            return self._json(200, {"ok": True, "team": team})
         if u.path == "/admin/delete":
             if not self._admin_gate():
                 return
@@ -356,7 +478,7 @@ def _selftest():
         print(("ok   " if cond else "FAIL ") + msg)
         if not cond:
             fails[0] += 1
-    stats = {"total": 0, "days": {}}
+    stats = {"total": 0, "days": {}, "reports": {}}
     _live.clear(); _counted.clear(); scores.clear()
     t0, w0 = 1000.0, 1_700_000_000.0  # mono + wall (UTC) fixes
 
@@ -396,7 +518,28 @@ def _selftest():
     ok(check_admin_key("s3cr3t", "") is False, "cle serveur vide (admin desactive) -> False")
     ok(admin_scores()[0]["total"] >= admin_scores()[-1]["total"], "admin_scores tri decroissant")
 
-    total = 14
+    # ---- Feature #4 : compteur de faux positifs par langue ----
+    record_report("fr"); record_report("fr"); record_report("en")
+    ok(stats["reports"]["fr"] == 2 and stats["reports"]["en"] == 1, "faux positifs comptes par langue")
+    ok(clean_lang("FR") == "fr" and clean_lang("garbage text") == "ga", "clean_lang : 2 lettres a-z")
+    ok(clean_lang("4!") == "xx", "clean_lang : non-langue -> xx (zero texte)")
+
+    # ---- Feature #10 : equipes (jointure + agregation) ----
+    scores.clear()
+    scores["a"] = {"token": "t", "pseudo": "A", "total": 30}
+    scores["b"] = {"token": "t", "pseudo": "B", "total": 12}
+    scores["c"] = {"token": "t", "pseudo": "C", "total": 50}
+    scores["a"]["team"] = clean_team("Les Nounours")
+    scores["b"]["team"] = clean_team("Les Nounours")
+    scores["c"]["team"] = clean_team("Solo")
+    tt = teams(10)
+    nounours = next(e for e in tt if e["team"] == "Les Nounours")
+    ok(nounours["total"] == 42, "equipe : somme des membres")
+    ok(nounours["members"] == 2, "equipe : nb de membres")
+    ok(tt[0]["team"] == "Solo" and tt[0]["total"] >= tt[1]["total"], "equipes triees decroissant")
+    ok(clean_team("x" * 40) == "x" * 24, "clean_team borne a 24")
+
+    total = 21
     print("\n%d/%d selftest verts" % (total - fails[0], total))
     return fails[0]
 
