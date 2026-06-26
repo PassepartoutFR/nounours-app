@@ -1,38 +1,14 @@
-# Contribuer à Un web de gentil 🧸
+# 🤝 Contribuer · Contribute
 
-Merci d'aider à rendre le web un peu plus doudou ! Les PR sont les bienvenues,
-surtout pour :
+**🇫🇷 [Français — guide complet](CONTRIBUTING.fr.md)** · **🇬🇧 [English — full guide](CONTRIBUTING.en.md)**
 
-## 🌍 Ajouter / améliorer une langue
-Tout est dans **`uwg-core.js`** :
-- `LEX` — la liste de mots détectés, une par langue.
-- `BANKS` — les répliques des mascottes, par thème puis par langue.
-- `SOFT` / `SAVAGE` — l'intensité (doux / hardcore).
-- `HINT` — la bulle d'aide.
+Merci d'aider à rendre le web un peu plus doudou ! / Thanks for helping make the web a little softer!
 
-Le texte est normalisé (minuscule, sans accents) → pas besoin de gérer les
-accents dans `LEX`. Ajoute la clé de langue partout, et c'est tout.
+| | 🇫🇷 | 🇬🇧 |
+|---|---|---|
+| Langues / languages | `uwg-core.js` → `LEX`, `BANKS`, `SOFT`, `SAVAGE`, `HINT` | same |
+| Site i18n | `site/i18n.js` | same |
+| Tester / test | `demo.html`, `test.html`, `node test/run.mjs` | same |
+| Ton / tone | Taquin, jamais moralisateur 🧸 | Cheeky, never preachy 🧸 |
 
-Le **site** (`site/`) a son propre dico dans `site/i18n.js` (85 clés × langue).
-
-## 😹 Des répliques plus drôles
-Édite les `BANKS` dans `uwg-core.js`. Reste **taquin sans être méchant** : on
-troll le troll avec de la gentillesse, jamais avec de la haine en retour.
-
-## 🧪 Tester
-- `demo.html` (autonome, double-clic) pour le moteur.
-- `test.html` (avec l'extension chargée) pour le rendu réel + le Miroir gentil.
-- Vérif rapide : `node --check <fichier>.js`.
-
-## 🎨 Style
-- Pas de dépendance, pas de build pour l'extension (sauf le zip de release).
-- Garde le ton chaleureux, drôle, **jamais moralisateur**.
-
-## 📦 Architecture (rappel)
-- `uwg-core.js` — noyau partagé (détection + répliques).
-- `content.js` / `mirror.js` / `content.css` — ce qui agit sur les pages.
-- `popup.*` — réglages.
-- `server/` — le classement (Python, autonome).
-- `site/` — la landing nounours.app.
-
-Pas de règle stricte : ouvre une issue, propose, on en discute. 🧸
+→ Détails : [CONTRIBUTING.fr.md](CONTRIBUTING.fr.md) · [CONTRIBUTING.en.md](CONTRIBUTING.en.md)
