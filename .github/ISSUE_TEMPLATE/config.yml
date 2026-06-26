@@ -1,5 +1,14 @@
 blank_issues_enabled: true
 contact_links:
-  - name: "🧸 Site & démo en ligne"
+  - name: "🧸 Site & live demo / démo en ligne"
     url: https://nounours.app
-    about: Essayer l'extension et la démo (sans rien installer)
+    about: "Try the extension and demo without installing · Essayer sans rien installer"
+  - name: "🇫🇷 README français"
+    url: https://github.com/PassepartoutFR/nounours-app/blob/main/README.fr.md
+    about: Documentation complète en français
+  - name: "🇬🇧 English README"
+    url: https://github.com/PassepartoutFR/nounours-app/blob/main/README.en.md
+    about: Full documentation in English
+  - name: "📖 White paper / Livre blanc"
+    url: https://github.com/PassepartoutFR/nounours-app/blob/main/docs/WHITE-PAPER.md
+    about: Vision, principles, and what we're not building

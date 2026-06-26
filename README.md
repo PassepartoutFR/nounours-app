@@ -1,123 +1,127 @@
+<div align="center">
+
 # 🧸 Un web de gentil
 
-Extension navigateur (Chromium / **Brave** / Chrome / Edge) qui **remplace les
-commentaires méchants par des messages de mascottes** trolls et ironiques.
+### *A Kinder Web*
 
-**🌍 [nounours.app](https://nounours.app) · Licence MIT · Gratuit à vie · Bientôt sur le Chrome Web Store**
+[![MIT License](https://img.shields.io/badge/License-MIT-F4A93B?style=for-the-badge)](LICENSE)
+[![8 languages](https://img.shields.io/badge/Languages-8-7BD3B0?style=for-the-badge)](README.fr.md#multilingue-8-langues)
+[![100% local](https://img.shields.io/badge/Filtering-100%25%20local-c98a4b?style=for-the-badge)](docs/WHITE-PAPER.md)
+[![Site](https://img.shields.io/badge/Site-nounours.app-FF6B5E?style=for-the-badge)](https://nounours.app)
 
-📖 Livre blanc ([FR](docs/LIVRE-BLANC.md) · [EN](docs/WHITE-PAPER.md)) · 🌐 [Multi-navigateur](docs/BROWSERS.md) · 🚀 [Releases](docs/RELEASE.md) · 🤝 [Contribuer](CONTRIBUTING.md)
+**Replace mean comments with cheeky mascots — locally, instantly, reversibly.**  
+**Remplace les commentaires méchants par des mascottes taquines — localement, tout de suite, réversiblement.**
 
-**Multilingue (8 langues)** : FR, EN, ES, IT, DE, PT, NL, PL. La détection ET la
-réponse se font dans la langue du commentaire — un troll espagnol se fait
-répondre en espagnol, un allemand en allemand. (La langue de la page,
-`<html lang>`, est prioritaire pour lever l'ambiguïté des mots partagés comme
-« idiot ».)
+<br>
 
-Le **filtrage** est 100 % **local** : aucune requête réseau, rien ne quitte ta
-page. Seul le **classement** (ci-dessous) est opt-in et envoie un strict minimum.
+**🇫🇷 [Français — README complet](README.fr.md)** &nbsp;·&nbsp; **🇬🇧 [English — full README](README.en.md)**
 
-## Ce qu'il sait faire
+<br>
 
-- 🎭 **Mascottes (thèmes)** : Nounours 🧸 · Chatons 🐱 · Mémé 👵 · Bob Ross 🎨.
-- 🎚️ **Intensité** : *Doux* (pur réconfort) · *Médium* · *Hardcore* (pique finale).
-- 💕 **Cœurs semés** : des cœurs animés restent autour de chaque endroit filtré.
-- 🏆 **Gamification** : titres qui montent (*Apprenti Câlin → Maître Câlin →
-  Légende du Miel*) + **classement mondial** (voir plus bas).
-- 🪞 **Miroir gentil** : avant que **toi** tu postes un message dur, il te
-  propose une version douce (tu peux toujours « envoyer quand même »).
-- 🖱️ **Clic** sur un message adouci → révèle l'original.
+[![⬇️ Download beta / Télécharger la bêta](https://img.shields.io/github/v/release/PassepartoutFR/nounours-app?label=Latest%20release&style=for-the-badge&color=F4A93B)](https://github.com/PassepartoutFR/nounours-app/releases/latest)
 
-## Architecture (fichiers)
+[🌍 nounours.app](https://nounours.app) · [📖 White paper / Livre blanc](docs/WHITE-PAPER.md) · [🤝 Contribute / Contribuer](CONTRIBUTING.md)
 
-| Fichier | Rôle |
-|---|---|
-| `uwg-core.js` | **Noyau partagé** : lexiques par langue, banques par thème/intensité, détection, niveaux. Utilisé par l'extension **et** le playground. |
-| `content.js` | Remplace les commentaires de la page + confettis + niveaux. |
-| `mirror.js` | Le Miroir gentil (vérifie tes propres brouillons). |
-| `background.js` | Badge « nombre de câlins » par onglet + sync du classement. |
-| `popup.html/js` | Réglages : thème, intensité, cœurs, miroir, niveau, classement. |
-| `scoreboard.js` | « Compte sans compte » : identité anonyme + dialogue serveur. |
-| `server/server.js` | Serveur de classement (Node, sans dépendance). |
-| `content.css` | Styles (pastille, cœurs, toast, miroir). |
-| `test.html` | Fausse page réseau social pour tester l'extension. |
-| `demo.html` | **Playground autonome** (sans extension) — voir plus bas. |
+</div>
 
-## Installer (mode développeur, ~30 s)
+---
 
-1. Ouvre `brave://extensions` (ou `chrome://extensions`).
-2. Active **Mode développeur** (coin haut-droit).
-3. **Charger l'extension non empaquetée** → choisis ce dossier (`web-de-gentil`).
-4. Clique l'icône 🧸 → choisis ta mascotte, ton intensité, etc.
+## 🇫🇷 En bref · 🇬🇧 At a glance
 
-## Tester
+<table>
+<tr>
+<th width="50%">🇫🇷 Français</th>
+<th width="50%">🇬🇧 English</th>
+</tr>
+<tr>
+<td valign="top">
 
-- **Le plus simple : `demo.html`** → double-clique le fichier. C'est un
-  **playground autonome** (il charge `uwg-core.js` en `<script>`, donc pas besoin
-  d'extension ni de serveur) : tape un commentaire, change de thème/intensité,
-  vois la transformation en direct.
-- **L'extension : `test.html`** → fausse page de commentaires (FR/EN/ES/IT/DE/PT/NL,
-  statiques + dynamiques) + un composer pour essayer le **Miroir gentil**.
+Extension **Brave / Chrome / Edge** qui adoucit les commentaires toxiques avec des
+**mascottes** (nounours, chatons, mémé, Bob Ross). **8 langues**. Filtrage
+**100 % local** — rien ne quitte ton navigateur pour la détection. Classement
+mondial **opt-in**, anonyme, gratuit.
 
-> ⚠️ Pour que l'extension agisse sur `test.html` ouvert en `file://`, va dans
-> `brave://extensions` → détails de « Un web de gentil » → active **Autoriser
-> l'accès aux URL de fichier**. (`demo.html`, lui, marche sans rien activer.)
+**Installer** : [dernière release](https://github.com/PassepartoutFR/nounours-app/releases/latest) → mode développeur → charger le dossier.
 
-## 🏆 Classement (opt-in, sans compte, gratuit à vie)
+</td>
+<td valign="top">
 
-L'idée : **ton addon = ta connexion**. À la première utilisation, l'extension
-génère une **identité anonyme** (un `uid` + une clé secrète) qui vit dans
-l'extension. Pas d'e-mail, pas de mot de passe. Tu choisis un pseudo, et ton
-score de trolls câlinés monte dans un classement mondial.
+**Brave / Chrome / Edge** extension that softens toxic comments with **mascots**
+(teddy, kittens, granny, Bob Ross). **8 languages**. **100% local** filtering —
+nothing leaves your browser for detection. **Opt-in**, anonymous, free worldwide
+leaderboard.
 
-**Vie privée** : c'est **désactivé par défaut**. Si tu rejoins, on n'envoie que
-`{identifiant anonyme, pseudo, score}` — **jamais** tes commentaires ni les URLs
-que tu visites. Le filtrage, lui, reste 100 % local.
+**Install**: [latest release](https://github.com/PassepartoutFR/nounours-app/releases/latest) → developer mode → load unpacked.
 
-**Lancer le serveur** (local, pour tester) :
+</td>
+</tr>
+</table>
 
-```bash
-node server/server.js        # → http://127.0.0.1:8790   (ou: npm run server)
-```
+## 📚 Documentation · Documentation
 
-Puis dans le popup → **Classement** → entre un pseudo → **Rejoindre**. Ton rang
-et le top 10 s'affichent. Ouvre une 2ᵉ « identité » (autre profil de navigateur)
-pour voir plusieurs joueurs.
+| | 🇫🇷 Français | 🇬🇧 English |
+|---|---|---|
+| **README complet** | [README.fr.md](README.fr.md) | [README.en.md](README.en.md) |
+| **Vision** | [Livre blanc](docs/LIVRE-BLANC.md) | [White paper](docs/WHITE-PAPER.md) |
+| **FAQ** | [FAQ.fr.md](docs/FAQ.fr.md) | [FAQ.en.md](docs/FAQ.en.md) |
+| **Contribuer** | [CONTRIBUTING.fr.md](CONTRIBUTING.fr.md) | [CONTRIBUTING.en.md](CONTRIBUTING.en.md) |
+| **Changelog** | [CHANGELOG.fr.md](CHANGELOG.fr.md) | [CHANGELOG.en.md](CHANGELOG.en.md) |
+| **Releases** | [RELEASE.fr.md](docs/RELEASE.fr.md) | [RELEASE.en.md](docs/RELEASE.en.md) |
+| **Navigateurs** | [BROWSERS.fr.md](docs/BROWSERS.fr.md) | [BROWSERS.en.md](docs/BROWSERS.en.md) |
+| **Feuille de route** | [ROADMAP.md](docs/ROADMAP.md) | *(FR — traduction à venir)* |
+| **Carte complète** | [DOCUMENTATION.md](docs/DOCUMENTATION.md) | [DOCUMENTATION.md](docs/DOCUMENTATION.md) |
 
-**Anti-triche (léger, système à l'honneur)** : score **monotone** (ne baisse
-jamais), plafond de hausse par envoi, et **token** par `uid` (= `HMAC(secret,
-uid)`, TOFU) → personne ne peut écraser le score d'un autre. C'est spoofable par
-qui le veut vraiment (client anonyme), c'est assumé : c'est pour le fun.
+## ⚡ Démarrage rapide · Quick start
 
-**Héberger pour de vrai (plus tard)** : déploie `server/server.js` sur un hôte,
-puis change l'endpoint. Il faudra ajouter le domaine dans `host_permissions`
-(manifest) et stocker `uwg_endpoint` dans `chrome.storage`. Idées : petit VPS,
-fonction serverless, ou un KV hébergé. *(Sauvegarde/restauration de l'identité
-entre machines = nice-to-have à venir.)*
+<details>
+<summary><strong>🇫🇷 Installer en 30 secondes</strong></summary>
 
-## Régler / bidouiller (tout est dans `uwg-core.js`)
+1. Télécharge le [dernier `.zip`](https://github.com/PassepartoutFR/nounours-app/releases/latest).
+2. Décompresse le dossier `nounours-app/`.
+3. Ouvre `brave://extensions` → **Mode développeur** → **Charger l'extension non empaquetée**.
+4. Essaie aussi `demo.html` (double-clic, sans extension) ou `test.html` (avec l'extension).
 
-- **Mots détectés** : objet `LEX` (une liste par langue). Le texte est normalisé
-  (minuscule, sans accents) → inutile de gérer les accents dans les listes.
-- **Phrases des mascottes** : objet `BANKS` (`BANKS.nounours.fr`, `BANKS.chatons.en`…).
-- **Intensité** : `SOFT` (doux) et `SAVAGE` (piques hardcore).
-- **Niveaux** : `LEVELS`.
-- **Ajouter une langue** : ajoute la clé dans `LEX`, dans chaque thème de `BANKS`,
-  et dans `SOFT`/`SAVAGE`/`HINT`. C'est tout.
-- **Ajouter une mascotte** : ajoute une entrée dans `BANKS` + une dans `THEMES`.
+→ Détails : [README.fr.md#installer-mode-développeur-30-s](README.fr.md#installer-mode-développeur-30-s)
 
-## Limites connues (proto)
+</details>
 
-- Détection **par mots-clés** : faux positifs/négatifs assumés. Pas de
-  compréhension du contexte (« je ne suis pas un idiot » sera quand même adouci).
-  Étape suivante possible : un modèle de toxicité local (ONNX) — au prix de plus
-  de poids, mais en gardant le « 100 % local ».
-- On remplace le **nœud de texte entier** contenant un mot méchant.
-- Le Miroir intercepte l'envoi sur **Entrée** / *submit* dans les champs
-  éditables ; il te laisse toujours la main (« envoyer quand même »).
+<details>
+<summary><strong>🇬🇧 Install in 30 seconds</strong></summary>
 
-## Idées de suite
+1. Download the [latest `.zip`](https://github.com/PassepartoutFR/nounours-app/releases/latest).
+2. Unzip the `nounours-app/` folder.
+3. Open `brave://extensions` → **Developer mode** → **Load unpacked**.
+4. Also try `demo.html` (double-click, no extension) or `test.html` (with the extension).
 
-- Liste blanche de sites.
-- Mode « surligner sans remplacer » pour comparer.
-- Statistiques par langue dans le popup.
-- Easter eggs (insulte rare → mascotte « légendaire » dorée).
+→ Details: [README.en.md#install-developer-mode-30-s](README.en.md#install-developer-mode-30-s)
+
+</details>
+
+## ✨ Fonctionnalités clés · Key features
+
+| | 🇫🇷 | 🇬🇧 |
+|---|---|---|
+| 🎭 | 4 mascottes, 3 intensités | 4 mascots, 3 intensity levels |
+| 🌍 | 8 langues (détection + réponse) | 8 languages (detect + reply) |
+| 🔒 | Filtrage 100 % local | 100% local filtering |
+| 🏆 | Classement opt-in sans compte | Opt-in account-less leaderboard |
+| 🪞 | Miroir gentil (avant d'envoyer) | Kind Mirror (before you post) |
+| 🗑️ | Suppression autonome (`DEL1`) | Self-service deletion (`DEL1`) |
+
+## 🤝 Contribuer · Contribute
+
+Les **PR** sont les bienvenues — nouvelles langues, répliques plus drôles, ports
+navigateur. **PRs** welcome — new languages, funnier lines, browser ports.
+
+→ [CONTRIBUTING.fr.md](CONTRIBUTING.fr.md) · [CONTRIBUTING.en.md](CONTRIBUTING.en.md)
+
+---
+
+<div align="center">
+
+*Le web n'a pas besoin de plus de gardiens. Il a besoin de plus de nounours.* 🧸  
+*The web doesn't need more gatekeepers. It needs more teddy bears.* 🧸
+
+**[nounours.app](https://nounours.app)** · MIT · Open source
+
+</div>

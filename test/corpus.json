@@ -1,0 +1,1067 @@
+[
+ {
+  "text": "Je crève de faim, on mange bientôt ?",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Ça crève les yeux que c'est la bonne réponse.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "On a crevé un pneu sur l'autoroute hier.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Ferme la porte s'il te plaît, il y a un courant d'air.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Je suis trop bête, j'ai encore oublié mes clés.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Ce film est vraiment nul, je me suis ennuyé.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Cette idée est stupide mais essayons quand même.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "La photo est un peu moche avec ce filtre, refais-la.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Il faut sortir les ordures ce soir, c'est le ramassage.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Le moustique est un parasite qui transmet des maladies.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "Quel idiot je fais, je me suis trompé d'adresse.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "On a cassé la croûte vite fait avant de repartir.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "C'est stupide ce film, vraiment décevant.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "100% d'accord avec toi, super idée.",
+  "lang": "fr",
+  "expect": "ok"
+ },
+ {
+  "text": "T'es vraiment qu'un connard, dégage de ce serveur.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Ferme ta gueule sale pute, personne ne t'aime ici.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Espèce de gros c0nnard, retourne d'où tu viens.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Va crever sale chien, t'es une raclure.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Saloooope, tu mérites que des malheurs.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Espèce de fils de pute, je vais te retrouver.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "T'es qu'un attardé, tu comprends rien à rien.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Nique ta mère et ta race, sale bouffon.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Tu n'es qu'une grosse merde, va mourir.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "5tupide petit pede, personne te supporte.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Espèce de tas de merde, t'es la honte du groupe.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Ducon, retourne à l'école, t'as le QI d'une huître.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "Tu es vraiment débile, casse-toi d'ici.",
+  "lang": "fr",
+  "expect": "flag"
+ },
+ {
+  "text": "This movie absolutely sucks, what a waste of two hours.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "Ugh, this bug is so stupid, I can't figure out why the build keeps failing.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "I felt so dumb after locking my keys in the car again.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "The garbage collector runs automatically, so manual memory cleanup isn't needed.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "Don't forget to take the trash out before the truck comes.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "That was a total freak accident, nobody could have predicted it.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "Honestly that plot twist was so cringe, I had to look away.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "He's the class clown but he's actually really kind.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "The pond was covered in green scum after the heat wave.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "Quasimodo in the ugly duckling story turns out beautiful in the end.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "I hate Mondays and I hate waiting in line.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "What a loser bracket — both teams that lost play again Saturday.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "Das ist ein dummer Fehler von mir.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "The disgusting smell from the drain meant the trap had dried out.",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "scum of the earth villain in the movie",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "this movie sucks so bad",
+  "lang": "en",
+  "expect": "ok"
+ },
+ {
+  "text": "You are a worthless piece of shit and nobody likes you.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "kys you pathetic freak, the world would be better without you.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "go k1ll your5elf already, no one would miss you.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "youre such a r3tard, how are you this dumb.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "Shut up you absolute moron, you ruin everything.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "what an ugly stupid loser, delete your account.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "You disgust me, you waste of oxygen.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "Everyone hates you, just off yourself you coward.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "u r a sub-human dipsh1t and a complete embarrassment.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "Nobody asked, you brainde4d clown, go cry about it.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "you're a disgrace and a waste of space, do everyone a favor and leave.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "you are such a dumb idiot, nobody can stand you.",
+  "lang": "en",
+  "expect": "flag"
+ },
+ {
+  "text": "Este sofa es muy feo, no me gusta el color.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Hace un tiempo feo hoy, va a llover.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Saca la basura antes de que pase el camion.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Vete tranquilo, yo cierro la tienda.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Vete a casa que es tarde y descansa.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Que pelicula tan estupida, me dormi en el cine.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Soy un idiota, se me olvido pagar otra vez.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "El payaso del circo hizo reir a los ninos.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Me quedo inutil el cargador, ya no funciona.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Callate un momento que quiero oir la cancion.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Que asco de pescado, estaba pasado.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Ese chiste es muy tonto pero me rei.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "La sopa esta fea pero alimenta.",
+  "lang": "es",
+  "expect": "ok"
+ },
+ {
+  "text": "Eres un gilipollas integral, nadie te aguanta.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Callate ya, subnormal, no sabes nada.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Hijo de puta, ojala te mueras pronto.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Eres una basura de persona, me das asco.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Vete a la mierda, pedazo de inutil.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Que c4bron eres, te crees mejor que todos.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Sos un retr4s4do, no servis para nada.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Maldito pendejo, te voy a arruinar la vida.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Eres tan estupida que da pena hablar contigo.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Mongolo de mierda, da asco leerte.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Eres un l4mecul0s y un perdedor patetico.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Puto inutil, lo arruinas todo siempre.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Eres un imbecil, callate de una vez.",
+  "lang": "es",
+  "expect": "flag"
+ },
+ {
+  "text": "Questo film e davvero stupido, mi ha annoiato a morte.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Che idea stupida, non funzionera mai.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Ho fatto una cosa stupida stamattina, ho dimenticato le chiavi.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Il tempo oggi e proprio brutto, piove sempre.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Ho passato un brutto periodo ma ora va meglio.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Che brutta giornata, tutto e andato storto.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Muori dalla voglia di vederlo anche tu, vero?",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Sto morendo di fame, andiamo a mangiare.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Taci un attimo, sta iniziando il film!",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Questo ristorante e una vera spazzatura, cibo pessimo.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Devo portare fuori la spazzatura prima delle otto.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Squadra perdente di nuovo, che peccato per i tifosi.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Mi sento un po' scemo per non averci pensato prima.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Il gatto fa le fusa quando e contento.",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "brutto tempo oggi",
+  "lang": "it",
+  "expect": "ok"
+ },
+ {
+  "text": "Sei un coglione, non capisci niente.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Ma taci, sei proprio un idiota completo.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Sei una stronza e nessuno ti vuole.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Fai schifo, vattene da qui brutto verme.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Sei proprio st0nz0, levati dai piedi.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Ammazzati, tanto non servi a nessuno.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Che id1ota che sei, ti odio.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Sei un coglioneeee, ma quanto sei stupido.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Testa di cazzo, non sai fare niente.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Sei un sub0rmale ritardato, fai pena.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Pezzo di merda, sparli sempre a vanvera.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Brutta scem4 che non sei altro, sparisci.",
+  "lang": "it",
+  "expect": "flag"
+ },
+ {
+  "text": "Das Buch ist ziemlich dumm geschrieben, finde ich.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Diese Idee ist echt dumm.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Ich bin so dumm, ich habe schon wieder den Schlussel vergessen.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Stirb langsam ist mein Lieblingsfilm.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Der Loser-Song von Beck ist ein Klassiker.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Das Wetter heute ist echt widerlich.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Der Geruch im Keller war widerlich.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Dieses Gebaude ist wirklich hasslich.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Ich fuhle mich gerade wie ein echter Versager.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Du spasst mich total an mit deinen Witzen.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Der Plan war von Anfang an ein dummer Reinfall.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Das ist dumm, aber egal.",
+  "lang": "de",
+  "expect": "ok"
+ },
+ {
+  "text": "Du bist so dumm, es tut weh.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Halt die Klappe, du Vollidiot!",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Niemand mag dich, verschwinde endlich.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Du elendes Stuck Dreck, geh sterben.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Bring dich doch einfach um, du Versager.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Du Hurens0hn, halts Maul.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Was fur ein arschl0ch du bist.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Du missgeburt solltest dich schamen.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Halt endlich deine Fresse, du Spasti.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Du saaaubloooode Kuh, verpiss dich.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Fick dich, du wertloses Stuck Scheisse.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Du bist behindert, echt jetzt, geh sterben.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Geh sterben du dreckige Schlampe.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Du w1chser denkst wohl du bist was Besseres.",
+  "lang": "de",
+  "expect": "flag"
+ },
+ {
+  "text": "Esse filme e muito estupido, nao recomendo.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Que ideia mais burra a minha, esqueci as chaves.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Preciso levar o lixo para fora antes do caminhao passar.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "O cheiro do esgoto estava nojento hoje de manha.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Esse sofa e tao feio que vou trocar.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Vou embora agora senao perco o onibus.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Dom Pedro foi o primeiro imperador do Brasil.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "A burra carregava sacos pela montanha.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "O acabamento ficou meio porco, vou refazer.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Esse codigo esta uma porcaria, vou reescrever.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "O time perdedor desta temporada vai cair de divisao.",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "feio mas charmoso",
+  "lang": "pt",
+  "expect": "ok"
+ },
+ {
+  "text": "Voce e um idiota completo, ninguem te aguenta.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Cala a boca, seu otario, voce nao sabe de nada.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Vai tomar no cu, filho da puta.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Voce da nojo, deveria se mata logo.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Que babaca arrombado, te odeio com todas as forcas.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Seu r3tardado, ninguem gosta de voce mesmo.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Voce e um lixooooo, vai morrer sozinho.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Sua imbeciiil, devia ter vergonha da propria cara.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Voce e mesmo um fdp, energumeno sem cerebro.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Tu es um verme nojento, deficiente mental.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Some daqui, ninguem gosta de ti, seu corno.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Voce e um otario, cala a boca de uma vez.",
+  "lang": "pt",
+  "expect": "flag"
+ },
+ {
+  "text": "Dat is echt een dom idee, sorry.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Wat dom van mij, ik was het vergeten.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "We klommen de Dom van Utrecht op, prachtig uitzicht.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Dit behang is echt lelijk, we vervangen het.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Wat een lelijk gebouw zeg.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Hij speelt een loser in die serie, grappige rol.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Ik ben zo'n loser haha, vergat mijn eigen verjaardag.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Het rook walgelijk in de keuken na het koken.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Ik verdwijn even, ben zo weer terug.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Hou je mond dicht tijdens de film, fluisterde ze.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Sterf nou eindelijk, stomme zombie in dit level!",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Wat een idioot mooie zonsondergang vanavond!",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Die afwerking is walgelijk slecht gedaan.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Dat is een eikenboom, geen eikel trouwens.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "De film is dom maar wel vermakelijk.",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "dom tower utrecht",
+  "lang": "nl",
+  "expect": "ok"
+ },
+ {
+  "text": "Jij bent echt een achterlijke idioot.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Hou je mond, vuile klootzak.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ga jezelf ophangen, niemand mist je toch.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Wat ben jij een walgelijke mislukkeling.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Jij vieze kankerhoer, rot toch op.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Stomme trut, je snapt er echt niks van.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ga dood, jij hersendode eikel.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Jullie zijn allemaal hersendode mongolen.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "K1ootz4k, je verpest alles voor iedereen.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Wat een vuile loooser ben jij zeg.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "St3rf toch, niemand houdt van jou.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Jij bent zo'n d0mme k4nkerlijer, ga weg.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Vuile teringlijer, jij hoort hier niet thuis.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Stelletje achterlijke debielen, ophouden jullie.",
+  "lang": "nl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ten film jest naprawde glupi i nudny.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Alez ze mnie idiota, znowu zapomnialem kluczy.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Jaki brzydki sweter, nie kupuj go.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Dzis jest brzydka pogoda, pada deszcz.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Ten zapach jest obrzydliwy, cos tu gnije.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Zamknij sie, drzwi same sie otwieraja.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Musze spadac, bo spoznie sie na pociag.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Czuje sie dzisiaj taki glupi i niezdarny.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Frajer to swietny film z lat dziewiecdziesiatych.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Swinia to inteligentne zwierze hodowlane.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Moj pies jest brzydki, ale go kocham.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "To byla przegrana bitwa od samego poczatku.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Alez jestem dzis baran, pomylilem daty.",
+  "lang": "pl",
+  "expect": "ok"
+ },
+ {
+  "text": "Jestes debilem i kretynem, nikt cie nie zniesie.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ty glupia kobieto, zamknij wreszcie morde.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Spierdalaj stad i nigdy nie wracaj, gnido.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ty pojebany skurwysynu, zdechnij wreszcie.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Zabij sie, swiecie byloby lepiej bez ciebie.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Co za z ciebie zalosny frajer i nieudacznik.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ty ch0ju jebany, wypierdalaj z tego serwera.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Jestes obrzydliwym d3bilem, spadaj.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ale z ciebie kuuuurwa tepak, no kretynie.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Ty pizdo, nikt taki glupi jak ty nie zasluguje na nic.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Sp1erdalaj cwoku, jestes matolem bez mozgu.",
+  "lang": "pl",
+  "expect": "flag"
+ },
+ {
+  "text": "Pierdol sie, ty zalosny pajacu, do dupy z toba.",
+  "lang": "pl",
+  "expect": "flag"
+ }
+]

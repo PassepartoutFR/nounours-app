@@ -189,11 +189,19 @@
     <div class="acct">
       <button class="linkbtn" id="acctSave">🔑 Sauvegarder mon compte</button>
       <button class="linkbtn" id="acctRestore">↻ Restaurer</button>
+      <button class="linkbtn" id="delCodeBtn">🗑️ Code de suppression</button>
+      <button class="linkbtn" id="delNowBtn">Effacer du serveur</button>
       <div id="acctBox" style="display:none;">
         <textarea id="acctIO" rows="2" placeholder="Colle ton code de sauvegarde ici"></textarea>
         <div class="acct-row">
           <button class="linkbtn" id="acctDo">Restaurer</button>
           <span class="muted" id="acctMsg"></span>
+        </div>
+      </div>
+      <div id="delBox" style="display:none;width:100%;">
+        <textarea id="delIO" rows="2" readonly></textarea>
+        <div class="acct-row">
+          <span class="muted" id="delMsg"></span>
         </div>
       </div>
     </div>

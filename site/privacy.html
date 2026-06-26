@@ -18,12 +18,21 @@
     code { background: #fff0df; padding: 1px 6px; border-radius: 6px; }
     .back { display: inline-block; margin-top: 30px; color: #8a6f57; text-decoration: none; }
     ul { padding-left: 20px; }
+    ol { padding-left: 20px; }
+    .del-box { background: #fffaf1; border: 1px solid #efe0c8; border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+    .del-box textarea { width: 100%; box-sizing: border-box; border: 1px solid #efe0c8; border-radius: 8px; padding: 10px; font: inherit; font-size: .9rem; resize: vertical; min-height: 72px; }
+    .del-box label { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0; font-size: .95rem; cursor: pointer; }
+    .del-box button { font-family: "Fredoka", sans-serif; font-size: 1rem; background: #c98a4b; color: #fff; border: 0; border-radius: 10px; padding: 10px 18px; cursor: pointer; }
+    .del-box button:disabled { opacity: .6; cursor: wait; }
+    #delStatus { margin-top: 10px; font-size: .95rem; }
+    #delStatus.ok { color: #2d6a4f; }
+    #delStatus.err { color: #b42318; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>🧸 Politique de confidentialité</h1>
-    <div class="updated">« Un web de gentil » / nounours.app — dernière mise à jour : 25 juin 2026</div>
+    <div class="updated">« Un web de gentil » / nounours.app — dernière mise à jour : 26 juin 2026</div>
 
     <div class="tldr">
       <strong>En une phrase :</strong> le filtrage des commentaires se passe
@@ -84,9 +93,38 @@
     </ul>
 
     <h2>Conservation & suppression</h2>
-    <p>Tu peux quitter le classement à tout moment depuis le popup de l'extension.
-       Pour demander la suppression de ton entrée du classement, écris-nous à
-       <a href="mailto:contact@nounours.app">contact@nounours.app</a>.</p>
+    <p>Tu peux <strong>quitter le classement</strong> à tout moment depuis le popup
+       de l'extension (bouton « Quitter ») : l'extension arrête d'envoyer ton score.
+       Ça ne supprime pas automatiquement l'entrée déjà enregistrée sur le serveur.</p>
+    <p>Pour <strong>effacer ton entrée du classement sur le serveur</strong>, sans
+       e-mail et sans révéler ton identité réelle, deux options autonomes :</p>
+    <ol>
+      <li><strong>Depuis l'extension</strong> — popup → « Effacer du serveur »
+          (preuve cryptographique locale, immédiate).</li>
+      <li><strong>Depuis cette page</strong> — génère d'abord un
+          <em>code de suppression temporaire</em> (15 minutes) dans le popup
+          (« Code de suppression »), puis colle-le ci-dessous.</li>
+    </ol>
+    <p>Le code <code>DEL1:…</code> ne contient <strong>ni ton pseudo, ni ton score,
+       ni ta clé secrète</strong> : seulement un identifiant anonyme, une date
+       d'expiration et une signature qui prouve que tu possèdes bien ce compte.
+       Une fois utilisé ou expiré, il ne sert plus à rien.</p>
+
+    <div class="del-box">
+      <h3 style="margin:0 0 10px;font-family:Fredoka,sans-serif;font-size:1.1rem;color:#8a5a2b;">
+        Supprimer mon entrée du classement
+      </h3>
+      <form id="delForm">
+        <label for="delCode">Code de suppression (DEL1:…)</label>
+        <textarea id="delCode" name="code" placeholder="Colle ici le code généré dans l'extension (valable 15 min)" required></textarea>
+        <label>
+          <input type="checkbox" id="delConfirm" required />
+          <span>Je comprends que cette action est définitive : mon pseudo et mon score seront retirés du classement public.</span>
+        </label>
+        <button type="submit" id="delSubmit">Supprimer définitivement</button>
+        <div id="delStatus" role="status" aria-live="polite"></div>
+      </form>
+    </div>
 
     <h2>Enfants</h2>
     <p>L'extension ne collecte aucune donnée permettant d'identifier qui que ce
@@ -98,5 +136,6 @@
 
     <a class="back" href="/">← Retour à nounours.app</a>
   </div>
+  <script src="delete-account.js"></script>
 </body>
 </html>
