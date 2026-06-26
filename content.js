@@ -80,6 +80,8 @@
   // Remplacement
   // ---------------------------------------------------------------------------
   let pending = 0;
+  const pendingLangs = new Set(); // langues croisées (badges)
+  let pendingLegendary = 0; // Nounours Légendaires vus (badges)
   let booted = false; // confettis seulement sur les ajouts EN DIRECT, pas au boot
 
   function revealToggle(e) {
@@ -127,6 +129,8 @@
 
     node.parentNode.replaceChild(span, node);
     pending++;
+    pendingLangs.add(lang);
+    if (legendary) pendingLegendary++;
     // Cœurs sur TOUT endroit filtre (chargement initial ET ajouts en direct).
     if (state.celebrate) sprinkleHearts(span);
   }
@@ -149,11 +153,18 @@
     if (!pending) return;
     const delta = pending;
     pending = 0;
+    const langsDelta = [...pendingLangs]; pendingLangs.clear();
+    const legDelta = pendingLegendary; pendingLegendary = 0;
     chrome.storage.local.get(STORAGE_KEY, (res) => {
       const st = Object.assign({}, DEFAULTS, res[STORAGE_KEY]);
       const before = st.total || 0;
       const after = before + delta;
       st.total = after;
+      // badges : langues croisées + Nounours Légendaires vus
+      const langs = new Set(st.langs || []);
+      langsDelta.forEach((l) => langs.add(l));
+      st.langs = [...langs];
+      st.legendary = (st.legendary || 0) + legDelta;
       chrome.storage.local.set({ [STORAGE_KEY]: st });
       const lvlBefore = CORE.levelFor(before).title;
       const lvlAfter = CORE.levelFor(after).title;

@@ -54,6 +54,20 @@ function render(st) {
     $("lvlBar").style.width = "100%";
     $("lvlNext").textContent = "niveau max atteint ✨";
   }
+
+  // succès / badges
+  const earned = new Set(CORE.earnedBadges(st).map((b) => b.id));
+  $("badgeCount").textContent = "(" + earned.size + "/" + CORE.BADGES.length + ")";
+  const bd = $("badges");
+  bd.innerHTML = "";
+  for (const b of CORE.BADGES) {
+    const el = document.createElement("div");
+    const has = earned.has(b.id);
+    el.className = "badge " + (has ? "earned" : "locked");
+    el.textContent = b.emoji;
+    el.title = (has ? "" : "🔒 ") + b.title;
+    bd.appendChild(el);
+  }
 }
 
 function load() {

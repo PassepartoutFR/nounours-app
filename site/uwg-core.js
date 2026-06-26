@@ -350,6 +350,22 @@
     return { title: cur.title, min: cur.min, next };
   }
 
+  // --- badges / succes (affiches dans le popup) ------------------------------
+  const BADGES = [
+    { id: "premier",    emoji: "🧸", title: "Premier câlin",                       need: (s) => (s.total || 0) >= 1 },
+    { id: "apprenti",   emoji: "🤗", title: "Apprenti câlineur",                   need: (s) => (s.total || 0) >= 10 },
+    { id: "centurion",  emoji: "💯", title: "Centurion câlin",                     need: (s) => (s.total || 0) >= 100 },
+    { id: "maitre",     emoji: "🏅", title: "Maître Câlin",                        need: (s) => (s.total || 0) >= 150 },
+    { id: "legende",    emoji: "👑", title: "Légende du Miel",                     need: (s) => (s.total || 0) >= 1000 },
+    { id: "polyglotte", emoji: "🌍", title: "Polyglotte (3 langues croisées)",     need: (s) => (s.langs || []).length >= 3 },
+    { id: "babel",      emoji: "🗼", title: "Tour de Babel câline (7 langues)",    need: (s) => (s.langs || []).length >= 7 },
+    { id: "dore",       emoji: "🌟", title: "A réveillé le Nounours Légendaire",   need: (s) => (s.legendary || 0) >= 1 }
+  ];
+  function earnedBadges(stats) {
+    const s = stats || {};
+    return BADGES.filter((b) => b.need(s)).map((b) => ({ id: b.id, emoji: b.emoji, title: b.title }));
+  }
+
   // --- detection --------------------------------------------------------------
   const escapeRe = (w) => norm(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const RES = {};
@@ -412,7 +428,8 @@
 
   const api = {
     LANGS, THEMES, LEVELS, HINT,
-    norm, detect, reply, levelFor, themeEmoji, isLegendary
+    norm, detect, reply, levelFor, themeEmoji, isLegendary,
+    BADGES, earnedBadges
   };
 
   if (typeof window !== "undefined") window.UWGCore = api;

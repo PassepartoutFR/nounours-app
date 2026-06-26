@@ -63,6 +63,16 @@ ok(C.reply({ theme: "nounours", lang: "fr", seed: legSeed, legendary: true }).in
 ok(!C.reply({ theme: "nounours", lang: "fr", seed: "abc", legendary: false }).includes("🌟"), "reply normal ≠ légendaire");
 ok(C.reply({ lang: "de", seed: legSeed, legendary: true }).includes("🌟"), "légendaire multilingue (DE)");
 
+// ---- badges / succès ----
+ok(typeof C.earnedBadges === "function" && Array.isArray(C.BADGES), "BADGES + earnedBadges exposés");
+ok(C.earnedBadges({ total: 0 }).length === 0, "0 câlin -> aucun badge");
+ok(C.earnedBadges({ total: 1 }).some((b) => b.id === "premier"), "1 câlin -> Premier câlin");
+ok(C.earnedBadges({ total: 150 }).some((b) => b.id === "maitre"), "150 -> Maître Câlin");
+ok(C.earnedBadges({ total: 5, langs: ["fr", "en", "de"] }).some((b) => b.id === "polyglotte"), "3 langues -> Polyglotte");
+ok(!C.earnedBadges({ total: 5, langs: ["fr", "en"] }).some((b) => b.id === "polyglotte"), "2 langues -> pas Polyglotte");
+ok(C.earnedBadges({ total: 5, langs: ["fr","en","es","it","de","pt","nl"] }).some((b) => b.id === "babel"), "7 langues -> Babel");
+ok(C.earnedBadges({ total: 1, legendary: 1 }).some((b) => b.id === "dore"), "légendaire vu -> badge doré");
+
 // ---- scoreboard : identité + export/import ----
 const acc1 = await B.ensureAccount();
 ok(acc1.uid && acc1.secret && acc1.token, "ensureAccount crée uid+secret+token");

@@ -67,6 +67,14 @@
     }
     button.reset:hover { background: #fff0df; }
 
+    /* succès / badges */
+    .badges-block { padding: 4px 14px 8px; }
+    .badges-block h4 { margin: 0 0 7px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #a47b53; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { width: 30px; height: 30px; display: grid; place-items: center; font-size: 17px; border-radius: 9px; background: #fffaf1; border: 1px solid #f1ddc7; cursor: help; }
+    .badge.earned { background: #fff0df; border-color: #f3d9b8; }
+    .badge.locked { filter: grayscale(1); opacity: .35; }
+
     /* classement */
     .board .note { color: #a47b53; font-size: 11px; margin-bottom: 7px; }
     .board .join { display: flex; gap: 6px; }
@@ -126,6 +134,11 @@
     <div class="title" id="lvlTitle">—</div>
     <div class="bar"><i id="lvlBar"></i></div>
     <div class="muted"><span id="total">0</span> câlins envoyés · <span id="lvlNext"></span></div>
+  </div>
+
+  <div class="badges-block">
+    <h4>🏅 Succès <span class="muted" id="badgeCount"></span></h4>
+    <div class="badges" id="badges"></div>
   </div>
 
   <button class="reset" id="reset">Remettre le compteur à zéro</button>
