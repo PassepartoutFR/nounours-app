@@ -7,6 +7,9 @@ dist/
 *.zip
 *.b64
 
+# images collées / captures parasites à la racine
+/image-*.png
+
 # divers
 node_modules/
 .DS_Store
