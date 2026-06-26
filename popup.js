@@ -55,6 +55,10 @@ function render(st) {
     $("lvlNext").textContent = "niveau max atteint ✨";
   }
 
+  // série quotidienne
+  const sd = (st.streak && st.streak.days) || 0;
+  $("streakLine").textContent = sd >= 1 ? "🔥 " + sd + " jour" + (sd > 1 ? "s" : "") + " d'affilée" : "";
+
   // succès / badges
   const earned = new Set(CORE.earnedBadges(st).map((b) => b.id));
   $("badgeCount").textContent = "(" + earned.size + "/" + CORE.BADGES.length + ")";

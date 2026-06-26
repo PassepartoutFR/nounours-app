@@ -14,9 +14,11 @@ Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
   identifiant de session éphémère, présence en RAM seulement, compteurs agrégés,
   **zéro cookie, zéro pistage, aucune IP stockée** (anti-gonflage par IP). Traduit
   en 7 langues, page vie privée mise à jour.
-- 🏅 **Succès & badges** : 8 badges à débloquer (Premier câlin, Centurion,
+- 🏅 **Succès & badges** : 10 badges à débloquer (Premier câlin, Centurion,
   Polyglotte, Tour de Babel, chasseur de Nounours Légendaire…), affichés dans
   le popup. Suivi local des langues croisées et des légendaires vus.
+- 🔥 **Séries quotidiennes** : compteur de **jours d'affilée** à adoucir le web
+  (jour UTC, +1 si consécutif, reset après un trou) + 2 badges de série.
 
 ## [0.6.0] — non publié
 ### Ajouté

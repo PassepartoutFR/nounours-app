@@ -73,6 +73,14 @@ ok(!C.earnedBadges({ total: 5, langs: ["fr", "en"] }).some((b) => b.id === "poly
 ok(C.earnedBadges({ total: 5, langs: ["fr","en","es","it","de","pt","nl"] }).some((b) => b.id === "babel"), "7 langues -> Babel");
 ok(C.earnedBadges({ total: 1, legendary: 1 }).some((b) => b.id === "dore"), "légendaire vu -> badge doré");
 
+// ---- séries quotidiennes ----
+ok(typeof C.updateStreak === "function", "updateStreak exposé");
+ok(C.updateStreak({}, "2026-06-26").days === 1, "nouveau -> jour 1");
+ok(C.updateStreak({ days: 1, last: "2026-06-26" }, "2026-06-26").days === 1, "même jour -> inchangé");
+ok(C.updateStreak({ days: 3, last: "2026-06-26" }, "2026-06-27").days === 4, "jour consécutif -> +1");
+ok(C.updateStreak({ days: 9, last: "2026-06-20" }, "2026-06-27").days === 1, "trou -> reset à 1");
+ok(C.earnedBadges({ total: 5, streak: { days: 7, last: "x" } }).some((b) => b.id === "serie7"), "7 jours -> badge série 🔥");
+
 // ---- scoreboard : identité + export/import ----
 const acc1 = await B.ensureAccount();
 ok(acc1.uid && acc1.secret && acc1.token, "ensureAccount crée uid+secret+token");

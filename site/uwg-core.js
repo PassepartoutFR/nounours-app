@@ -359,11 +359,29 @@
     { id: "legende",    emoji: "👑", title: "Légende du Miel",                     need: (s) => (s.total || 0) >= 1000 },
     { id: "polyglotte", emoji: "🌍", title: "Polyglotte (3 langues croisées)",     need: (s) => (s.langs || []).length >= 3 },
     { id: "babel",      emoji: "🗼", title: "Tour de Babel câline (7 langues)",    need: (s) => (s.langs || []).length >= 7 },
+    { id: "serie3",     emoji: "📅", title: "3 jours d'affilée",                    need: (s) => ((s.streak && s.streak.days) || 0) >= 3 },
+    { id: "serie7",     emoji: "🔥", title: "Semaine de douceur (7 jours)",         need: (s) => ((s.streak && s.streak.days) || 0) >= 7 },
     { id: "dore",       emoji: "🌟", title: "A réveillé le Nounours Légendaire",   need: (s) => (s.legendary || 0) >= 1 }
   ];
   function earnedBadges(stats) {
     const s = stats || {};
     return BADGES.filter((b) => b.need(s)).map((b) => ({ id: b.id, emoji: b.emoji, title: b.title }));
+  }
+
+  // --- séries quotidiennes (pur, testable) -----------------------------------
+  // prev = { days, last:"YYYY-MM-DD" } ; today = "YYYY-MM-DD" (UTC). Retourne le
+  // nouvel état : +1 si jour consécutif, inchangé le même jour, sinon repart à 1.
+  function ymdToMs(s) { const p = String(s).split("-").map(Number); return Date.UTC(p[0], p[1] - 1, p[2]); }
+  function updateStreak(prev, today) {
+    prev = prev || {};
+    const last = prev.last, days = prev.days || 0;
+    if (!today) return { days: days, last: last };
+    if (last === today) return { days: Math.max(days, 1), last: today };
+    if (last) {
+      const diff = Math.round((ymdToMs(today) - ymdToMs(last)) / 86400000);
+      if (diff === 1) return { days: days + 1, last: today };
+    }
+    return { days: 1, last: today };
   }
 
   // --- detection --------------------------------------------------------------
@@ -429,7 +447,7 @@
   const api = {
     LANGS, THEMES, LEVELS, HINT,
     norm, detect, reply, levelFor, themeEmoji, isLegendary,
-    BADGES, earnedBadges
+    BADGES, earnedBadges, updateStreak
   };
 
   if (typeof window !== "undefined") window.UWGCore = api;

@@ -47,7 +47,7 @@ sections = la priorité.
 - Extension MV3 : détection locale multilingue (7 langues), mascottes,
   intensité, cœurs animés, miroir gentil.
 - Classement « compte sans compte » (serveur Python) + **export/import d'identité**.
-- 🌟 **Nounours Légendaire** (easter egg doré) · 🛡️ **anti-obfuscation** (leetspeak / lettres répétées) · 🏅 **succès & badges** (8 dans le popup) · `CHANGELOG.md`.
+- 🌟 **Nounours Légendaire** (easter egg doré) · 🛡️ **anti-obfuscation** (leetspeak / lettres répétées) · 🏅 **succès & badges** (10) + 🔥 **séries quotidiennes** dans le popup · `CHANGELOG.md`.
 - 📊 **Tableau des gentils** : données vivantes sur le site (visiteurs en direct +
   stats agrégées), respect total de la vie privée — **déployé + live 2026-06-26**.
 - Site **nounours.app** multilingue + page vie privée.

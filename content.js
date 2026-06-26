@@ -165,6 +165,8 @@
       langsDelta.forEach((l) => langs.add(l));
       st.langs = [...langs];
       st.legendary = (st.legendary || 0) + legDelta;
+      // série quotidienne (jour UTC) — +1 si jours consécutifs
+      st.streak = CORE.updateStreak(st.streak, new Date().toISOString().slice(0, 10));
       chrome.storage.local.set({ [STORAGE_KEY]: st });
       const lvlBefore = CORE.levelFor(before).title;
       const lvlAfter = CORE.levelFor(after).title;
