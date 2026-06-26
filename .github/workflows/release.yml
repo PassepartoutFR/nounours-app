@@ -40,7 +40,8 @@ jobs:
           generate_release_notes: true
 
       - name: Publish to Chrome Web Store
-        if: ${{ env.CHROME_EXTENSION_ID != '' }}
+        # ne s'active que lorsque les identifiants OAuth sont configurés
+        if: ${{ env.CHROME_REFRESH_TOKEN != '' }}
         uses: mnao305/chrome-extension-upload@v5
         with:
           file-path: nounours-app-${{ github.ref_name }}.zip
