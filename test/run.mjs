@@ -369,6 +369,10 @@ ok(cFP === 0, `oracle : zéro faux positif sur les ${nOk} items "ok"`);
 ok(recall >= 0.90, `oracle : rappel ${(recall * 100).toFixed(1)}% ≥ 90%`);
 ok(fnItems.every((x) => DOCUMENTED_FN.has(x.text)), "oracle : tous les faux négatifs restants sont documentés");
 
+// ---- build Firefox (smoke) ----
+const { runFirefoxBuildTests } = await import("./firefox-build.mjs");
+await runFirefoxBuildTests(ok);
+
 // ---- mirror.js + content.js (DOM minimal, zéro npm) ----
 const { runMirrorContentTests } = await import("./mirror-content.mjs");
 await runMirrorContentTests(ok, C);

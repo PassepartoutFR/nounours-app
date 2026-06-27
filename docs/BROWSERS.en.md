@@ -16,23 +16,30 @@ Already submitted to the **Chrome Web Store**. Brave uses the same store.
 3. Reuse the listing from [`deploy/STORE-LISTING.md`](../deploy/STORE-LISTING.md)
    (description, screenshots, privacy, `https://nounours.app/privacy.html`).
 
-## Firefox — small adaptation
+## Firefox — build ready
 Firefox needs `browser_specific_settings` (a gecko id) and targets
-**Firefox 121+** (MV3 service worker support).
+**Firefox 121+** (MV3 service worker support). The script copies **all**
+Chrome package files (offscreen, sandbox, local AI vendor, etc.).
 
 ```bash
-node scripts/build-firefox.cjs       # -> dist/firefox/ (patched manifest)
-npx web-ext build -s dist/firefox    # -> zip ready for AMO
-# or: npx web-ext sign -s dist/firefox --api-key ... --api-secret ...   (auto-signed)
-# or: test live via about:debugging -> "Load Temporary Add-on"
+node scripts/build-firefox.cjs
+# -> dist/firefox/          (folder for dev loading)
+# -> dist/nounours-firefox-X.Y.Z.zip   (attached to GitHub Releases on tag vX.Y.Z)
 ```
 
-- Publish on **addons.mozilla.org (AMO)**: **free**. AMO signing required for
-  install outside developer mode.
+**Test without AMO**: `about:debugging` → "This Firefox" → "Load Temporary Add-on"
+→ `dist/firefox/manifest.json`.
+
+**Publish on AMO** (free, signing required outside dev mode):
+
+```bash
+npx web-ext sign -s dist/firefox --api-key ... --api-secret ...
+```
+
 - Code uses the `chrome.*` namespace, which Firefox supports natively —
   no rewrite needed.
-- Default gecko id is `nounours@nounours.app` (changeable in
-  `scripts/build-firefox.cjs`).
+- Gecko id: `nounours@nounours.app` (changeable in `scripts/build-firefox.cjs`).
+- Ready-to-download zip: GitHub **Releases** tab (`nounours-firefox-X.Y.Z.zip`).
 
 ## Safari — optional
 Safari requires **wrapping** the extension via Xcode (`xcrun safari-web-extension-converter`)

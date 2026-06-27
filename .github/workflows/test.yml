@@ -22,3 +22,5 @@ jobs:
           done
       - name: Tests unitaires
         run: node test/run.mjs
+      - name: Build Firefox (smoke)
+        run: node scripts/build-firefox.cjs
