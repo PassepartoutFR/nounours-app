@@ -4,6 +4,17 @@
 export const NODE = { ELEMENT: 1, TEXT: 3 };
 export const NodeFilter = { SHOW_TEXT: 4 };
 
+/** Retire les balises HTML par passes successives (évite la réinjection CodeQL). */
+function stripHtmlTags(raw) {
+  let s = String(raw ?? "");
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<[^>]*>/g, "");
+  } while (s !== prev);
+  return s.trim();
+}
+
 let _id = 0;
 
 class ClassList {
@@ -214,7 +225,7 @@ class Element extends DomNode {
     while ((m = divRe.exec(html))) {
       const el = new Element("div");
       el.classList.add(m[1]);
-      el.textContent = m[2].replace(/<[^>]+>/g, "").trim();
+      el.textContent = stripHtmlTags(m[2]);
       this.appendChild(el);
     }
     while ((m = btnRe.exec(html))) {
