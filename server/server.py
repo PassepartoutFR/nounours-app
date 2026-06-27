@@ -9,6 +9,7 @@ import hashlib, hmac, json, os, sys, time, threading
 from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
+from urllib.request import Request, urlopen
 
 PORT = next((int(a) for a in sys.argv[1:] if a.isdigit()), 8790)
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -156,6 +157,30 @@ def record_variant(vid, sid):
     return True
 
 
+_gh_cache = {"at": 0.0, "stars": 0, "forks": 0}
+GH_TTL = 600.0
+
+
+def github_meta():
+    # Proxy cache pour le navigateur (evite CORS / rate-limit GitHub cote client).
+    now = time.time()
+    if _gh_cache.get("at") and now - _gh_cache["at"] < GH_TTL:
+        return {"stars": int(_gh_cache.get("stars", 0)), "forks": int(_gh_cache.get("forks", 0))}
+    try:
+        req = Request(
+            "https://api.github.com/repos/PassepartoutFR/nounours-app",
+            headers={"Accept": "application/vnd.github+json", "User-Agent": "nounours.app-stats"},
+        )
+        with urlopen(req, timeout=10) as resp:
+            d = json.loads(resp.read().decode("utf-8"))
+        _gh_cache["stars"] = int(d.get("stargazers_count") or 0)
+        _gh_cache["forks"] = int(d.get("forks_count") or 0)
+        _gh_cache["at"] = now
+    except Exception as e:
+        sys.stderr.write("github_meta failed: %s\n" % e)
+    return {"stars": int(_gh_cache.get("stars", 0)), "forks": int(_gh_cache.get("forks", 0))}
+
+
 def outreach_view():
     ob = stats.get("outbound", {})
     variants = sorted(
@@ -185,6 +210,9 @@ def compute_stats(now_mono, now_wall):
         "transformed": transformed,
     }
     out.update(outreach_view())
+    gh = github_meta()
+    out["github_stars"] = gh["stars"]
+    out["github_forks"] = gh["forks"]
     return out
 
 def clean_pseudo(p):
@@ -522,7 +550,26 @@ class H(BaseHTTPRequestHandler):
             now_mono, now_wall = time.monotonic(), time.time()
             with stats_lock:
                 out = compute_stats(now_mono, now_wall)
-            return self._json(200, out)
+            self.send_response(200)
+            self._cors()
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "no-store")
+            body = json.dumps(out).encode("utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if u.path == "/github":
+            gh = github_meta()
+            self.send_response(200)
+            self._cors()
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Cache-Control", "public, max-age=300")
+            body = json.dumps(gh).encode("utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if u.path == "/teams":
             q = parse_qs(u.query)
             try:

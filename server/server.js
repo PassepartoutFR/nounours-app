@@ -8,6 +8,7 @@
 
 const crypto = require("crypto");
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
@@ -119,6 +120,36 @@ function recordVariant(id, sid) {
   stats.variants[vid] = (Number(stats.variants[vid]) || 0) + 1;
   return true;
 }
+const _ghCache = { at: 0, stars: 0, forks: 0 };
+const GH_TTL = 600000;
+
+function githubMeta(cb) {
+  const now = Date.now();
+  if (_ghCache.at && now - _ghCache.at < GH_TTL) {
+    cb(null, { stars: _ghCache.stars, forks: _ghCache.forks });
+    return;
+  }
+  const req = https.get(
+    "https://api.github.com/repos/PassepartoutFR/nounours-app",
+    { headers: { Accept: "application/vnd.github+json", "User-Agent": "nounours.app-stats" } },
+    (res) => {
+      let raw = "";
+      res.on("data", (c) => { raw += c; });
+      res.on("end", () => {
+        try {
+          const d = JSON.parse(raw);
+          _ghCache.stars = Number(d.stargazers_count) || 0;
+          _ghCache.forks = Number(d.forks_count) || 0;
+          _ghCache.at = now;
+        } catch (_) { /* garde le cache precedent */ }
+        cb(null, { stars: _ghCache.stars, forks: _ghCache.forks });
+      });
+    },
+  );
+  req.on("error", () => cb(null, { stars: _ghCache.stars, forks: _ghCache.forks }));
+  req.setTimeout(10000, () => { req.destroy(); cb(null, { stars: _ghCache.stars, forks: _ghCache.forks }); });
+}
+
 function outreachView() {
   const ob = stats.outbound || {};
   const variants = Object.keys(stats.variants || {})
@@ -130,6 +161,8 @@ function outreachView() {
     releases_clicks: Number(ob.releases) || 0,
     outbound_total: Object.values(ob).reduce((s, n) => s + (Number(n) || 0), 0),
     variants,
+    github_stars: _ghCache.stars || 0,
+    github_forks: _ghCache.forks || 0,
   };
 }
 function computeStats(nowMs, wallMs) {
@@ -452,7 +485,19 @@ const server = http.createServer((req, res) => {
 
   if (req.method === "GET" && u.pathname === "/stats") {
     const now = Date.now();
-    return sendJson(res, 200, computeStats(now, now));
+    return githubMeta(() => {
+      cors(res);
+      res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
+      res.end(JSON.stringify(computeStats(now, now)));
+    });
+  }
+
+  if (req.method === "GET" && u.pathname === "/github") {
+    return githubMeta((_e, gh) => {
+      cors(res);
+      res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "public, max-age=300" });
+      res.end(JSON.stringify(gh));
+    });
   }
 
   if (req.method === "GET" && u.pathname === "/teams") {

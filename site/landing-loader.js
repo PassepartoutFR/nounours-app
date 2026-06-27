@@ -11,10 +11,12 @@
     ? String(Math.max(1, Math.min(10, +force)))
     : pick();
 
+  var ASSET_V = "20260627b";
+
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
       var s = document.createElement("script");
-      s.src = src;
+      s.src = src + (src.indexOf("?") >= 0 ? "&" : "?") + "v=" + ASSET_V;
       s.async = false;
       s.onload = resolve;
       s.onerror = reject;

@@ -19,6 +19,7 @@ nounours.app, www.nounours.app {
     # API de classement (serveur Python isole, hors moteur) — /api/* -> :8790
     # handle_path retire le prefixe /api : /api/leaderboard -> /leaderboard
     handle_path /api/* {
+        header Cache-Control "no-store"
         reverse_proxy 127.0.0.1:8790
     }
 
