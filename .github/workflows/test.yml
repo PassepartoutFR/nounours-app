@@ -24,3 +24,5 @@ jobs:
         run: node test/run.mjs
       - name: Build Firefox (smoke)
         run: node scripts/build-firefox.cjs
+      - name: Build landing variants (smoke)
+        run: node scripts/build-landing-variants.cjs

@@ -1,0 +1,15 @@
+/* v05 — Playful gradient */
+.variant-playful {
+  background: linear-gradient(160deg, #fff4e6 0%, #ffe0f0 35%, #e8fff4 70%, #fff4e6 100%);
+  background-attachment: fixed;
+}
+[data-theme="dark"].variant-playful { background: linear-gradient(160deg, #2a1f3d, #3d2040, #1f3d32); }
+.variant-playful .hero-reverse .hero-grid { direction: rtl; }
+.variant-playful .hero-reverse .hero-grid > * { direction: ltr; }
+.variant-playful .ba, .variant-playful .masc .card, .variant-playful .inten {
+  border-radius: 28px; transform: rotate(-.6deg);
+}
+.variant-playful .masc .card:nth-child(even) { transform: rotate(.8deg); }
+.variant-playful .btn { border-radius: 20px; animation: wiggle 4s ease-in-out infinite; }
+@keyframes wiggle { 0%,100%{transform:rotate(0)} 50%{transform:rotate(-1deg) scale(1.02)} }
+.variant-playful h1 .em { background: linear-gradient(90deg, var(--coral), var(--honey)); -webkit-background-clip: text; background-clip: text; color: transparent; }

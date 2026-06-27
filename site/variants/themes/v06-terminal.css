@@ -1,0 +1,21 @@
+/* v06 — Terminal hacker gentil */
+:root {
+  --cream: #0d1110; --cacao: #33ff99; --honey: #33ff99; --coral: #66ffaa;
+  --mint: #33ff99; --bg: #0d1110; --ink: #b8ffd9; --muted: #5a9a72;
+  --surface: #0f1614; --line: #1e3d2f; --shadow: none;
+}
+.variant-terminal { font-family: "JetBrains Mono", "Consolas", monospace; }
+.variant-terminal h1, .variant-terminal h2, .variant-terminal .logo, .variant-terminal .btn {
+  font-family: "JetBrains Mono", monospace;
+}
+.variant-terminal .term-win {
+  border: 1px solid #33ff99; border-radius: 8px; padding: 20px; background: #0a0f0d;
+  box-shadow: 0 0 40px rgba(51,255,153,.08);
+}
+.variant-terminal .term-win::before {
+  content: "nounours@web:~$ ./adoucir --troll"; display: block; color: #33ff99; font-size: .8rem; margin-bottom: 16px; opacity: .85;
+}
+.variant-terminal .hero-grid { grid-template-columns: 1fr; gap: 20px; }
+.variant-terminal .btn { border-radius: 6px; background: transparent; color: #33ff99; border: 1px solid #33ff99; box-shadow: none; }
+.variant-terminal .btn.coral { background: #33ff99; color: #0d1110; }
+.variant-terminal .badge .pip { background: #33ff99; box-shadow: 0 0 8px #33ff99; }

@@ -1,0 +1,13 @@
+/* v09 — Story scroll cinématique */
+.variant-story { scroll-snap-type: y proximity; }
+.variant-story .hero-full {
+  min-height: 92vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 40px 0; background: linear-gradient(180deg, var(--cream), color-mix(in srgb, var(--mint) 25%, var(--cream)));
+}
+.variant-story .hero-full .hero-copy { max-width: 720px; padding: 0 22px; }
+.variant-story .hero-full .lead { margin-left: auto; margin-right: auto; }
+.variant-story .hero-full .hero-cta { justify-content: center; }
+.variant-story .hero-full .ba { width: min(480px, 92vw); margin-top: 36px; }
+.variant-story .landing-main > section { scroll-snap-align: start; min-height: 70vh; display: flex; align-items: center; }
+.variant-story .landing-main > .ticker-wrap { scroll-snap-align: start; min-height: auto; }
+.variant-story .ticker-wrap { padding: 40px 0; }

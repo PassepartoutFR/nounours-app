@@ -1,0 +1,17 @@
+/* v02 — Minimal suisse */
+:root {
+  --cream: #fafafa; --cacao: #111; --honey: #111; --coral: #111;
+  --mint: #666; --bg: #fafafa; --ink: #111; --muted: #666;
+  --surface: #fff; --line: #e8e8e8; --shadow: none;
+}
+body.variant-minimal { font-family: "DM Sans", system-ui, sans-serif; letter-spacing: -.01em; }
+.variant-minimal h1, .variant-minimal h2, .variant-minimal .fr { font-family: "DM Serif Display", Georgia, serif; font-weight: 700; }
+.variant-minimal .btn { border-radius: 4px; box-shadow: none; background: #111; color: #fff; }
+.variant-minimal .btn.coral { background: #111; }
+.variant-minimal .btn.ghost { border-color: #ccc; }
+.variant-minimal .hero-center .wrap { max-width: 640px; text-align: center; }
+.variant-minimal .hero-center .ba { margin: 0 auto 36px; max-width: 420px; }
+.variant-minimal .hero-center .lead { margin-left: auto; margin-right: auto; }
+.variant-minimal .hero-center .hero-cta { justify-content: center; }
+.variant-minimal .masc .card { border-radius: 4px; box-shadow: none; }
+.variant-minimal section { padding: 80px 0; }

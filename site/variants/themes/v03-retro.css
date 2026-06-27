@@ -1,0 +1,16 @@
+/* v03 — Retro web 98 */
+:root {
+  --cream: #0a0a12; --cacao: #c8f7c5; --honey: #ff6ec7; --coral: #00e5ff;
+  --mint: #b4ff39; --plum: #0a0a12; --bg: #0a0a12; --ink: #e8ffe8; --muted: #7a9a7a;
+  --surface: #12121f; --line: #3a3a5c; --shadow: 4px 4px 0 #ff6ec7;
+}
+.variant-retro { font-family: "Nunito", sans-serif; }
+.variant-retro h1, .variant-retro h2, .variant-retro .logo { font-family: "Press Start 2P", monospace; font-size: clamp(1rem, 3.5vw, 1.35rem); line-height: 1.5; }
+.variant-retro .hero h1 { font-size: clamp(1.1rem, 4vw, 1.6rem); }
+.variant-retro .btn { border-radius: 0; border: 3px solid var(--coral); box-shadow: 4px 4px 0 var(--honey); text-transform: uppercase; font-size: .75rem; }
+.variant-retro .ba, .variant-retro .inten, .variant-retro .feat .f { border-radius: 0; border: 3px solid var(--line); }
+.variant-retro .hero-stack .ba { margin-bottom: 28px; }
+body.variant-retro::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: .04;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, #fff 2px, #fff 3px);
+}

@@ -1,0 +1,284 @@
+// Génère les 10 landings nounours.app depuis le template partagé.
+"use strict";
+const fs = require("fs");
+const path = require("path");
+
+const SITE = path.join(__dirname, "..", "site");
+const SRC = path.join(SITE, "index-source.html");
+const raw = fs.existsSync(SRC)
+  ? fs.readFileSync(SRC, "utf8")
+  : fs.readFileSync(path.join(SITE, "index.html"), "utf8");
+
+// --- extraire CSS / JS (depuis index-source.html ou ancien monolithe) ---
+const cssM = raw.match(/<style>([\s\S]*?)<\/style>/);
+const jsM = raw.match(/<script src="stats\.js"><\/script>\s*<script>([\s\S]*?)<\/script>/);
+if (!cssM || !jsM) throw new Error("source : impossible d'extraire CSS/JS (index-source.html ?)");
+const layoutExtra = `
+/* layouts variantes (généré) */
+.hero-center .wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.hero-stack .wrap { display: flex; flex-direction: column; gap: 28px; }
+.hero-reverse .hero-grid { display: grid; }
+.hero-compact-grid { display: grid; }
+.landing-main { display: block; }
+`;
+fs.writeFileSync(path.join(SITE, "landing-base.css"), cssM[1].trim() + layoutExtra);
+fs.writeFileSync(path.join(SITE, "landing.js"), jsM[1].trim() + "\n");
+if (!fs.existsSync(SRC)) fs.copyFileSync(path.join(SITE, "index.html"), SRC);
+
+const NAV = `  <nav>
+    <div class="wrap">
+      <div class="logo">🧸 nounours<span class="dot">.app</span></div>
+      <div class="spacer"></div>
+      <select class="langsel" id="langSel" aria-label="Language"></select>
+      <button class="iconbtn" id="themeBtn" title="Mode sombre">🌙</button>
+      <a class="btn gh" href="https://github.com/PassepartoutFR/nounours-app" target="_blank" rel="noopener" title="Code source">
+        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span class="lbl">★ GitHub</span>
+      </a>
+      <a class="btn coral" href="#install" data-i18n="nav_install">Installer</a>
+    </div>
+  </nav>`;
+
+const BA = `      <div class="ba" id="heroCard">
+        <div class="hearts" id="heroHearts"></div>
+        <div class="comment">
+          <div class="avatar">👿</div>
+          <div style="flex:1;">
+            <div class="cname">TrollMaster92</div>
+            <div class="ctext meanbox mean" id="heroMean"></div>
+          </div>
+        </div>
+        <div class="toggle">
+          <div class="seg">
+            <button id="baBefore" data-i18n="ba_before">Avant</button>
+            <button id="baAfter" class="on" data-i18n="ba_after">Après 🧸</button>
+          </div>
+        </div>
+      </div>`;
+
+const HERO_COPY = `        <span class="badge"><span class="pip"></span> <span data-i18n="hero_badge">100 % local · gratuit à vie</span></span>
+        <h1 data-i18n-html="hero_h1">Trolle le troll.</h1>
+        <p class="lead" data-i18n="hero_lead"></p>
+        <div class="hero-cta">
+          <a class="btn" href="#install" data-i18n="hero_cta">Ajouter</a>
+          <a class="btn ghost" href="#demo" data-i18n="hero_demo">Démo</a>
+        </div>
+        <div class="reassure" data-i18n="hero_reassure"></div>`;
+
+function hero(layout) {
+  const copy = `      <div class="hero-copy">${HERO_COPY}</div>`;
+  if (layout === "split") return `  <header class="hero"><div class="wrap hero-grid">${copy}${BA}</div></header>`;
+  if (layout === "center") return `  <header class="hero hero-center"><div class="wrap">${BA}${copy}</div></header>`;
+  if (layout === "stack") return `  <header class="hero hero-stack"><div class="wrap">${copy}${BA}</div></header>`;
+  if (layout === "band") return `  <header class="hero hero-band"><div class="wrap band-inner">${copy}</div>${BA}</header>`;
+  if (layout === "terminal") return `  <header class="hero hero-terminal"><div class="wrap"><div class="term-win">${copy}${BA}</div></div></header>`;
+  if (layout === "reverse") return `  <header class="hero"><div class="wrap hero-grid hero-reverse">${BA}${copy}</div></header>`;
+  if (layout === "fullscreen") return `  <header class="hero hero-full">${copy}<div class="wrap">${BA}</div></header>`;
+  if (layout === "compact") return `  <header class="hero hero-compact"><div class="wrap hero-compact-grid">${copy}${BA}</div></header>`;
+  return `  <header class="hero"><div class="wrap hero-grid">${copy}${BA}</div></header>`;
+}
+
+const TICKER = `  <div class="ticker-wrap" id="kindBlock">
+    <div class="wrap" style="display:grid; gap:14px;">
+      <div class="ticker" id="kindTicker">
+        <div class="tk-emo" aria-hidden="true">🧸</div>
+        <div class="tk-body">
+          <div class="tk-num" id="kindCount" data-val="0">0</div>
+          <div class="tk-label" data-i18n="ticker_label"></div>
+          <div class="tk-hint" data-i18n="ticker_hint"></div>
+        </div>
+        <div class="tk-spacer"></div>
+      </div>
+      <div class="wx" id="kindWeather" style="display:none;">
+        <div class="wx-emo" id="wxEmo" aria-hidden="true">☀️</div>
+        <div class="wx-body">
+          <div class="wx-eyebrow" data-i18n="wx_eyebrow"></div>
+          <div class="wx-line"><span data-i18n="wx_today"></span> : <span class="wx-mood" id="wxMood">…</span> · <span class="wx-pct" id="wxPct">—</span> <span data-i18n="wx_softness"></span></div>
+        </div>
+        <div class="wx-gauge" aria-hidden="true"><i id="wxBar"></i></div>
+      </div>
+    </div>
+  </div>`;
+
+const SECTIONS = `${TICKER}
+  <section id="mascottes"><div class="wrap">
+    <div class="eyebrow" data-i18n="masc_eyebrow"></div><h2 data-i18n="masc_h2"></h2><p class="sub" data-i18n="masc_sub"></p>
+    <div class="masc">
+      <div class="card"><span class="emo">🧸</span><div class="nm" data-i18n="masc_nounours"></div><div class="ln" data-i18n="masc_nounours_ln"></div></div>
+      <div class="card"><span class="emo">🐱</span><div class="nm" data-i18n="masc_chatons"></div><div class="ln" data-i18n="masc_chatons_ln"></div></div>
+      <div class="card"><span class="emo">👵</span><div class="nm" data-i18n="masc_meme"></div><div class="ln" data-i18n="masc_meme_ln"></div></div>
+      <div class="card"><span class="emo">🎨</span><div class="nm" data-i18n="masc_bobross"></div><div class="ln" data-i18n="masc_bobross_ln"></div></div>
+    </div>
+  </div></section>
+  <section id="demo"><div class="wrap">
+    <div class="eyebrow" data-i18n="inten_eyebrow"></div><h2 data-i18n="inten_h2"></h2><p class="sub" data-i18n-html="inten_sub"></p>
+    <div class="inten">
+      <div class="reply" id="intenReply">🧸 …</div>
+      <div class="slider-row"><input type="range" id="intenRange" min="0" max="2" step="1" value="1" /></div>
+      <div class="ticks"><span data-i18n="tick_doux"></span><span data-i18n="tick_medium"></span><span data-i18n="tick_hardcore"></span></div>
+      <div style="margin-top:22px; border-top:1px solid var(--line); padding-top:18px;">
+        <div class="eyebrow" style="color:var(--mint)" data-i18n="try_eyebrow"></div>
+        <div class="try"><input id="tryInput" data-i18n-ph="try_placeholder" /><button class="btn" id="tryBtn" data-i18n="try_btn"></button></div>
+        <div class="try-out" id="tryOut"></div>
+      </div>
+    </div>
+  </div></section>
+  <section id="features"><div class="wrap">
+    <div class="eyebrow" data-i18n="feat_eyebrow"></div><h2 data-i18n="feat_h2"></h2>
+    <div class="feat">
+      <div class="f"><div class="ic">🔒</div><h3 data-i18n="feat_1_h3"></h3><p data-i18n="feat_1_p"></p></div>
+      <div class="f"><div class="ic">🌍</div><h3 data-i18n="feat_2_h3"></h3><p data-i18n="feat_2_p"></p></div>
+      <div class="f"><div class="ic">💕</div><h3 data-i18n="feat_3_h3"></h3><p data-i18n="feat_3_p"></p></div>
+      <div class="f"><div class="ic">🎚️</div><h3 data-i18n="feat_4_h3"></h3><p data-i18n="feat_4_p"></p></div>
+      <div class="f"><div class="ic">🪞</div><h3 data-i18n="feat_5_h3"></h3><p data-i18n="feat_5_p"></p></div>
+      <div class="f"><div class="ic">🧸</div><h3 data-i18n="feat_6_h3"></h3><p data-i18n="feat_6_p"></p></div>
+    </div>
+  </div></section>
+  <section><div class="wrap"><div class="band" style="padding:38px;"><div class="board">
+    <div><div class="eyebrow" data-i18n="board_eyebrow"></div><h2 data-i18n="board_h2"></h2><p class="sub" data-i18n="board_sub"></p><a class="btn" href="#install" data-i18n="board_join"></a></div>
+    <div class="lb"><ol id="lbList"><li style="opacity:.7" data-i18n="board_loading"></li></ol></div>
+  </div></div></div></section>
+  <section id="data"><div class="wrap">
+    <div class="eyebrow" data-i18n="data_eyebrow"></div><h2 data-i18n="data_h2"></h2><p class="sub" data-i18n="data_sub"></p>
+    <div class="dash">
+      <div class="dash-live" id="dashLive" data-empty="1"><span class="dot"></span><span class="num" id="statLive" data-val="0">0</span><span class="lbl" data-i18n="data_live_label"></span></div>
+      <div class="dash-grid">
+        <div class="stat"><div class="stat-emo">🧸</div><div class="stat-num" id="statAccounts" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_accounts"></div></div>
+        <div class="stat"><div class="stat-emo">💕</div><div class="stat-num" id="statTransformed" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_transformed"></div></div>
+        <div class="stat"><div class="stat-emo">👀</div><div class="stat-num" id="statToday" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_today"></div></div>
+        <div class="stat"><div class="stat-emo">🌍</div><div class="stat-num" id="statTotal" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_total"></div></div>
+      </div>
+      <div class="dash-spark"><div class="spark-lbl" data-i18n="data_spark_label"></div><svg viewBox="0 0 220 44" preserveAspectRatio="none"><polyline id="statSpark" points="" fill="none" /></svg></div>
+      <div class="dash-foot">
+        <span data-i18n="data_soon"></span>
+        <span>🔒 <span data-i18n="data_privacy_note"></span> <a href="/privacy.html" data-i18n="data_privacy_link"></a></span>
+        <span class="dash-err" id="dashError" style="display:none" data-i18n="data_error"></span>
+      </div>
+    </div>
+    <div class="geo" id="geoBlock" style="display:none;">
+      <div class="eyebrow" data-i18n="geo_eyebrow"></div><h2 style="margin:6px 0 8px;" data-i18n="geo_h2"></h2><p class="sub" style="margin:0 0 18px;" data-i18n="geo_sub"></p>
+      <div class="geo-list" id="geoList"></div>
+      <div class="geo-cap"><span class="lock">🔒</span> <span data-i18n="geo_caption"></span></div>
+    </div>
+  </div></section>
+  <section id="privacy"><div class="wrap">
+    <div class="eyebrow" data-i18n="priv_eyebrow"></div><h2 data-i18n="priv_h2"></h2><p class="sub" data-i18n="priv_sub"></p>
+    <div class="feat">
+      <div class="f"><div class="ic">🏠</div><h3 data-i18n="priv_1_h3"></h3><p data-i18n="priv_1_p"></p></div>
+      <div class="f"><div class="ic">🏆</div><h3 data-i18n="priv_2_h3"></h3><p data-i18n="priv_2_p"></p></div>
+      <div class="f"><div class="ic">🚫</div><h3 data-i18n="priv_3_h3"></h3><p data-i18n="priv_3_p"></p></div>
+    </div>
+  </div></section>
+  <section id="install"><div class="wrap install">
+    <div class="eyebrow" data-i18n="inst_eyebrow"></div><h2 data-i18n="inst_h2"></h2>
+    <p class="sub" style="margin:0 auto 6px;" data-i18n="inst_sub"></p>
+    <div class="steps">
+      <div class="s"><div class="n">1</div><h3 data-i18n="step_1_h3"></h3><p data-i18n="step_1_p"></p></div>
+      <div class="s"><div class="n">2</div><h3 data-i18n="step_2_h3"></h3><p data-i18n="step_2_p"></p></div>
+      <div class="s"><div class="n">3</div><h3 data-i18n="step_3_h3"></h3><p data-i18n="step_3_p"></p></div>
+    </div>
+    <p class="sub" style="margin:20px auto 0;max-width:560px;font-size:0.92rem;" data-i18n-html="inst_ff"></p>
+    <div style="margin-top:26px;"><a class="btn" href="https://github.com/PassepartoutFR/nounours-app/releases/latest" target="_blank" rel="noopener" data-i18n="inst_cta"></a></div>
+  </div></section>`;
+
+const FOOTER = `  <footer><div class="wrap row">
+    <div class="logo">🧸 nounours<span class="dot">.app</span></div>
+    <div class="spacer" style="flex:1;"></div>
+    <a href="#mascottes" data-i18n="foot_mascottes"></a>
+    <a href="#data" data-i18n="foot_data"></a>
+    <a href="#privacy" data-i18n="foot_privacy"></a>
+    <a href="#install" data-i18n="foot_install"></a>
+    <a href="https://github.com/PassepartoutFR/nounours-app" target="_blank" rel="noopener">★ GitHub</a>
+    <span class="hand" data-i18n="foot_tagline"></span>
+  </div></footer>`;
+
+const VARIANTS = [
+  { n: "01", slug: "classic", title: "Classic", layout: "split", theme: "v01-classic.css", fonts: "Fredoka,Nunito,Caveat", dark: false },
+  { n: "02", slug: "minimal", title: "Minimal", layout: "center", theme: "v02-minimal.css", fonts: "DM+Sans,DM+Serif+Display", dark: false },
+  { n: "03", slug: "retro", title: "Retro", layout: "stack", theme: "v03-retro.css", fonts: "Press+Start+2P,Nunito", dark: true },
+  { n: "04", slug: "magazine", title: "Magazine", layout: "band", theme: "v04-magazine.css", fonts: "Playfair+Display,Nunito", dark: false },
+  { n: "05", slug: "playful", title: "Playful", layout: "reverse", theme: "v05-playful.css", fonts: "Fredoka,Nunito,Caveat", dark: false },
+  { n: "06", slug: "terminal", title: "Terminal", layout: "terminal", theme: "v06-terminal.css", fonts: "JetBrains+Mono,Nunito", dark: true },
+  { n: "07", slug: "glass", title: "Glass", layout: "center", theme: "v07-glass.css", fonts: "Outfit,Nunito", dark: false },
+  { n: "08", slug: "brutalist", title: "Brutalist", layout: "reverse", theme: "v08-brutalist.css", fonts: "Archivo+Black,Nunito", dark: false },
+  { n: "09", slug: "story", title: "Story", layout: "fullscreen", theme: "v09-story.css", fonts: "Fredoka,Nunito", dark: false },
+  { n: "10", slug: "compact", title: "Compact", layout: "compact", theme: "v10-compact.css", fonts: "Fredoka,Nunito", dark: false },
+];
+
+function page(v) {
+  const fontMap = {
+    "Fredoka,Nunito,Caveat": "family=Fredoka:wght@500;600;700&family=Nunito:wght@400;700;800&family=Caveat:wght@600",
+    "DM+Sans,DM+Serif+Display": "family=DM+Sans:wght@400;700&family=DM+Serif+Display:wght@400;700",
+    "Press+Start+2P,Nunito": "family=Press+Start+2P&family=Nunito:wght@400;700",
+    "Playfair+Display,Nunito": "family=Playfair+Display:wght@600;700;800&family=Nunito:wght@400;700",
+    "JetBrains+Mono,Nunito": "family=JetBrains+Mono:wght@400;700&family=Nunito:wght@400;700",
+    "Outfit,Nunito": "family=Outfit:wght@400;600;700&family=Nunito:wght@400;700",
+    "Archivo+Black,Nunito": "family=Archivo+Black&family=Nunito:wght@400;700",
+  };
+  const ff = fontMap[v.fonts] || fontMap["Fredoka,Nunito,Caveat"];
+  const themeAttr = v.dark ? ' data-theme="dark"' : ' data-theme="light"';
+  return `<!DOCTYPE html>
+<html lang="fr"${themeAttr} data-variant="${v.n}" data-variant-slug="${v.slug}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Un web de gentil — ${v.title} 🧸</title>
+  <meta name="description" content="Une extension qui repère les commentaires haineux et les remplace par des mascottes adorablement insolentes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?${ff}&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing-base.css" />
+  <link rel="stylesheet" href="/variants/themes/${v.theme}" />
+</head>
+<body class="variant variant-${v.slug}">
+${NAV}
+${hero(v.layout)}
+<main class="landing-main">
+${SECTIONS}
+</main>
+${FOOTER}
+  <script src="/uwg-core.js"></script>
+  <script src="/i18n.js"></script>
+  <script src="/stats.js"></script>
+  <script src="/landing.js"></script>
+</body>
+</html>
+`;
+}
+
+const varDir = path.join(SITE, "variants");
+fs.mkdirSync(path.join(varDir, "themes"), { recursive: true });
+for (const v of VARIANTS) {
+  fs.writeFileSync(path.join(varDir, `v${v.n}.html`), page(v));
+}
+
+// Router index.html
+const router = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>nounours.app 🧸</title>
+  <meta name="description" content="Un web de gentil — extension anti-trolls, 100% local." />
+  <script>
+  (function () {
+    var KEY = "uwg_landing_v";
+    var q = new URLSearchParams(location.search);
+    var force = q.get("v");
+    var pick = function () { return String(1 + Math.floor(Math.random() * 10)); };
+    var n = force && /^\\d{1,2}$/.test(force) ? String(Math.max(1, Math.min(10, +force))) : (localStorage.getItem(KEY) || pick());
+    if (!force) localStorage.setItem(KEY, n);
+    var pad = n.length < 2 ? "0" + n : n;
+    var rest = location.search.replace(/[?&]v=\\d{1,2}/g, "").replace(/^\\?&/, "?").replace(/\\?$/, "");
+    location.replace("/variants/v" + pad + ".html" + rest + location.hash);
+  })();
+  </script>
+</head>
+<body style="font-family:system-ui,sans-serif;background:#FBF3E4;color:#3A2A1E;display:grid;place-items:center;min-height:100vh;margin:0;">
+  <p>🧸 Chargement…</p>
+</body>
+</html>
+`;
+fs.writeFileSync(path.join(SITE, "index.html"), router);
+
+console.log("✅ landing-base.css, landing.js, index.html (router), variants/v01..v10.html");

@@ -1,0 +1,11 @@
+/* v04 — Magazine éditorial */
+:root { --coral: #b42318; --honey: #d4a574; }
+.variant-magazine h1 { font-size: clamp(3rem, 8vw, 5.5rem); line-height: .95; letter-spacing: -.04em; }
+.variant-magazine .hero-band { padding: 0; background: linear-gradient(135deg, #1a0f0a 0%, #3d2314 50%, #1a0f0a 100%); color: #fff5eb; }
+.variant-magazine .hero-band .band-inner { padding: 80px 22px 40px; max-width: 1080px; margin: 0 auto; }
+.variant-magazine .hero-band .badge { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: #e8d5c4; }
+.variant-magazine .hero-band .lead { color: #d4c4b0; max-width: 42ch; }
+.variant-magazine .hero-band .ba { margin: -20px auto 50px; max-width: 520px; border-radius: 0; border: none; box-shadow: 0 40px 80px rgba(0,0,0,.45); }
+.variant-magazine .eyebrow { letter-spacing: .14em; }
+.variant-magazine .masc { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 900px) { .variant-magazine .masc { grid-template-columns: repeat(4, 1fr); } }

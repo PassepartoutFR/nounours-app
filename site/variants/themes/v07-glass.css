@@ -1,0 +1,20 @@
+/* v07 — Glassmorphism aurora */
+.variant-glass {
+  background: radial-gradient(ellipse at 20% 0%, #e8d5ff 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 20%, #ffd8e8 0%, transparent 45%),
+              radial-gradient(ellipse at 50% 100%, #d4fff0 0%, transparent 55%),
+              var(--cream);
+  background-attachment: fixed;
+}
+.variant-glass nav { background: rgba(255,255,255,.55); }
+.variant-glass .hero-center .wrap { max-width: 720px; }
+.variant-glass .hero-center .ba {
+  margin: 0 auto 32px; backdrop-filter: blur(16px);
+  background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.6);
+}
+.variant-glass .inten, .variant-glass .feat .f, .variant-glass .masc .card, .variant-glass .dash-grid .stat {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,.5);
+  border: 1px solid rgba(255,255,255,.55);
+}
+.variant-glass .btn { backdrop-filter: blur(8px); }
