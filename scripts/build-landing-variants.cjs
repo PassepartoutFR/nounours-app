@@ -262,12 +262,10 @@ const router = `<!DOCTYPE html>
   <meta name="description" content="Un web de gentil — extension anti-trolls, 100% local." />
   <script>
   (function () {
-    var KEY = "uwg_landing_v";
     var q = new URLSearchParams(location.search);
     var force = q.get("v");
     var pick = function () { return String(1 + Math.floor(Math.random() * 10)); };
-    var n = force && /^\\d{1,2}$/.test(force) ? String(Math.max(1, Math.min(10, +force))) : (localStorage.getItem(KEY) || pick());
-    if (!force) localStorage.setItem(KEY, n);
+    var n = force && /^\\d{1,2}$/.test(force) ? String(Math.max(1, Math.min(10, +force))) : pick();
     var pad = n.length < 2 ? "0" + n : n;
     var rest = location.search.replace(/[?&]v=\\d{1,2}/g, "").replace(/^\\?&/, "?").replace(/\\?$/, "");
     location.replace("/variants/v" + pad + ".html" + rest + location.hash);
