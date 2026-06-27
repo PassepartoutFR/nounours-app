@@ -98,7 +98,7 @@ Popup → **Leaderboard** → nickname → **Join**.
 
 **Backup**: export/import identity (`UWG1` code) to switch machines.
 **Deletion**: temporary `DEL1` code (15 min) or direct button in the popup;
-form at [nounours.app/privacy.html](https://nounours.app/privacy.html).
+form at [nounours.app/privacy.en.html](https://nounours.app/privacy.en.html).
 
 ## Privacy (non-negotiable)
 

@@ -13,7 +13,7 @@
 | **Releases** | [RELEASE.fr.md](RELEASE.fr.md) | [RELEASE.en.md](RELEASE.en.md) |
 | **Browsers** | [BROWSERS.fr.md](BROWSERS.fr.md) | [BROWSERS.en.md](BROWSERS.en.md) |
 | **Roadmap** | [ROADMAP.md](ROADMAP.md) | *(translation welcome)* |
-| **Privacy (site)** | [privacy.html](https://nounours.app/privacy.html) | *(FR for now)* |
+| **Privacy (site)** | [privacy.html](https://nounours.app/privacy.html) (FR) · [EN](https://nounours.app/privacy.en.html) | bilingual |
 
 > **Convention** : fichiers `*.fr.md` et `*.en.md` = contenu complet ;
 > fichiers sans suffixe (`README.md`, `FAQ.md`…) = hub bilingue avec liens.

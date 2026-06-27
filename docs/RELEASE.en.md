@@ -57,6 +57,15 @@ After that, everything is automatic.
    - `CHROME_CLIENT_SECRET`
    - `CHROME_REFRESH_TOKEN`
 
+Quick check:
+
+```bash
+node scripts/setup-chrome-publish.cjs   # lists ✅/❌ per secret
+```
+
+Until OAuth secrets are set, the publish step is **skipped** cleanly (build +
+GitHub Release still work). CI logs which secrets are missing on each tag.
+
 Until those secrets exist, the publish step is **skipped** cleanly
 (build + GitHub Release still work).
 

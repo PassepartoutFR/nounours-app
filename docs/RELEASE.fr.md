@@ -59,8 +59,15 @@ récupérer l'**ID de l'extension**. Ensuite, tout est automatique.
    - `CHROME_CLIENT_SECRET`
    - `CHROME_REFRESH_TOKEN`
 
-Tant que ces secrets ne sont pas là, l'étape de publication est **sautée**
-proprement (le build + la Release GitHub marchent quand même).
+Vérification rapide :
+
+```bash
+node scripts/setup-chrome-publish.cjs   # liste ✅/❌ par secret
+```
+
+Tant que les secrets OAuth manquent, l'étape de publication est **sautée**
+proprement (le build + la Release GitHub marchent quand même). La CI logue
+quels secrets manquent à chaque tag.
 
 ## Déployer le site / le serveur
 

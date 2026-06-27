@@ -24,7 +24,7 @@ Télécharge depuis les [Releases GitHub](https://github.com/PassepartoutFR/noun
 | **Description courte** (≤ 132 car.) | `Remplace les commentaires méchants par des mascottes câlines et taquines. 8 langues, 100 % local, gratuit à vie. 🧸` |
 | **Catégorie** | Réseaux sociaux & communication |
 | **Langue par défaut** | Français |
-| **Politique de confidentialité** | https://nounours.app/privacy.html |
+| **Politique de confidentialité** | https://nounours.app/privacy.en.html (EN) · https://nounours.app/privacy.html (FR) |
 | **Site web** | https://nounours.app |
 | **Contact développeur** | contact@nounours.app |
 

@@ -30,7 +30,7 @@ sections = la priorité.
 
 ## ▶️ Ensuite
 - [ ] Soumettre sur **Firefox AMO** (build prêt : `scripts/build-firefox.cjs` + `web-ext sign`).
-- [ ] **Armer l'auto-publication** (secrets OAuth → release auto au tag).
+- [ ] **Armer l'auto-publication** — `CHROME_EXTENSION_ID` ✅ ; OAuth manquant → `node tools/get-refresh-token.cjs` puis `node scripts/setup-chrome-publish.cjs`.
 
 ## 🌱 Plus tard
 - [ ] Pattern **permissions optionnelles** (liste par défaut + « Activer partout »)
@@ -41,6 +41,9 @@ sections = la priorité.
 - [ ] **Promo** (Product Hunt, Reddit) une fois publié.
 
 ## ✅ Fait
+- 🌍 **Politique de confidentialité bilingue** : `privacy.html` (FR/EN + switcher),
+  `privacy.en.html` (URL store), formulaire suppression i18n.
+- ⚙️ **Auto-publish Chrome** : workflow renforcé (4 secrets requis) + `scripts/setup-chrome-publish.cjs`.
 - 💾 **Export/import d'identité** renforcé : équipe, optedIn, total local, collage
   multi-lignes, encodage UTF-8 via TextEncoder (v0.7.12).
 - 📦 **Fiche Edge Add-ons** prête : [`deploy/EDGE-LISTING.md`](../deploy/EDGE-LISTING.md).

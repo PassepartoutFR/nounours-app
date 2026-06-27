@@ -45,12 +45,20 @@ jobs:
             dist/nounours-firefox-*.zip
           generate_release_notes: true
 
+      - name: Chrome Web Store publish (prérequis)
+        run: |
+          ok=true
+          for s in CHROME_EXTENSION_ID CHROME_CLIENT_ID CHROME_CLIENT_SECRET CHROME_REFRESH_TOKEN; do
+            if [ -z "${!s}" ]; then echo "::notice title=Chrome publish skipped::Secret $s manquant — voir docs/RELEASE.md ou node scripts/setup-chrome-publish.cjs"; ok=false; fi
+          done
+          if [ "$ok" = true ]; then echo "✅ Secrets Chrome présents — publication en cours."; fi
+
       - name: Publish to Chrome Web Store
-        # ne s'active que lorsque les identifiants OAuth sont configurés.
+        # ne s'active que lorsque les 4 secrets sont configurés.
         # NB : GitHub résout TOUTES les actions `uses:` au démarrage du job, AVANT
         # d'évaluer ce `if` — donc la version doit exister (sinon le job échoue avant
         # même de créer la Release). On épingle une version valide (v6.0.0).
-        if: ${{ env.CHROME_REFRESH_TOKEN != '' }}
+        if: ${{ env.CHROME_EXTENSION_ID != '' && env.CHROME_CLIENT_ID != '' && env.CHROME_CLIENT_SECRET != '' && env.CHROME_REFRESH_TOKEN != '' }}
         uses: mnao305/chrome-extension-upload@v6.0.0
         with:
           file-path: nounours-app-${{ github.ref_name }}.zip

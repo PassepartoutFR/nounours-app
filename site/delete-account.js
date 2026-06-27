@@ -2,14 +2,26 @@
 (() => {
   "use strict";
 
-  const b64d = (s) => decodeURIComponent(escape(atob(s)));
+  const b64d = (b) => {
+    const bin = atob(b.replace(/\s+/g, ""));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  };
+
+  function t(key) {
+    const lang = window.PRIVACY_LANG || document.documentElement.lang || "fr";
+    const D = window.PRIVACY_I18N || {};
+    return (D[lang] && D[lang][key]) || (D.fr && D.fr[key]) || key;
+  }
 
   function parseDeletionCode(code) {
     let c = String(code || "").trim();
     if (c.startsWith("DEL1:")) c = c.slice(5);
+    c = c.replace(/\s+/g, "");
     let data;
-    try { data = JSON.parse(b64d(c)); } catch (_) { throw new Error("Code invalide"); }
-    if (!data || !data.uid || !data.exp || !data.sig) throw new Error("Code invalide");
+    try { data = JSON.parse(b64d(c)); } catch (_) { throw new Error(t("del_invalid")); }
+    if (!data || !data.uid || !data.exp || !data.sig) throw new Error(t("del_invalid"));
     return { uid: String(data.uid).slice(0, 64), exp: data.exp, sig: String(data.sig).slice(0, 128) };
   }
 
@@ -37,17 +49,15 @@
     e.preventDefault();
     msg.className = "";
     if (!confirm.checked) {
-      msg.textContent = "Coche la case de confirmation.";
+      msg.textContent = t("del_confirm_err");
       msg.className = "err";
       return;
     }
     btn.disabled = true;
-    msg.textContent = "Suppression en cours…";
+    msg.textContent = t("del_progress");
     try {
       const res = await submitDeletion(input.value);
-      msg.textContent = res.removed
-        ? "C'est fait : ton entrée du classement a été supprimée. Le code ne sert plus à rien."
-        : "Aucune entrée trouvée pour ce code (déjà supprimée ?).";
+      msg.textContent = res.removed ? t("del_ok_removed") : t("del_ok_none");
       msg.className = "ok";
       input.value = "";
       confirm.checked = false;
