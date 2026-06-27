@@ -30,7 +30,7 @@ jobs:
           mkdir -p dist/nounours-app
           cp manifest.json background.js content.js content.css mirror.js \
              popup.html popup.js scoreboard.js uwg-core.js \
-             offscreen.html offscreen.js dist/nounours-app/
+             offscreen.html offscreen.js sandbox.html sandbox.js dist/nounours-app/
           cp -r icons vendor dist/nounours-app/
           cd dist && zip -r "../nounours-app-${GITHUB_REF_NAME}.zip" nounours-app
 

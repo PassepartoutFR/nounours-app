@@ -4,6 +4,16 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.7.9] — 2026-06-26
+
+### Corrigé
+- 🧠 **IA locale enfin fonctionnelle** : TensorFlow.js utilise `eval`, interdit par
+  la CSP des pages d'extension MV3 (`EvalError` → le modèle ne s'initialisait pas).
+  Solution canonique : TF.js tourne désormais dans un **iframe *sandboxé*** (où
+  l'eval est permis), hébergé par le document offscreen qui relaie par
+  `postMessage`. Le modèle prouvé (« stupid moro » → 0.99) reste identique — on a
+  juste changé *où* il s'exécute.
+
 ## [0.7.8] — 2026-06-26
 
 ### Corrigé
