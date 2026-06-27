@@ -92,6 +92,38 @@ function render(st) {
     el.title = (has ? "" : "🔒 ") + b.title;
     bd.appendChild(el);
   }
+
+  renderLangStats(st);
+}
+
+function renderLangStats(st) {
+  const box = $("langStats");
+  if (!box) return;
+  const list = CORE.langStatsList(st.langCounts, st.total || 0);
+  if (!list.length) {
+    box.innerHTML = '<div class="langstats-empty">Navigue un peu — tes câlins par langue s\'afficheront ici.</div>';
+    return;
+  }
+  const max = list[0].count;
+  box.innerHTML = "";
+  for (const row of list) {
+    const el = document.createElement("div");
+    el.className = "langstat";
+    el.title = row.count + " câlin" + (row.count > 1 ? "s" : "") + " · " + row.pct + " %";
+    const barW = max > 0 ? Math.max(4, Math.round((row.count / max) * 100)) : 0;
+    const lbl = document.createElement("span");
+    lbl.textContent = row.meta.flag + " " + row.meta.label;
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    const fill = document.createElement("i");
+    fill.style.width = barW + "%";
+    bar.appendChild(fill);
+    const num = document.createElement("span");
+    num.className = "n";
+    num.textContent = String(row.count);
+    el.append(lbl, bar, num);
+    box.appendChild(el);
+  }
 }
 
 function load() {
@@ -211,7 +243,7 @@ intensityBox.addEventListener("click", (e) => {
   if (e.target.tagName === "BUTTON") patch({ intensity: e.target.dataset.v });
 });
 
-$("reset").addEventListener("click", () => patch({ total: 0 }));
+$("reset").addEventListener("click", () => patch({ total: 0, langCounts: {} }));
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes[STORAGE_KEY]) {

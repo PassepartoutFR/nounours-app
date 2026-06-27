@@ -122,6 +122,15 @@ ok(C.updateStreak({ days: 3, last: "2026-06-26" }, "2026-06-27").days === 4, "jo
 ok(C.updateStreak({ days: 9, last: "2026-06-20" }, "2026-06-27").days === 1, "trou -> reset à 1");
 ok(C.earnedBadges({ total: 5, streak: { days: 7, last: "x" } }).some((b) => b.id === "serie7"), "7 jours -> badge série 🔥");
 
+// ---- uwg-core : stats par langue (popup) ----
+ok(typeof C.bumpLangCounts === "function" && typeof C.langStatsList === "function", "bumpLangCounts + langStatsList exposés");
+const bumped = C.bumpLangCounts({ fr: 2 }, { fr: 3, en: 1, zz: 99 });
+ok(bumped.fr === 5 && bumped.en === 1 && bumped.zz === undefined, "bumpLangCounts agrège et ignore langues invalides");
+const ls = C.langStatsList({ fr: 10, en: 5, de: 2 }, 17);
+ok(ls.length === 3 && ls[0].lang === "fr" && ls[0].count === 10, "langStatsList tri décroissant");
+ok(ls[0].pct === 59 && ls[1].lang === "en", "langStatsList calcule les % vs total");
+ok(C.langStatsList({}, 0).length === 0, "langStatsList vide si aucun câlin");
+
 // ---- scoreboard : identité + export/import ----
 const acc1 = await B.ensureAccount();
 ok(acc1.uid && acc1.secret && acc1.token, "ensureAccount crée uid+secret+token");
