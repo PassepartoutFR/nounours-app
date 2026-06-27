@@ -22,7 +22,8 @@ Edit `BANKS` in `uwg-core.js`. Stay **cheeky without being mean**: we troll the 
 - `demo.html` (standalone, double-click) for the engine.
 - `test.html` (with the extension loaded) for real rendering + Kind Mirror.
 - Quick check: `node --check <file>.js`.
-- Full suite: `node test/run.mjs`.
+- Full suite: `node test/run.mjs` (core, server, **mirror.js**, **content.js** via `test/dom-lite.mjs` — zero npm deps).
+- New DOM test: add a case in `test/mirror-content.mjs`; the minimal harness lives in `test/dom-lite.mjs`.
 
 ## 🎨 Style
 - No dependencies, no build for the extension (except the release zip).

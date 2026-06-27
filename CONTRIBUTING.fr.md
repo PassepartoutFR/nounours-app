@@ -25,7 +25,8 @@ troll le troll avec de la gentillesse, jamais avec de la haine en retour.
 - `demo.html` (autonome, double-clic) pour le moteur.
 - `test.html` (avec l'extension chargée) pour le rendu réel + le Miroir gentil.
 - Vérif rapide : `node --check <fichier>.js`.
-- Suite complète : `node test/run.mjs`.
+- Suite complète : `node test/run.mjs` (noyau, serveur, **mirror.js**, **content.js** via `test/dom-lite.mjs` — zéro dépendance npm).
+- Nouveau test DOM : ajoute un cas dans `test/mirror-content.mjs` ; le harnais minimal vit dans `test/dom-lite.mjs`.
 
 ## 🎨 Style
 - Pas de dépendance, pas de build pour l'extension (sauf le zip de release).
