@@ -229,6 +229,7 @@ function page(v) {
   <link href="https://fonts.googleapis.com/css2?${ff}&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/landing-base.css" />
   <link rel="stylesheet" href="/variants/themes/${v.theme}" />
+  <script>if(/^\\/variants\\/v\\d+\\.html$/.test(location.pathname))history.replaceState(null,"","/"+location.search+location.hash);</script>
 </head>
 <body class="variant variant-${v.slug}">
 ${NAV}
@@ -252,7 +253,7 @@ for (const v of VARIANTS) {
   fs.writeFileSync(path.join(varDir, `v${v.n}.html`), page(v));
 }
 
-// Router index.html
+// Shell index.html — charge une variante sans changer l'URL visible
 const router = `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -260,20 +261,12 @@ const router = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>nounours.app 🧸</title>
   <meta name="description" content="Un web de gentil — extension anti-trolls, 100% local." />
-  <script>
-  (function () {
-    var q = new URLSearchParams(location.search);
-    var force = q.get("v");
-    var pick = function () { return String(1 + Math.floor(Math.random() * 10)); };
-    var n = force && /^\\d{1,2}$/.test(force) ? String(Math.max(1, Math.min(10, +force))) : pick();
-    var pad = n.length < 2 ? "0" + n : n;
-    var rest = location.search.replace(/[?&]v=\\d{1,2}/g, "").replace(/^\\?&/, "?").replace(/\\?$/, "");
-    location.replace("/variants/v" + pad + ".html" + rest + location.hash);
-  })();
-  </script>
+  <link rel="stylesheet" href="/landing-base.css" />
+  <style>body.loader-shell{margin:0;min-height:100vh;display:grid;place-items:center;background:#FBF3E4;color:#3A2A1E;font-family:system-ui,sans-serif}</style>
 </head>
-<body style="font-family:system-ui,sans-serif;background:#FBF3E4;color:#3A2A1E;display:grid;place-items:center;min-height:100vh;margin:0;">
-  <p>🧸 Chargement…</p>
+<body class="loader-shell">
+  <p aria-live="polite">🧸 Chargement…</p>
+  <script src="/landing-loader.js"></script>
 </body>
 </html>
 `;
