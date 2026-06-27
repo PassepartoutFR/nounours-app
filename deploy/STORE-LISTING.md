@@ -64,7 +64,7 @@ côté navigateur, par des messages bienveillants et humoristiques.
 - (Optionnel) petite/grande tuile promo.
 
 ## Le paquet à uploader
-`nounours-app-0.5.0.zip` (généré à la racine du projet). Il contient
+`nounours-app-X.Y.Z.zip` (Releases GitHub, ex. v0.7.12). Il contient
 uniquement les fichiers de l'extension (manifest, scripts, css, popup, icônes) —
 pas le site, ni le serveur, ni les docs.
 

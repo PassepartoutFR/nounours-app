@@ -25,8 +25,8 @@ sections = la priorité.
 ## 🔜 Maintenant (en cours / immédiat)
 - [ ] Review Chrome de la **v0.5.0** → à l'approbation : basculer le bouton
       « Installer » de la landing vers le lien Web Store + redéployer.
-- [ ] **Tester l'export/import d'identité** dans un vrai navigateur.
-- [ ] Soumettre sur **Edge** (même paquet, gratuit).
+
+- [ ] Soumettre sur **Edge** — fiche prête : [`deploy/EDGE-LISTING.md`](../deploy/EDGE-LISTING.md) + zip Releases.
 
 ## ▶️ Ensuite
 - [ ] Soumettre sur **Firefox AMO** (build prêt : `scripts/build-firefox.cjs` + `web-ext sign`).
@@ -41,6 +41,9 @@ sections = la priorité.
 - [ ] **Promo** (Product Hunt, Reddit) une fois publié.
 
 ## ✅ Fait
+- 💾 **Export/import d'identité** renforcé : équipe, optedIn, total local, collage
+  multi-lignes, encodage UTF-8 via TextEncoder (v0.7.12).
+- 📦 **Fiche Edge Add-ons** prête : [`deploy/EDGE-LISTING.md`](../deploy/EDGE-LISTING.md).
 - 🦊 **Port Firefox bout-en-bout** : `scripts/build-firefox.cjs` aligné sur le paquet
   Chrome (offscreen, sandbox, vendor), zip `nounours-firefox-X.Y.Z.zip` en CI/release,
   smoke tests, note d'install sur nounours.app.

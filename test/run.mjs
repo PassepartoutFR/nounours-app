@@ -156,6 +156,34 @@ let threw = false;
 try { await B.importAccount("n'importe quoi"); } catch (_) { threw = true; }
 ok(threw, "import d'un code invalide -> erreur");
 
+// ---- export/import : champs étendus (équipe, optedIn, total, collage) ----
+await B.update({ pseudo: "Équipe🧸", optedIn: true, team: "Les Nounours" });
+store.uwg_state = { total: 77 };
+const fullCode = await B.exportAccount();
+ok(fullCode.includes("UWG1:"), "export étendu préfixe UWG1");
+delete store.uwg_account;
+delete store.uwg_state;
+const fullRestored = await B.importAccount(fullCode.replace("UWG1:", "UWG1:\n"));
+ok(fullRestored.uid === acc1.uid && fullRestored.team === "Les Nounours", "import restaure équipe");
+ok(fullRestored.optedIn === true, "import restaure optedIn");
+ok(store.uwg_state && store.uwg_state.total === 77, "import restaure total local");
+// rétrocompat : ancien code sans team/optedIn/total
+const legacyB64 = (() => {
+  const s = JSON.stringify({ uid: acc1.uid, secret: acc1.secret, pseudo: "Legacy" });
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return "UWG1:" + btoa(bin);
+})();
+delete store.uwg_account;
+const legacy = await B.importAccount(legacyB64);
+ok(legacy.pseudo === "Legacy" && legacy.optedIn === true, "import code legacy (optedIn défaut)");
+await B.update({ optedIn: false });
+const offCode = await B.exportAccount();
+delete store.uwg_account;
+const offRestored = await B.importAccount(offCode);
+ok(offRestored.optedIn === false, "import conserve optedIn false");
+
 // ---- scoreboard : suppression autonome (code DEL1) ----
 const delCode = await B.generateDeletionCode();
 ok(delCode.startsWith("DEL1:"), "generateDeletionCode -> DEL1");

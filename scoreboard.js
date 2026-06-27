@@ -141,23 +141,65 @@
   }
 
   // --- export / import d'identité (pour ne jamais perdre son score) ---
-  // base64 sûr en UTF-8 (pseudo avec accents/emoji OK)
-  const b64e = (s) => btoa(unescape(encodeURIComponent(s)));
-  const b64d = (s) => decodeURIComponent(escape(atob(s)));
+  // base64 sûr en UTF-8 (pseudo avec accents/emoji OK) — TextEncoder (MV3 / SW / popup).
+  const b64e = (s) => {
+    const bytes = new TextEncoder().encode(s);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  };
+  const b64d = (b) => {
+    const bin = atob(b);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  };
 
   async function exportAccount() {
     const acc = await ensureAccount();
-    return "UWG1:" + b64e(JSON.stringify({ uid: acc.uid, secret: acc.secret, pseudo: acc.pseudo || "" }));
+    const st = await get("uwg_state");
+    const total = clampInt((st.uwg_state && st.uwg_state.total) || 0);
+    const payload = {
+      uid: acc.uid,
+      secret: acc.secret,
+      pseudo: acc.pseudo || "",
+      optedIn: !!acc.optedIn,
+      team: String(acc.team || "").slice(0, 24),
+      total,
+    };
+    return "UWG1:" + b64e(JSON.stringify(payload));
   }
+
+  function clampInt(n) {
+    const x = Math.floor(Number(n) || 0);
+    return x < 0 ? 0 : x;
+  }
+
   async function importAccount(code) {
     let c = String(code || "").trim();
     if (c.startsWith("UWG1:")) c = c.slice(5);
+    c = c.replace(/\s+/g, ""); // collage multi-lignes (mail, SMS, etc.)
     let data;
     try { data = JSON.parse(b64d(c)); } catch (_) { throw new Error("Code invalide"); }
     if (!data || !data.uid || !data.secret) throw new Error("Code invalide");
     const token = await hmac(data.secret, data.uid);
-    const acc = { uid: data.uid, secret: data.secret, token, pseudo: data.pseudo || "", optedIn: true };
+    const acc = {
+      uid: data.uid,
+      secret: data.secret,
+      token,
+      pseudo: String(data.pseudo || "").slice(0, 24),
+      optedIn: data.optedIn !== undefined ? !!data.optedIn : true,
+      team: String(data.team || "").slice(0, 24),
+    };
     await set({ [ACC_KEY]: acc });
+    const importedTotal = clampInt(data.total);
+    if (importedTotal > 0) {
+      const st = await get("uwg_state");
+      const cur = (st.uwg_state && st.uwg_state.total) || 0;
+      if (importedTotal > cur) {
+        await set({ uwg_state: Object.assign({}, st.uwg_state || {}, { total: importedTotal }) });
+      }
+    }
     return acc;
   }
 
