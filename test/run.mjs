@@ -6,12 +6,19 @@ const store = {};
 globalThis.chrome = {
   storage: {
     local: {
-      get: (key, cb) => cb({ [key]: store[key] }),
+      get: (keys, cb) => {
+        const out = {};
+        const list = Array.isArray(keys) ? keys : [keys];
+        for (const k of list) {
+          if (store[k] !== undefined) out[k] = store[k];
+        }
+        cb(out);
+      },
       set: (obj, cb) => { Object.assign(store, obj); cb && cb(); },
     },
     onChanged: { addListener: () => {} },
   },
-  runtime: { sendMessage: () => {} },
+  runtime: { sendMessage: (_msg, cb) => { cb && cb({}); } },
 };
 
 import { readFileSync } from "node:fs";
@@ -361,6 +368,10 @@ const nOk = corpus.filter((i) => i.expect === "ok").length;
 ok(cFP === 0, `oracle : zéro faux positif sur les ${nOk} items "ok"`);
 ok(recall >= 0.90, `oracle : rappel ${(recall * 100).toFixed(1)}% ≥ 90%`);
 ok(fnItems.every((x) => DOCUMENTED_FN.has(x.text)), "oracle : tous les faux négatifs restants sont documentés");
+
+// ---- mirror.js + content.js (DOM minimal, zéro npm) ----
+const { runMirrorContentTests } = await import("./mirror-content.mjs");
+await runMirrorContentTests(ok, C);
 
 console.log(`\n${pass}/${pass + fail} tests verts`);
 process.exit(fail ? 1 : 0);
