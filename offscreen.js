@@ -57,6 +57,7 @@ function answerSW(entry, score, error) {
 window.addEventListener("message", (ev) => {
   const msg = ev && ev.data;
   if (!msg || msg.src !== "uwg-sandbox") return; // pas de la sandbox
+  console.log(TAG, "reçu de la sandbox →", msg.kind, msg.status || ("id=" + msg.id)); // diagnostic relais
   try {
     if (msg.kind === "status" && typeof msg.status === "string") {
       // On relaie le statut du MODÈLE tel quel (loading/ready/error: …) — observable popup.
@@ -112,4 +113,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // EAGER du modèle dès qu'elle est prête (= ce document existe, donc l'IA est activée).
 // Elle poste loading -> ready|error au fil de l'eau ; on les relaie dans uwg_ai_status.
 // Rien à déclencher ici : on attend simplement les messages.
+// On publie « loading » TOUT DE SUITE : le popup ne reste pas sur « désactivée »
+// pendant que la sandbox télécharge le modèle, et un éventuel « off » d'une bascule
+// précédente est écrasé. La sandbox confirmera ensuite « ready » (ou « error »).
+setStatus("loading");
 console.log(TAG, "relais prêt — iframe sandbox prête à charger le modèle (TF.js eval autorisé dans la sandbox)");
