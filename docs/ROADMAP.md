@@ -29,10 +29,8 @@ sections = la priorité.
 - [ ] Soumettre sur **Edge** (même paquet, gratuit).
 
 ## ▶️ Ensuite
-- [ ] Soumettre sur **Firefox** (`scripts/build-firefox.cjs` + web-ext).
-- [ ] **Stats par langue** dans le popup (mini répartition).
+- [ ] Soumettre sur **Firefox AMO** (build prêt : `scripts/build-firefox.cjs` + `web-ext sign`).
 - [ ] **Armer l'auto-publication** (secrets OAuth → release auto au tag).
-- [ ] Élargir le harnais de **tests** (mirror, content — via jsdom léger).
 
 ## 🌱 Plus tard
 - [ ] Pattern **permissions optionnelles** (liste par défaut + « Activer partout »)
@@ -43,6 +41,11 @@ sections = la priorité.
 - [ ] **Promo** (Product Hunt, Reddit) une fois publié.
 
 ## ✅ Fait
+- 🦊 **Port Firefox bout-en-bout** : `scripts/build-firefox.cjs` aligné sur le paquet
+  Chrome (offscreen, sandbox, vendor), zip `nounours-firefox-X.Y.Z.zip` en CI/release,
+  smoke tests, note d'install sur nounours.app.
+- 📊 **Stats par langue** dans le popup (mini répartition).
+- 🧪 **Harnais tests** mirror + content (DOM minimal, 27 tests).
 - 🎯 **Détection anti-faux-positifs** (panel d'experts, 8 langues) : tiers STRONG/CONTEXTUEL + gating par cible + scoping de langue + `norm` corrigé ; oracle de 213 phrases (`test/corpus.json`) → **0 FP / 96 % rappel**. *(démo site déployée 2026-06-26 ; extension = prochaine release store)*
 - Extension MV3 : détection locale multilingue (7 langues), mascottes,
   intensité, cœurs animés, miroir gentil.

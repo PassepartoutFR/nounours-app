@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build extension zip
+      - name: Build extension zip (Chrome / Edge)
         run: |
           mkdir -p dist/nounours-app
           cp manifest.json background.js content.js content.css mirror.js \
@@ -34,10 +34,15 @@ jobs:
           cp -r icons vendor dist/nounours-app/
           cd dist && zip -r "../nounours-app-${GITHUB_REF_NAME}.zip" nounours-app
 
+      - name: Build Firefox zip
+        run: node scripts/build-firefox.cjs
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: nounours-app-*.zip
+          files: |
+            nounours-app-*.zip
+            dist/nounours-firefox-*.zip
           generate_release_notes: true
 
       - name: Publish to Chrome Web Store
