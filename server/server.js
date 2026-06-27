@@ -50,6 +50,11 @@ if (!stats.reports || typeof stats.reports !== "object") stats.reports = {};
 
 const live = new Map();   // sid -> { ts, ip }  (jamais persiste)
 const counted = new Set(); // sids deja comptes comme "visite"
+const variantCounted = new Set(); // sid:variant — dedup vues landing A/B par session
+const OUTBOUND_TARGETS = new Set(["github", "releases"]);
+
+if (!stats.outbound || typeof stats.outbound !== "object") stats.outbound = {};
+if (!stats.variants || typeof stats.variants !== "object") stats.variants = {};
 
 let statsTimer = null;
 function saveStats() {
@@ -88,6 +93,45 @@ function recordBeat(sid, ip, nowMs, wallMs, persist = true) {
   }
   return computeLive(nowMs);
 }
+function cleanOutbound(target) {
+  const t = String(target || "").toLowerCase().slice(0, 24);
+  return OUTBOUND_TARGETS.has(t) ? t : null;
+}
+function cleanVariant(id) {
+  const n = parseInt(String(id || "").replace(/\D/g, ""), 10);
+  if (!n || n < 1 || n > 10) return null;
+  return n < 10 ? "0" + n : "10";
+}
+function recordOutbound(target) {
+  const t = cleanOutbound(target);
+  if (!t) return null;
+  stats.outbound[t] = (Number(stats.outbound[t]) || 0) + 1;
+  return stats.outbound[t];
+}
+function recordVariant(id, sid) {
+  const vid = cleanVariant(id);
+  sid = String(sid || "").slice(0, 64);
+  if (!vid || !sid) return false;
+  const key = sid + ":" + vid;
+  if (variantCounted.has(key)) return false;
+  if (variantCounted.size >= COUNTED_MAX) variantCounted.clear();
+  variantCounted.add(key);
+  stats.variants[vid] = (Number(stats.variants[vid]) || 0) + 1;
+  return true;
+}
+function outreachView() {
+  const ob = stats.outbound || {};
+  const variants = Object.keys(stats.variants || {})
+    .map((k) => ({ id: k, n: Number(stats.variants[k]) || 0 }))
+    .filter((e) => e.n > 0)
+    .sort((a, b) => b.n - a.n || a.id.localeCompare(b.id));
+  return {
+    github_clicks: Number(ob.github) || 0,
+    releases_clicks: Number(ob.releases) || 0,
+    outbound_total: Object.values(ob).reduce((s, n) => s + (Number(n) || 0), 0),
+    variants,
+  };
+}
 function computeStats(nowMs, wallMs) {
   const liveNow = computeLive(nowMs);
   const days = Object.keys(stats.days).sort().slice(-14).map((k) => ({ d: k, n: stats.days[k] }));
@@ -100,11 +144,27 @@ function computeStats(nowMs, wallMs) {
     days,
     accounts: Object.keys(scores).length,
     transformed,
+    ...outreachView(),
   };
 }
 function _reset() { // utilitaire de test : remet l'etat a zero
   for (const k in scores) delete scores[k];
-  stats.total = 0; stats.days = {}; stats.reports = {}; stats.geo = {}; live.clear(); counted.clear();
+  stats.total = 0; stats.days = {}; stats.reports = {}; stats.geo = {};
+  stats.outbound = {}; stats.variants = {};
+  live.clear(); counted.clear(); variantCounted.clear();
+}
+const _rateHits = new Map();
+function rateOk(ip) {
+  const now = Date.now();
+  const win = 60000;
+  const max = 80;
+  ip = String(ip || "").slice(0, 64);
+  let arr = _rateHits.get(ip);
+  if (!arr) { arr = []; _rateHits.set(ip, arr); }
+  while (arr.length && now - arr[0] > win) arr.shift();
+  if (arr.length >= max) return false;
+  arr.push(now);
+  return true;
 }
 
 // retire les caracteres de controle sans regex (zero octet de controle dans la source)
@@ -425,6 +485,7 @@ const server = http.createServer((req, res) => {
     if (req.method === "GET" && u.pathname === "/admin/overview") {
       const now = Date.now();
       const s = computeStats(now, now);
+      const reach = outreachView();
       return sendJson(res, 200, {
         accounts: s.accounts,
         transformed: s.transformed,
@@ -432,6 +493,10 @@ const server = http.createServer((req, res) => {
         today: s.today,
         total: s.total,
         reports: Object.assign({}, stats.reports),
+        github_clicks: reach.github_clicks,
+        releases_clicks: reach.releases_clicks,
+        outbound_total: reach.outbound_total,
+        variants: reach.variants,
         serverTime: new Date(now).toISOString(),
       });
     }
@@ -474,6 +539,31 @@ const server = http.createServer((req, res) => {
     }
 
     return sendJson(res, 404, { error: "not found" });
+  }
+
+  if (req.method === "POST" && u.pathname === "/event") {
+    const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || "";
+    if (!rateOk(ip)) return sendJson(res, 429, { error: "trop de requetes" });
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 512) req.destroy(); });
+    req.on("end", () => {
+      let d = {};
+      try { d = JSON.parse(body || "{}"); } catch (_) { return sendJson(res, 400, { error: "bad json" }); }
+      const kind = String(d.type || "").toLowerCase();
+      if (kind === "outbound") {
+        const n = recordOutbound(d.target);
+        if (n == null) return sendJson(res, 400, { error: "cible invalide" });
+        saveStats();
+        return sendJson(res, 200, { ok: true, count: n });
+      }
+      if (kind === "variant") {
+        const recorded = recordVariant(d.id || d.variant, d.sid);
+        if (recorded) saveStats();
+        return sendJson(res, 200, { ok: true, recorded: !!recorded });
+      }
+      return sendJson(res, 400, { error: "type invalide" });
+    });
+    return;
   }
 
   if (req.method === "POST" && u.pathname === "/beat") {
@@ -588,7 +678,8 @@ module.exports = {
   checkAdminKey, adminScores,
   recordReport, cleanLang, teams, cleanTeam,
   recordGeo, primaryLang, geo,
+  recordOutbound, recordVariant, cleanOutbound, cleanVariant, outreachView,
   sanitizeOverrides,
   delSig, verifyDeleteAuth, deleteAccount, DEL_TTL,
-  scores, stats, LIVE_CAP_PER_IP, LIVE_WINDOW,
+  scores, stats, LIVE_CAP_PER_IP, LIVE_WINDOW, rateOk,
 };

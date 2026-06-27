@@ -69,6 +69,12 @@
     var store = global.sessionStorage || { getItem: function () {}, setItem: function () {} };
     var sid = sessionId(store);
 
+    var VARIANT_NAMES = {
+      "01": "Classic", "02": "Minimal", "03": "Retro", "04": "Magazine", "05": "Playful",
+      "06": "Terminal", "07": "Glass", "08": "Brutalist", "09": "Story", "10": "Compact",
+    };
+    var GH_REPO = "https://api.github.com/repos/PassepartoutFR/nounours-app";
+
     var els = {
       live: document.getElementById("statLive"),
       liveWrap: document.getElementById("dashLive"),
@@ -78,7 +84,81 @@
       total: document.getElementById("statTotal"),
       spark: document.getElementById("statSpark"),
       err: document.getElementById("dashError"),
+      ghStars: document.getElementById("statGithubStars"),
+      ghClicks: document.getElementById("statGithubClicks"),
+      relClicks: document.getElementById("statReleasesClicks"),
+      variantBars: document.getElementById("variantBars"),
+      variantBarsList: document.getElementById("variantBarsList"),
     };
+
+    function sendEvent(payload) {
+      try {
+        fetch(base + "/event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        }).catch(function () {});
+      } catch (_) {}
+    }
+
+    function trackOutbound() {
+      document.addEventListener("click", function (e) {
+        var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+        if (!a) return;
+        var href = a.getAttribute("href") || "";
+        if (href.indexOf("github.com/PassepartoutFR/nounours-app") < 0) return;
+        sendEvent({ type: "outbound", target: href.indexOf("releases") >= 0 ? "releases" : "github" });
+      }, true);
+    }
+
+    function trackVariant() {
+      var id = document.documentElement.getAttribute("data-variant");
+      if (!id) return;
+      sendEvent({ type: "variant", id: id, sid: sid });
+    }
+
+    function fetchGithubMeta() {
+      return fetch(GH_REPO, { headers: { Accept: "application/vnd.github+json" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d) return;
+          if (els.ghStars) {
+            var stars = Math.max(0, Number(d.stargazers_count) || 0);
+            els.ghStars.setAttribute("data-val", String(stars));
+            els.ghStars.textContent = formatCount(stars, getLang());
+          }
+        })
+        .catch(function () {});
+    }
+
+    function renderVariantBars(variants) {
+      if (!els.variantBars || !els.variantBarsList) return;
+      var list = (variants || []).filter(function (v) { return v && v.n > 0; });
+      if (!list.length) { els.variantBars.hidden = true; return; }
+      var max = list.reduce(function (m, v) { return Math.max(m, v.n); }, 1);
+      els.variantBars.hidden = false;
+      els.variantBarsList.innerHTML = list.map(function (v) {
+        var pct = Math.max(6, Math.round((v.n / max) * 100));
+        var slug = VARIANT_NAMES[v.id] || ("v" + v.id);
+        return '<div class="variant-row">' +
+          '<span class="vtag">v' + v.id + " · " + slug + "</span>" +
+          '<span class="bar-track"><i class="bar-fill" data-w="' + pct + '"></i></span>' +
+          '<span class="vnum">' + formatCount(v.n, getLang()) + "</span></div>";
+      }).join("");
+      global.requestAnimationFrame(function () {
+        els.variantBarsList.querySelectorAll(".bar-fill").forEach(function (b) {
+          b.style.width = (b.getAttribute("data-w") || 0) + "%";
+        });
+      });
+    }
+
+    function applyOutreach(s) {
+      if (!s || typeof s !== "object") return;
+      animate(els.ghClicks, s.github_clicks);
+      animate(els.relClicks, s.releases_clicks);
+      renderVariantBars(s.variants);
+    }
 
     function reduceMotion() {
       return global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -123,6 +203,7 @@
       animate(els.today, s.today);
       animate(els.total, s.total);
       renderSpark(s.days);
+      applyOutreach(s);
     }
 
     function fetchStats() {
@@ -146,6 +227,11 @@
       } catch (_) {}
     }
 
+    trackOutbound();
+    trackVariant();
+    fetchGithubMeta();
+    global.setInterval(fetchGithubMeta, 300000);
+
     // boucle : battement de présence (≈ fenêtre serveur) + rafraîchissement stats
     beat(); fetchStats();
     global.setInterval(beat, 25000);
@@ -156,7 +242,7 @@
 
     // re-localise les nombres déjà affichés quand la langue change
     API._refreshLabels = function () {
-      ["accounts", "transformed", "today", "total", "live"].forEach(function (k) {
+      ["accounts", "transformed", "today", "total", "live", "ghStars", "ghClicks", "relClicks"].forEach(function (k) {
         var el = els[k];
         if (el) el.textContent = formatCount(Number(el.getAttribute("data-val") || 0), getLang());
       });

@@ -228,6 +228,40 @@
     .geo-empty { color: var(--muted); font-size: .95rem; }
     @media (prefers-reduced-motion: reduce) { .geo-bar { transition: none; } }
 
+    /* Trafic sortant + landings A/B */
+    .dash-outreach {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+      padding: 18px 20px;
+    }
+    .outreach-hint { color: var(--muted); font-size: .85rem; margin: 4px 0 0; }
+    .outreach-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;
+    }
+    .outreach-grid .stat {
+      background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px 12px; text-align: center;
+    }
+    .outreach-grid .stat-emo { font-size: 26px; }
+    .outreach-grid .stat-num { font-size: 1.55rem; }
+    .variant-bars { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); }
+    .variant-row {
+      display: grid; grid-template-columns: 72px 1fr auto; gap: 10px; align-items: center;
+      margin: 8px 0; font-size: .88rem;
+    }
+    .variant-row .vtag { font-family: "Fredoka", sans-serif; font-weight: 600; color: var(--muted); }
+    .variant-row .bar-track {
+      height: 10px; border-radius: 999px;
+      background: color-mix(in srgb, var(--honey) 14%, transparent); overflow: hidden;
+    }
+    .variant-row .bar-fill {
+      display: block; height: 100%; width: 0; border-radius: 999px;
+      background: linear-gradient(90deg, var(--honey), var(--coral));
+      transition: width .8s cubic-bezier(.34,1.56,.64,1);
+    }
+    .variant-row .vnum { font-family: "Fredoka", sans-serif; font-weight: 700; color: var(--coral); font-variant-numeric: tabular-nums; }
+    @media (max-width: 640px) { .outreach-grid { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { .variant-row .bar-fill { transition: none; } }
+
     .install { text-align: center; }
     .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 24px; text-align: left; }
     .steps .s { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
@@ -412,6 +446,20 @@
           <svg viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true">
             <polyline id="statSpark" points="" fill="none" />
           </svg>
+        </div>
+
+        <div class="dash-outreach" id="dashOutreach">
+          <div class="spark-lbl" data-i18n="data_outreach_label">Trafic & GitHub</div>
+          <p class="outreach-hint" data-i18n="data_outreach_hint">Clics comptés depuis le site · étoiles lues depuis GitHub (public).</p>
+          <div class="outreach-grid">
+            <div class="stat"><div class="stat-emo">⭐</div><div class="stat-num" id="statGithubStars" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_stars">Étoiles GitHub</div></div>
+            <div class="stat"><div class="stat-emo">🐙</div><div class="stat-num" id="statGithubClicks" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_gh_clicks">Clics vers GitHub</div></div>
+            <div class="stat"><div class="stat-emo">📦</div><div class="stat-num" id="statReleasesClicks" data-val="0">—</div><div class="stat-lbl" data-i18n="data_stat_rel_clicks">Clics Releases</div></div>
+          </div>
+          <div class="variant-bars" id="variantBars" hidden>
+            <div class="spark-lbl" data-i18n="data_variants_label">Landings vues (A/B)</div>
+            <div id="variantBarsList"></div>
+          </div>
         </div>
 
         <div class="dash-foot">

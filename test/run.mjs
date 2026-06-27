@@ -222,6 +222,16 @@ const _st = SRV.computeStats(0, 0);
 ok(_st.accounts === 2, "comptes = 2");
 ok(_st.transformed === 42, "mechancetes adoucies = somme des scores");
 
+// ---- server.js : trafic sortant + landings A/B ----
+SRV.recordOutbound("github"); SRV.recordOutbound("github"); SRV.recordOutbound("releases");
+ok(SRV.stats.outbound.github === 2 && SRV.stats.outbound.releases === 1, "outbound compté");
+ok(SRV.recordOutbound("invalid") == null, "outbound invalide rejeté");
+ok(SRV.recordVariant("3", "sid-v1") === true, "variante enregistrée");
+ok(SRV.recordVariant("3", "sid-v1") === false, "variante dedup session");
+ok(SRV.cleanVariant("07") === "07", "cleanVariant pad");
+const _reach = SRV.outreachView();
+ok(_reach.github_clicks === 2 && _reach.variants.length >= 1, "outreachView agrégé");
+
 // ---- server.js : garde de la cle admin (NOUNOURS_ADMIN_KEY) ----
 ok(typeof SRV.checkAdminKey === "function", "checkAdminKey exposé");
 ok(SRV.checkAdminKey("s3cr3t", "s3cr3t") === true, "cle admin correcte -> true");

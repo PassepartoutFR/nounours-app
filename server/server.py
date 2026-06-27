@@ -67,9 +67,14 @@ stats.setdefault("days", {})
 # Faux positifs signales : compteurs AGREGES par langue (vie privee : aucun texte,
 # aucune URL, jamais d'identifiant — juste {"fr": n, ...}). Persiste avec stats.
 stats.setdefault("reports", {})
+stats.setdefault("outbound", {})   # clics sortants agreges : github, releases
+stats.setdefault("variants", {})   # vues landing A/B par variante (01..10)
+
+OUTBOUND_TARGETS = frozenset({"github", "releases"})
 
 _live = {}        # sid -> (last_seen_monotonic, ip)  (jamais persiste)
 _counted = set()  # sids deja comptes comme "visite" (dedup par session)
+_variant_counted = set()  # sid:variant — dedup vues landing par session
 
 def save_stats():
     tmp = STATS + ".tmp"
@@ -113,13 +118,65 @@ def record_beat(sid, ip, now_mono, now_wall, persist=True):
                 sys.stderr.write("save_stats failed: %s\n" % e)
     return compute_live(now_mono)
 
+def clean_outbound(target):
+    t = str(target or "").lower()[:24]
+    return t if t in OUTBOUND_TARGETS else None
+
+
+def clean_variant(vid):
+    try:
+        n = int("".join(ch for ch in str(vid or "") if ch.isdigit()) or "0")
+    except Exception:
+        return None
+    if n < 1 or n > 10:
+        return None
+    return ("%02d" % n)
+
+
+def record_outbound(target):
+    t = clean_outbound(target)
+    if not t:
+        return None
+    stats["outbound"][t] = int(stats["outbound"].get(t, 0)) + 1
+    return stats["outbound"][t]
+
+
+def record_variant(vid, sid):
+    v = clean_variant(vid)
+    sid = str(sid)[:64]
+    if not v or not sid:
+        return False
+    key = sid + ":" + v
+    if key in _variant_counted:
+        return False
+    if len(_variant_counted) >= COUNTED_MAX:
+        _variant_counted.clear()
+    _variant_counted.add(key)
+    stats["variants"][v] = int(stats["variants"].get(v, 0)) + 1
+    return True
+
+
+def outreach_view():
+    ob = stats.get("outbound", {})
+    variants = sorted(
+        [{"id": k, "n": int(stats["variants"].get(k, 0))} for k in stats.get("variants", {}) if int(stats["variants"].get(k, 0)) > 0],
+        key=lambda e: (-e["n"], e["id"]),
+    )
+    return {
+        "github_clicks": int(ob.get("github", 0)),
+        "releases_clicks": int(ob.get("releases", 0)),
+        "outbound_total": sum(int(ob.get(k, 0)) for k in ob),
+        "variants": variants,
+    }
+
+
 def compute_stats(now_mono, now_wall):
     live = compute_live(now_mono)
     days = sorted(stats.get("days", {}).items())[-14:]
     with lock:
         accounts = len(scores)
         transformed = sum(clamp_int(v.get("total", 0)) for v in scores.values())
-    return {
+    out = {
         "live": live,
         "today": int(stats.get("days", {}).get(_day(now_wall), 0)),
         "total": int(stats.get("total", 0)),
@@ -127,6 +184,8 @@ def compute_stats(now_mono, now_wall):
         "accounts": accounts,
         "transformed": transformed,
     }
+    out.update(outreach_view())
+    return out
 
 def clean_pseudo(p):
     s = "" if p is None else str(p)
@@ -499,6 +558,7 @@ class H(BaseHTTPRequestHandler):
                 s = compute_stats(now_mono, now_wall)
             with stats_lock:
                 reports = dict(stats.get("reports", {}))
+            reach = outreach_view()
             return self._json(200, {
                 "accounts": s["accounts"],
                 "transformed": s["transformed"],
@@ -506,6 +566,10 @@ class H(BaseHTTPRequestHandler):
                 "today": s["today"],
                 "total": s["total"],
                 "reports": reports,
+                "github_clicks": reach["github_clicks"],
+                "releases_clicks": reach["releases_clicks"],
+                "outbound_total": reach["outbound_total"],
+                "variants": reach["variants"],
                 "serverTime": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(now_wall)),
             })
         if u.path == "/admin/scores":
@@ -541,8 +605,45 @@ class H(BaseHTTPRequestHandler):
                 sys.stderr.write("save_stats failed: %s\n" % e)
         return self._json(200, {"ok": True, "live": live})
 
+    def _event(self):
+        if not rate_ok(self._client_ip()):
+            return self._json(429, {"error": "trop de requetes"})
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except Exception:
+            length = 0
+        if length < 0 or length > 512:
+            return self._json(400, {"error": "corps invalide"})
+        raw = self.rfile.read(length) if length else b""
+        try:
+            d = json.loads(raw.decode("utf-8")) if raw else {}
+        except Exception:
+            return self._json(400, {"error": "bad json"})
+        kind = str(d.get("type", "")).lower()
+        with stats_lock:
+            if kind == "outbound":
+                n = record_outbound(d.get("target"))
+                if n is None:
+                    return self._json(400, {"error": "cible invalide"})
+                try:
+                    save_stats()
+                except Exception as e:
+                    sys.stderr.write("save_stats failed: %s\n" % e)
+                return self._json(200, {"ok": True, "count": n})
+            if kind == "variant":
+                recorded = record_variant(d.get("id") or d.get("variant"), d.get("sid"))
+                if recorded:
+                    try:
+                        save_stats()
+                    except Exception as e:
+                        sys.stderr.write("save_stats failed: %s\n" % e)
+                return self._json(200, {"ok": True, "recorded": bool(recorded)})
+        return self._json(400, {"error": "type invalide"})
+
     def do_POST(self):
         u = urlparse(self.path)
+        if u.path == "/event":
+            return self._event()
         if u.path == "/beat":
             return self._beat()
         if u.path == "/report":
@@ -719,8 +820,8 @@ def _selftest():
         print(("ok   " if cond else "FAIL ") + msg)
         if not cond:
             fails[0] += 1
-    stats = {"total": 0, "days": {}, "reports": {}, "geo": {}}
-    _live.clear(); _counted.clear(); scores.clear()
+    stats = {"total": 0, "days": {}, "reports": {}, "geo": {}, "outbound": {}, "variants": {}}
+    _live.clear(); _counted.clear(); _variant_counted.clear(); scores.clear()
     t0, w0 = 1000.0, 1_700_000_000.0  # mono + wall (UTC) fixes
 
     record_beat("a", "1.1.1.1", t0, w0, persist=False)

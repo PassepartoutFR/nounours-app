@@ -109,6 +109,13 @@
       <div class="tiles" id="tiles"></div>
       <div class="stamp" id="stamp"></div>
 
+      <h2>Trafic sortant & landings A/B</h2>
+      <div class="card" style="padding:14px 16px">
+        <div class="hint" style="margin:0 0 10px">Clics vers GitHub/Releases comptés depuis nounours.app · vues landing par variante (1× par session). Données <b>agrégées</b> uniquement.</div>
+        <div class="tiles" id="outreachTiles" style="margin:0 0 14px"></div>
+        <div id="variantsWrap"></div>
+      </div>
+
       <h2>Faux positifs signalés (par langue)</h2>
       <div class="card" style="padding:14px 16px">
         <div class="hint" style="margin:0 0 8px">Nombre de fois où des lecteurs ont signalé « pas méchant » sur un passage adouci. Données <b>agrégées</b> : uniquement des compteurs par code de langue — aucun texte, aucune URL, aucun identifiant.</div>
@@ -207,6 +214,11 @@
     }
 
     // ---- vues ----
+    var VARIANT_NAMES = {
+      "01": "Classic", "02": "Minimal", "03": "Retro", "04": "Magazine", "05": "Playful",
+      "06": "Terminal", "07": "Glass", "08": "Brutalist", "09": "Story", "10": "Compact",
+    };
+
     function renderTiles(o) {
       var rows = [
         ["live", "Présents en direct", o.live, true],
@@ -221,7 +233,32 @@
           '<div class="k">' + esc(r[1]) + "</div></div>";
       }).join("");
       $("stamp").textContent = o.serverTime ? ("Heure serveur : " + o.serverTime) : "";
+      renderOutreach(o);
       renderReports(o.reports);
+    }
+
+    function renderOutreach(o) {
+      var ot = $("outreachTiles");
+      var vw = $("variantsWrap");
+      if (!ot || !vw) return;
+      var rows = [
+        ["github_clicks", "Clics GitHub", o.github_clicks],
+        ["releases_clicks", "Clics Releases", o.releases_clicks],
+        ["outbound_total", "Clics sortants (total)", o.outbound_total],
+      ];
+      ot.innerHTML = rows.map(function (r) {
+        return '<div class="tile"><div class="n">' + fmt(r[2] || 0) + '</div><div class="k">' + esc(r[1]) + "</div></div>";
+      }).join("");
+      var variants = (o.variants || []).slice().sort(function (a, b) { return (b.n || 0) - (a.n || 0) || String(a.id).localeCompare(b.id); });
+      if (!variants.length) {
+        vw.innerHTML = '<div class="hint">Aucune vue landing enregistrée encore.</div>';
+        return;
+      }
+      vw.innerHTML =
+        '<table><thead><tr><th>Variante</th><th>Nom</th><th class="num">Vues</th></tr></thead><tbody>' +
+        variants.map(function (v) {
+          return "<tr><td>v" + esc(v.id) + "</td><td>" + esc(VARIANT_NAMES[v.id] || "—") + '</td><td class="num">' + fmt(v.n || 0) + "</td></tr>";
+        }).join("") + "</tbody></table>";
     }
 
     // Faux positifs signalés : compteurs agrégés par code de langue {fr: n, ...}.
