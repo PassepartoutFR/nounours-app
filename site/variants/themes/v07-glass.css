@@ -1,20 +1,101 @@
 /* v07 — Glassmorphism aurora */
-.variant-glass {
-  background: radial-gradient(ellipse at 20% 0%, #e8d5ff 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 20%, #ffd8e8 0%, transparent 45%),
-              radial-gradient(ellipse at 50% 100%, #d4fff0 0%, transparent 55%),
-              var(--cream);
-  background-attachment: fixed;
+.variant-glass .variant-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background: #f0eef8;
+  overflow: hidden;
 }
-.variant-glass nav { background: rgba(255,255,255,.55); }
-.variant-glass .hero-center .wrap { max-width: 720px; }
+.variant-glass .variant-bg::before,
+.variant-glass .variant-bg::after {
+  content: ""; position: absolute; border-radius: 50%; filter: blur(80px);
+  animation: aurora-drift 18s ease-in-out infinite;
+}
+.variant-glass .variant-bg::before {
+  width: 70vw; height: 70vw; background: linear-gradient(135deg, #c4b5fd, #fda4af);
+  top: -25%; left: -15%; opacity: .65;
+}
+.variant-glass .variant-bg::after {
+  width: 60vw; height: 60vw; background: linear-gradient(135deg, #6ee7b7, #93c5fd);
+  bottom: -20%; right: -12%; opacity: .55; animation-delay: -9s;
+}
+@keyframes aurora-drift {
+  0%,100% { transform: translate(0,0) rotate(0deg); }
+  33% { transform: translate(40px,-30px) rotate(5deg); }
+  66% { transform: translate(-20px,20px) rotate(-3deg); }
+}
+body.variant-glass { background: transparent; }
+.variant-glass nav {
+  background: rgba(255,255,255,.45); backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid rgba(255,255,255,.5);
+}
+.variant-glass .hero-center { padding: 80px 0 50px; }
+.variant-glass .hero-center .wrap { max-width: 680px; }
 .variant-glass .hero-center .ba {
-  margin: 0 auto 32px; backdrop-filter: blur(16px);
-  background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.6);
+  margin: 0 auto 40px; backdrop-filter: blur(24px) saturate(1.3);
+  background: rgba(255,255,255,.35); border: 1px solid rgba(255,255,255,.65);
+  box-shadow: 0 24px 48px rgba(99,102,241,.12), inset 0 1px 0 rgba(255,255,255,.8);
+  border-radius: 28px;
 }
-.variant-glass .inten, .variant-glass .feat .f, .variant-glass .masc .card, .variant-glass .dash-grid .stat {
+.variant-glass .hero-center h1 {
+  text-shadow: 0 2px 24px rgba(255,255,255,.8);
+}
+.variant-glass .inten, .variant-glass .feat .f, .variant-glass .masc .card,
+.variant-glass .dash-grid .stat, .variant-glass .steps .s, .variant-glass .ticker, .variant-glass .wx, .variant-glass .geo {
+  backdrop-filter: blur(16px) saturate(1.2);
+  background: rgba(255,255,255,.42);
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(99,102,241,.08);
+}
+.variant-glass .masc .card:hover {
+  background: rgba(255,255,255,.55);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(99,102,241,.14);
+}
+.variant-glass .btn {
   backdrop-filter: blur(12px);
-  background: rgba(255,255,255,.5);
-  border: 1px solid rgba(255,255,255,.55);
+  background: rgba(255,107,94,.85);
+  border: 1px solid rgba(255,255,255,.4);
+  box-shadow: 0 8px 24px rgba(255,107,94,.25);
 }
-.variant-glass .btn { backdrop-filter: blur(8px); }
+.variant-glass .btn.ghost {
+  background: rgba(255,255,255,.3); color: var(--ink);
+}
+.variant-glass .band {
+  background: rgba(42,31,61,.75); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 24px;
+}
+.variant-glass h1 .em { color: #8b5cf6; }
+.variant-glass .hero-center h1 {
+  background: linear-gradient(135deg, var(--ink), #6366f1);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.variant-glass .inten, .variant-glass .feat .f, .variant-glass .masc .card {
+  position: relative;
+}
+.variant-glass .inten::before, .variant-glass .feat .f::before, .variant-glass .masc .card::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; z-index: -1;
+  background: linear-gradient(135deg, rgba(139,92,246,.35), rgba(253,164,175,.35), rgba(110,231,183,.35));
+  opacity: 0; transition: opacity .35s ease;
+}
+.variant-glass .inten:hover::before, .variant-glass .feat .f:hover::before, .variant-glass .masc .card:hover::before {
+  opacity: 1;
+}
+.variant-glass .ticker {
+  background: rgba(255,255,255,.5);
+  box-shadow: 0 12px 40px rgba(99,102,241,.1), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.variant-glass .ticker .tk-num {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.variant-glass .steps .s:hover {
+  background: rgba(255,255,255,.6);
+  transform: translateY(-2px);
+}
+.variant-glass footer {
+  background: rgba(255,255,255,.25); backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,.4);
+}
+.variant-glass .wx .wx-gauge i {
+  background: linear-gradient(90deg, #8b5cf6, #6ee7b7);
+}

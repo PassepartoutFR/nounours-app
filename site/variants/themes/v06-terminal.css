@@ -1,21 +1,99 @@
 /* v06 — Terminal hacker gentil */
 :root {
-  --cream: #0d1110; --cacao: #33ff99; --honey: #33ff99; --coral: #66ffaa;
-  --mint: #33ff99; --bg: #0d1110; --ink: #b8ffd9; --muted: #5a9a72;
-  --surface: #0f1614; --line: #1e3d2f; --shadow: none;
+  --cream: #080c0a; --cacao: #33ff99; --honey: #33ff99; --coral: #5dffa8;
+  --mint: #33ff99; --bg: #080c0a; --ink: #b8ffd9; --muted: #4a8a62;
+  --surface: #0a120e; --line: #1a3d28; --shadow: none;
 }
 .variant-terminal { font-family: "JetBrains Mono", "Consolas", monospace; }
-.variant-terminal h1, .variant-terminal h2, .variant-terminal .logo, .variant-terminal .btn {
+.variant-terminal .variant-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background: #080c0a;
+  box-shadow: inset 0 0 120px rgba(51,255,153,.04);
+}
+.variant-terminal .variant-bg::after {
+  content: ""; position: absolute; inset: 0; opacity: .04; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, #33ff99 3px, #33ff99 4px);
+}
+.variant-terminal h1, .variant-terminal h2, .variant-terminal .logo, .variant-terminal .btn,
+.variant-terminal .eyebrow, .variant-terminal .lead {
   font-family: "JetBrains Mono", monospace;
 }
+.variant-terminal h1 { font-size: clamp(1.1rem, 3.5vw, 1.65rem); line-height: 1.45; }
+.variant-terminal h1::before { content: "# "; color: var(--mint); opacity: .7; }
+.variant-terminal h2::before { content: "## "; color: var(--muted); font-size: .85em; }
+.variant-terminal nav {
+  background: #0a120e; border-bottom: 1px solid #33ff99;
+  font-size: .85rem;
+}
+.variant-terminal nav::before {
+  content: "● ● ●"; display: block; position: absolute; left: 22px; top: 22px;
+  font-size: .55rem; letter-spacing: 4px; color: #33ff9955;
+}
 .variant-terminal .term-win {
-  border: 1px solid #33ff99; border-radius: 8px; padding: 20px; background: #0a0f0d;
-  box-shadow: 0 0 40px rgba(51,255,153,.08);
+  border: 1px solid #33ff99; border-radius: 10px; padding: 24px;
+  background: rgba(8,12,10,.95);
+  box-shadow: 0 0 60px rgba(51,255,153,.12), inset 0 1px 0 rgba(51,255,153,.2);
+  position: relative;
 }
 .variant-terminal .term-win::before {
-  content: "nounours@web:~$ ./adoucir --troll"; display: block; color: #33ff99; font-size: .8rem; margin-bottom: 16px; opacity: .85;
+  content: "nounours@web:~$ ./adoucir --troll --lang=auto";
+  display: block; color: #33ff99; font-size: .78rem; margin-bottom: 20px;
+  border-bottom: 1px dashed #1a3d28; padding-bottom: 12px;
 }
-.variant-terminal .hero-grid { grid-template-columns: 1fr; gap: 20px; }
-.variant-terminal .btn { border-radius: 6px; background: transparent; color: #33ff99; border: 1px solid #33ff99; box-shadow: none; }
-.variant-terminal .btn.coral { background: #33ff99; color: #0d1110; }
-.variant-terminal .badge .pip { background: #33ff99; box-shadow: 0 0 8px #33ff99; }
+.variant-terminal .term-win::after {
+  content: "█"; display: inline-block; color: #33ff99;
+  animation: cursor-blink 1s step-end infinite; margin-left: 4px;
+}
+@keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.variant-terminal .hero-grid { grid-template-columns: 1fr; gap: 24px; }
+.variant-terminal .btn {
+  border-radius: 6px; background: transparent; color: #33ff99;
+  border: 1px solid #33ff99; box-shadow: none; font-size: .82rem;
+}
+.variant-terminal .btn::before { content: "> "; }
+.variant-terminal .btn.coral { background: #33ff99; color: #080c0a; }
+.variant-terminal .btn.coral::before { content: "$ "; }
+.variant-terminal .badge { border: 1px solid #1a3d28; background: #0a120e; }
+.variant-terminal .badge .pip {
+  background: #33ff99; box-shadow: 0 0 12px #33ff99;
+  animation: cursor-blink 2s step-end infinite;
+}
+.variant-terminal .ba { border: 1px solid #1a3d28; background: #060a08; }
+.variant-terminal .bubble { background: #0f1a14; border: 1px solid #33ff99; color: #33ff99; }
+.variant-terminal .meanbox.mean { border: 1px dashed #4a8a62; color: #4a8a62; }
+.variant-terminal .inten, .variant-terminal .feat .f { border: 1px solid #1a3d28; border-radius: 8px; }
+.variant-terminal .ticker { border: 1px solid #1a3d28; background: #0a120e; border-radius: 8px; }
+.variant-terminal .ticker .tk-num { color: #33ff99; text-shadow: 0 0 16px rgba(51,255,153,.5); }
+.variant-terminal section { position: relative; }
+.variant-terminal section::before {
+  content: attr(id); position: absolute; top: 24px; right: 22px;
+  font-size: .65rem; color: #1a3d28; opacity: .6;
+  font-family: "JetBrains Mono", monospace;
+}
+.variant-terminal section:not([id])::before { content: "section"; }
+.variant-terminal .ticker-wrap section::before { content: none; }
+.variant-terminal .masc .card:hover {
+  border-color: #33ff99; box-shadow: 0 0 20px rgba(51,255,153,.15);
+}
+.variant-terminal .feat .f .ic::before { content: "[icon] "; color: var(--muted); font-size: .7em; }
+.variant-terminal .band {
+  border: 1px solid #33ff99; border-radius: 8px;
+  background: #060a08 !important;
+}
+.variant-terminal .band::before {
+  content: "# leaderboard --live"; display: block;
+  font-size: .72rem; color: #33ff99; margin-bottom: 12px; opacity: .7;
+}
+.variant-terminal footer {
+  border-top: 1px dashed #1a3d28; font-size: .78rem;
+}
+.variant-terminal footer::before {
+  content: "// EOF — made with love & bash"; display: block;
+  color: var(--muted); margin-bottom: 12px;
+}
+.variant-terminal .try input:focus {
+  outline: none; border-color: #33ff99;
+  box-shadow: 0 0 0 2px rgba(51,255,153,.25);
+}
+.variant-terminal .dash-live { border-radius: 8px; font-size: .85rem; }
+.variant-terminal .dash-live .dot { box-shadow: 0 0 10px #33ff99; }

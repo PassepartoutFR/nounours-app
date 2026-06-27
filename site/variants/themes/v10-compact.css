@@ -1,21 +1,113 @@
-/* v10 — Compact dashboard */
-.variant-compact nav .wrap { height: 52px; }
-.variant-compact .hero-compact { padding: 28px 0 20px; }
-.variant-compact .hero-compact-grid {
-  display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; align-items: stretch;
+/* v10 — Compact dashboard / contrôle */
+:root {
+  --cream: #f0f2f5; --surface: #fff; --line: #dde1e8;
+  --shadow: 0 2px 8px rgba(0,0,0,.06);
 }
-.variant-compact .hero-copy { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
-.variant-compact .hero-copy h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 10px; }
-.variant-compact .hero-copy .lead { font-size: 1rem; margin-bottom: 14px; }
-.variant-compact .ba { padding: 14px; }
-.variant-compact section { padding: 36px 0; }
-.variant-compact .feat { grid-template-columns: repeat(6, 1fr); }
-.variant-compact .feat .f { padding: 14px; }
-.variant-compact .feat .f h3 { font-size: .95rem; }
-.variant-compact .feat .f p { font-size: .82rem; display: none; }
-.variant-compact .masc { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.variant-compact .variant-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, #e8ecf2 0%, #f0f2f5 120px, #f0f2f5 100%);
+}
+.variant-compact nav {
+  background: #fff; border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.variant-compact nav .wrap { height: 48px; font-size: .92rem; }
+.variant-compact .logo { font-size: 1.1rem; }
+.variant-compact .hero-compact { padding: 20px 0 16px; }
+.variant-compact .hero-compact-grid {
+  display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; align-items: stretch;
+}
+.variant-compact .hero-copy {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  padding: 20px 22px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.variant-compact .hero-copy h1 {
+  font-size: clamp(1.5rem, 3.5vw, 2.1rem); margin-bottom: 8px; line-height: 1.15;
+}
+.variant-compact .hero-copy .lead { font-size: .95rem; margin-bottom: 14px; color: var(--muted); }
+.variant-compact .hero-copy .badge { margin-bottom: 10px; font-size: .72rem; padding: 3px 10px; }
+.variant-compact .hero-copy .reassure { font-size: .8rem; margin-top: 10px; }
+.variant-compact .hero-cta { gap: 8px; }
+.variant-compact .hero-cta .btn { padding: 10px 16px; font-size: .88rem; }
+.variant-compact .ba {
+  padding: 14px; border-radius: 12px; border: 1px solid var(--line);
+  box-shadow: var(--shadow); background: #fff;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.variant-compact .ba .comment { gap: 8px; }
+.variant-compact .ba .avatar { width: 36px; height: 36px; font-size: 18px; flex: 0 0 36px; }
+.variant-compact .ba .toggle { margin-top: 10px; }
+.variant-compact .ticker-wrap { padding: 12px 0; }
+.variant-compact .ticker { padding: 14px 18px; border-radius: 12px; }
+.variant-compact .ticker .tk-num { font-size: 1.8rem; }
+.variant-compact section { padding: 28px 0; }
+.variant-compact h2 { font-size: 1.45rem; margin: 4px 0 8px; }
+.variant-compact .sub { font-size: .9rem; margin-bottom: 16px; }
+.variant-compact .eyebrow { font-size: .68rem; }
+.variant-compact .masc {
+  grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.variant-compact .masc .card { padding: 12px 8px; border-radius: 10px; }
+.variant-compact .masc .emo { font-size: 28px; }
+.variant-compact .masc .nm { font-size: .88rem; margin: 4px 0 0; }
 .variant-compact .masc .ln { display: none; }
+.variant-compact .feat {
+  grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.variant-compact .feat .f {
+  padding: 14px 12px; border-radius: 10px;
+  display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start;
+}
+.variant-compact .feat .f .ic { font-size: 20px; grid-row: span 2; }
+.variant-compact .feat .f h3 { font-size: .88rem; margin: 0 0 4px; }
+.variant-compact .feat .f p { font-size: .78rem; display: block; margin: 0; line-height: 1.4; grid-column: 2; }
+.variant-compact .inten { padding: 18px; border-radius: 12px; }
+.variant-compact .inten .reply { font-size: 1.05rem; min-height: 1.8em; }
+.variant-compact .band { border-radius: 12px !important; padding: 24px !important; }
+.variant-compact .board { gap: 16px; }
+.variant-compact .dash-grid { gap: 10px; }
+.variant-compact .dash-grid .stat { padding: 14px; border-radius: 10px; }
+.variant-compact .dash-grid .stat-num { font-size: 1.5rem; }
+.variant-compact .steps { gap: 10px; margin-top: 16px; }
+.variant-compact .steps .s { padding: 14px; border-radius: 10px; }
+.variant-compact .steps .n { font-size: 1.1rem; }
 @media (max-width: 820px) {
   .variant-compact .hero-compact-grid { grid-template-columns: 1fr; }
-  .variant-compact .feat { grid-template-columns: repeat(2, 1fr); }
+  .variant-compact .feat { grid-template-columns: 1fr 1fr; }
+  .variant-compact .masc { grid-template-columns: 1fr 1fr; }
+}
+.variant-compact .landing-main > section {
+  border-bottom: 1px solid var(--line);
+}
+.variant-compact .landing-main > section > .wrap > .eyebrow::before {
+  content: "▸ "; color: var(--coral); font-weight: 700;
+}
+.variant-compact .ticker {
+  background: #fff; border: 1px solid var(--line);
+  display: grid; grid-template-columns: auto 1fr; gap: 12px;
+}
+.variant-compact .ticker .tk-spacer { display: none; }
+.variant-compact .dash {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px; box-shadow: var(--shadow);
+}
+.variant-compact .dash-live {
+  width: 100%; justify-content: center; border-radius: 8px;
+  background: color-mix(in srgb, var(--mint) 12%, #fff);
+}
+.variant-compact .dash-spark { border: none; padding: 8px 0 0; background: transparent; }
+.variant-compact .geo { border-radius: 12px; margin-top: 12px; padding: 14px; }
+.variant-compact #install .btn {
+  width: 100%; max-width: 360px; justify-content: center;
+}
+.variant-compact footer {
+  padding: 20px 0 32px; font-size: .82rem;
+  background: #fff; border-top: 1px solid var(--line);
+}
+.variant-compact .inten .ticks { font-size: .75rem; }
+.variant-compact .board .lb { padding: 12px; border-radius: 8px; }
+.variant-compact .wx { padding: 12px 14px; border-radius: 10px; font-size: .88rem; }
+.variant-compact .hero-copy .btn.coral::after {
+  content: " →"; font-weight: 400;
 }

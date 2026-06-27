@@ -1,3 +1,62 @@
-/* v01 — Classic (référence doudou) */
-.variant-classic .hero { padding-top: 70px; }
-.variant-classic .landing-main { display: block; }
+/* v01 — Classic doudou (référence chaleureuse) */
+.variant-classic .variant-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(244,169,59,.18), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 95% 15%, rgba(255,107,94,.12), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(123,211,176,.14), transparent 45%),
+    var(--cream);
+}
+.variant-classic .hero { padding: 84px 0 48px; position: relative; }
+.variant-classic .hero::after {
+  content: "🧸"; position: absolute; right: 4%; top: 12%; font-size: clamp(4rem, 12vw, 9rem);
+  opacity: .07; transform: rotate(12deg); pointer-events: none;
+}
+.variant-classic .ba {
+  border: 2px solid color-mix(in srgb, var(--honey) 40%, var(--line));
+  box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--mint) 12%, transparent);
+}
+.variant-classic .masc .card:hover {
+  box-shadow: 0 16px 36px rgba(244,169,59,.22);
+  border-color: color-mix(in srgb, var(--honey) 50%, var(--line));
+}
+.variant-classic .band { background: linear-gradient(135deg, var(--plum) 0%, #3d2d5c 100%); }
+.variant-classic .ticker { border: 2px solid #ffd8a8; }
+.variant-classic nav { box-shadow: 0 1px 0 var(--line); }
+.variant-classic .hero::after {
+  animation: classic-float 7s ease-in-out infinite;
+}
+@keyframes classic-float {
+  0%,100% { transform: rotate(12deg) translateY(0); }
+  50% { transform: rotate(8deg) translateY(-12px); }
+}
+.variant-classic .hero-copy .badge {
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 35%, transparent);
+  animation: classic-badge 3.5s ease-in-out infinite;
+}
+@keyframes classic-badge {
+  0%,100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 30%, transparent); }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+.variant-classic h1 .em { text-shadow: 0 2px 0 color-mix(in srgb, var(--coral) 25%, transparent); }
+.variant-classic .feat .f {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s;
+}
+.variant-classic .feat .f:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--honey) 45%, var(--line));
+  box-shadow: 0 12px 28px rgba(244,169,59,.14);
+}
+.variant-classic .inten { border: 2px solid color-mix(in srgb, var(--mint) 30%, var(--line)); }
+.variant-classic .steps .s { border: 2px solid color-mix(in srgb, var(--honey) 25%, var(--line)); }
+.variant-classic .steps .s:hover { border-color: var(--honey); }
+.variant-classic footer {
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--honey) 8%, var(--bg)));
+}
+.variant-classic .dash-spark { border: 2px solid color-mix(in srgb, var(--mint) 25%, var(--line)); }
+[data-theme="dark"].variant-classic .variant-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(244,169,59,.1), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 95% 15%, rgba(255,107,94,.08), transparent 50%),
+    var(--bg);
+}

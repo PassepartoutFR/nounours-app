@@ -275,6 +275,37 @@
       return { init, onLang };
     })();
 
+    // ====== variant UX (reveal, story progress) ======
+    (function variantUX() {
+      const slug = document.documentElement.dataset.variantSlug || "";
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const targets = document.querySelectorAll(".landing-main > section, .ticker-wrap, .hero .ba, .hero .hero-copy");
+      targets.forEach((el) => el.classList.add("reveal-target"));
+      if (!reduce) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.1, rootMargin: "0px 0px -32px 0px" });
+        targets.forEach((el) => io.observe(el));
+      } else {
+        targets.forEach((el) => el.classList.add("is-visible"));
+      }
+      if (slug === "story") {
+        const bar = document.createElement("div");
+        bar.className = "scroll-progress"; bar.setAttribute("aria-hidden", "true");
+        bar.innerHTML = "<i></i>";
+        document.body.appendChild(bar);
+        const fill = bar.firstElementChild;
+        const onScroll = () => {
+          const max = document.documentElement.scrollHeight - window.innerHeight;
+          fill.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + "%";
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      }
+    })();
+
     // ====== boot ======
     apply();
     KIND.init();

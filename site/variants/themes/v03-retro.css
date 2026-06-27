@@ -1,16 +1,85 @@
-/* v03 — Retro web 98 */
+/* v03 — Retro web 98 / géocités gentil */
 :root {
-  --cream: #0a0a12; --cacao: #c8f7c5; --honey: #ff6ec7; --coral: #00e5ff;
-  --mint: #b4ff39; --plum: #0a0a12; --bg: #0a0a12; --ink: #e8ffe8; --muted: #7a9a7a;
-  --surface: #12121f; --line: #3a3a5c; --shadow: 4px 4px 0 #ff6ec7;
+  --cream: #050508; --cacao: #c8f7c5; --honey: #ff6ec7; --coral: #00e5ff;
+  --mint: #b4ff39; --plum: #050508; --bg: #050508; --ink: #e8ffe8; --muted: #6a9a6a;
+  --surface: #0c0c18; --line: #4a4a7a; --shadow: 4px 4px 0 #ff6ec7;
 }
-.variant-retro { font-family: "Nunito", sans-serif; }
-.variant-retro h1, .variant-retro h2, .variant-retro .logo { font-family: "Press Start 2P", monospace; font-size: clamp(1rem, 3.5vw, 1.35rem); line-height: 1.5; }
-.variant-retro .hero h1 { font-size: clamp(1.1rem, 4vw, 1.6rem); }
-.variant-retro .btn { border-radius: 0; border: 3px solid var(--coral); box-shadow: 4px 4px 0 var(--honey); text-transform: uppercase; font-size: .75rem; }
-.variant-retro .ba, .variant-retro .inten, .variant-retro .feat .f { border-radius: 0; border: 3px solid var(--line); }
-.variant-retro .hero-stack .ba { margin-bottom: 28px; }
-body.variant-retro::before {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: .04;
+body.variant-retro { font-family: "Nunito", sans-serif; }
+.variant-retro .variant-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 48px, rgba(0,229,255,.03) 48px, rgba(0,229,255,.03) 49px),
+    repeating-linear-gradient(0deg, transparent, transparent 48px, rgba(255,110,199,.03) 48px, rgba(255,110,199,.03) 49px),
+    #050508;
+}
+.variant-retro h1, .variant-retro h2, .variant-retro .logo {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(.85rem, 3vw, 1.1rem); line-height: 1.65;
+  text-shadow: 2px 2px 0 var(--honey);
+}
+.variant-retro .hero h1 { font-size: clamp(.95rem, 3.8vw, 1.35rem); }
+.variant-retro nav {
+  background: #0c0c18; border-bottom: 4px solid var(--coral);
+  box-shadow: 0 4px 0 var(--honey);
+}
+.variant-retro .btn {
+  border-radius: 0; border: 3px solid var(--coral);
+  box-shadow: 4px 4px 0 var(--honey); text-transform: uppercase;
+  font-size: .7rem; font-family: "Press Start 2P", monospace;
+  animation: retro-blink 3s step-end infinite;
+}
+@keyframes retro-blink { 0%,89%,100%{border-color:var(--coral)} 90%{border-color:var(--mint)} }
+.variant-retro .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--honey); }
+.variant-retro .ba, .variant-retro .inten, .variant-retro .feat .f, .variant-retro .masc .card {
+  border-radius: 0; border: 3px solid var(--line);
+  box-shadow: inset 0 0 20px rgba(0,229,255,.06);
+}
+.variant-retro .hero-stack .ba {
+  margin-bottom: 32px; border-color: var(--coral);
+  background: linear-gradient(180deg, #12122a, #0c0c18);
+}
+.variant-retro .hero-stack .ba::before {
+  content: "★ UNDER CONSTRUCTION ★"; display: block; text-align: center;
+  font-family: "Press Start 2P", monospace; font-size: .55rem; color: var(--mint);
+  margin-bottom: 12px; letter-spacing: .05em;
+}
+.variant-retro .bubble { background: #1a1a3a; border: 2px dashed var(--mint); color: var(--mint); }
+.variant-retro .ticker { border: 3px solid var(--coral); border-radius: 0; background: #0c0c18; }
+.variant-retro .ticker .tk-num { text-shadow: 0 0 20px var(--coral); }
+body.variant-retro::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9998; opacity: .06;
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, #fff 2px, #fff 3px);
+}
+.variant-retro .hero h1 {
+  animation: retro-neon 4s ease-in-out infinite alternate;
+}
+@keyframes retro-neon {
+  from { text-shadow: 2px 2px 0 var(--honey), 0 0 20px rgba(0,229,255,.3); }
+  to { text-shadow: 2px 2px 0 var(--mint), 0 0 32px rgba(255,110,199,.45); }
+}
+.variant-retro .ticker .tk-hint {
+  font-family: "Press Start 2P", monospace; font-size: .55rem;
+  color: var(--mint); letter-spacing: .04em;
+}
+.variant-retro .ticker .tk-hint::before { content: ">>> "; color: var(--coral); }
+.variant-retro .masc .card:hover {
+  border-color: var(--coral); box-shadow: 0 0 24px rgba(0,229,255,.2);
+  transform: translate(-2px,-2px);
+}
+.variant-retro .feat .f .ic { filter: drop-shadow(0 0 8px var(--coral)); }
+.variant-retro .band {
+  border: 4px solid var(--coral); border-radius: 0;
+  box-shadow: inset 0 0 40px rgba(0,229,255,.08);
+}
+.variant-retro footer {
+  border-top: 4px double var(--coral); font-size: .75rem;
+}
+.variant-retro footer::before {
+  content: "★ Best viewed in Netscape 4.0 ★"; display: block; text-align: center;
+  font-family: "Press Start 2P", monospace; font-size: .5rem; color: var(--mint);
+  margin-bottom: 16px; opacity: .7;
+}
+.variant-retro .steps .n {
+  font-family: "Press Start 2P", monospace; font-size: .85rem;
+  color: var(--coral); text-shadow: 1px 1px 0 var(--honey);
 }

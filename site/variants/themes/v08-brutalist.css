@@ -1,12 +1,86 @@
-/* v08 — Brutalisme tendre */
-:root { --cream: #fffef5; --line: #111; --shadow: 8px 8px 0 #111; --surface: #fff; }
-.variant-brutalist h1 { font-family: "Archivo Black", "Fredoka", sans-serif; text-transform: uppercase; letter-spacing: -.03em; }
-.variant-brutalist .ba, .variant-brutalist .btn, .variant-brutalist .inten, .variant-brutalist .feat .f,
-.variant-brutalist .masc .card, .variant-brutalist .steps .s, .variant-brutalist nav {
+/* v08 — Brutalisme tendre / affiche */
+:root {
+  --cream: #fffef5; --line: #111; --shadow: 10px 10px 0 #111;
+  --surface: #fff; --honey: #ffe600; --coral: #ff4d4d;
+}
+.variant-brutalist .variant-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background: var(--cream);
+  background-image: radial-gradient(circle, #111 1px, transparent 1px);
+  background-size: 24px 24px; opacity: 1;
+}
+.variant-brutalist .variant-bg { background-color: var(--cream); background-image: radial-gradient(#1112 1px, transparent 1px); background-size: 20px 20px; }
+.variant-brutalist h1 {
+  font-family: "Archivo Black", "Fredoka", sans-serif;
+  text-transform: uppercase; letter-spacing: -.04em;
+  font-size: clamp(2.4rem, 7vw, 4.8rem); line-height: .95;
+}
+.variant-brutalist h1 .em {
+  background: var(--honey); color: #111; padding: 0 .12em;
+  box-shadow: 6px 6px 0 #111; display: inline-block; transform: rotate(-2deg);
+}
+.variant-brutalist nav {
+  border-bottom: 4px solid #111 !important; background: var(--honey) !important;
+}
+.variant-brutalist .ba, .variant-brutalist .btn, .variant-brutalist .inten,
+.variant-brutalist .feat .f, .variant-brutalist .masc .card, .variant-brutalist .steps .s,
+.variant-brutalist .ticker, .variant-brutalist .dash-grid .stat {
   border-radius: 0 !important; border: 4px solid #111 !important;
 }
-.variant-brutalist .btn { box-shadow: 6px 6px 0 #111; background: #ff6b5e; color: #111; font-weight: 800; }
-.variant-brutalist .btn:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #111; }
-.variant-brutalist .hero-reverse .hero-grid { gap: 48px; }
-.variant-brutalist .hero-reverse .ba { transform: translate(12px, 12px); background: #f4a93b; }
-.variant-brutalist .eyebrow { color: #111; background: #f4a93b; display: inline-block; padding: 4px 10px; border: 3px solid #111; }
+.variant-brutalist .btn {
+  box-shadow: 8px 8px 0 #111; background: var(--coral); color: #111;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+}
+.variant-brutalist .btn:hover {
+  transform: translate(-4px,-4px); box-shadow: 12px 12px 0 #111;
+}
+.variant-brutalist .btn.ghost { background: #fff; }
+.variant-brutalist .hero-reverse .hero-grid { gap: 40px; align-items: center; }
+.variant-brutalist .hero-reverse .ba {
+  transform: translate(16px,16px) rotate(1deg);
+  background: var(--honey); box-shadow: 12px 12px 0 #111;
+}
+.variant-brutalist .hero-reverse .hero-copy {
+  transform: rotate(-.5deg);
+}
+.variant-brutalist .eyebrow {
+  color: #111; background: var(--honey);
+  display: inline-block; padding: 6px 14px;
+  border: 4px solid #111; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .1em;
+  box-shadow: 4px 4px 0 #111;
+}
+.variant-brutalist h2 { text-transform: uppercase; font-size: clamp(1.8rem, 4vw, 2.8rem); }
+.variant-brutalist .masc .card:nth-child(odd) { background: #fff; }
+.variant-brutalist .masc .card:nth-child(even) { background: var(--honey); }
+.variant-brutalist .band { background: #111 !important; color: #fff; border: 4px solid #111; }
+.variant-brutalist .steps .n { background: var(--coral); color: #111; border: 3px solid #111; border-radius: 0; }
+.variant-brutalist .hero-reverse .ba::after {
+  content: "WOW"; position: absolute; top: -14px; right: -10px;
+  background: var(--coral); color: #111; font-weight: 900;
+  padding: 4px 10px; border: 3px solid #111;
+  transform: rotate(8deg); font-size: .75rem; letter-spacing: .08em;
+}
+.variant-brutalist .ba { position: relative; }
+.variant-brutalist .ticker {
+  background: #fff !important;
+  transform: rotate(-.5deg);
+}
+.variant-brutalist .ticker .tk-num { color: #111; font-size: clamp(2.2rem, 6vw, 3.4rem); }
+.variant-brutalist .feat .f:hover {
+  transform: translate(-3px,-3px);
+  box-shadow: 8px 8px 0 #111;
+}
+.variant-brutalist #install::after {
+  content: "GRATUIT"; position: absolute; top: 20px; right: 22px;
+  background: var(--honey); border: 4px solid #111; padding: 8px 14px;
+  font-weight: 900; transform: rotate(-4deg);
+  box-shadow: 6px 6px 0 #111; font-size: .85rem;
+}
+.variant-brutalist #install { position: relative; }
+.variant-brutalist footer {
+  background: var(--honey); border-top: 4px solid #111; color: #111;
+}
+.variant-brutalist footer a { color: #111; font-weight: 800; text-decoration: underline; }
+.variant-brutalist .inten .reply { font-size: 1.4rem; text-transform: uppercase; letter-spacing: -.02em; }
+.variant-brutalist .dash-grid .stat:nth-child(even) { background: var(--honey); }

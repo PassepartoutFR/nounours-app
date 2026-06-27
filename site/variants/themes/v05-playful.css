@@ -1,15 +1,87 @@
-/* v05 — Playful gradient */
+/* v05 — Playful bonbon / stickers */
+.variant-playful .variant-bg {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  background: #fff8f0;
+}
+.variant-playful .variant-bg::before,
+.variant-playful .variant-bg::after {
+  content: ""; position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55;
+  animation: orb-float 14s ease-in-out infinite;
+}
+.variant-playful .variant-bg::before {
+  width: 55vw; height: 55vw; background: #ffb4d2; top: -15%; left: -10%;
+}
+.variant-playful .variant-bg::after {
+  width: 45vw; height: 45vw; background: #b4ffd8; bottom: -10%; right: -8%;
+  animation-delay: -7s; animation-direction: reverse;
+}
+@keyframes orb-float {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(30px,-20px) scale(1.08); }
+}
 .variant-playful {
-  background: linear-gradient(160deg, #fff4e6 0%, #ffe0f0 35%, #e8fff4 70%, #fff4e6 100%);
-  background-attachment: fixed;
+  background: transparent;
 }
-[data-theme="dark"].variant-playful { background: linear-gradient(160deg, #2a1f3d, #3d2040, #1f3d32); }
-.variant-playful .hero-reverse .hero-grid { direction: rtl; }
+.variant-playful .hero-reverse .hero-grid { direction: rtl; gap: 36px; }
 .variant-playful .hero-reverse .hero-grid > * { direction: ltr; }
-.variant-playful .ba, .variant-playful .masc .card, .variant-playful .inten {
-  border-radius: 28px; transform: rotate(-.6deg);
+.variant-playful .hero { padding-top: 64px; }
+.variant-playful h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); }
+.variant-playful h1 .em {
+  background: linear-gradient(120deg, var(--coral), var(--honey), #ff9ecd);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.variant-playful .masc .card:nth-child(even) { transform: rotate(.8deg); }
-.variant-playful .btn { border-radius: 20px; animation: wiggle 4s ease-in-out infinite; }
-@keyframes wiggle { 0%,100%{transform:rotate(0)} 50%{transform:rotate(-1deg) scale(1.02)} }
-.variant-playful h1 .em { background: linear-gradient(90deg, var(--coral), var(--honey)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.variant-playful .ba, .variant-playful .masc .card, .variant-playful .inten {
+  border-radius: 32px; border: 3px solid #fff;
+  box-shadow: 0 12px 0 color-mix(in srgb, var(--coral) 25%, transparent), 0 20px 40px rgba(255,107,94,.15);
+  transform: rotate(-1deg);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.variant-playful .masc .card:nth-child(1) { transform: rotate(-2deg); background: linear-gradient(135deg, #fff4e6, #ffe8f0); }
+.variant-playful .masc .card:nth-child(2) { transform: rotate(1.5deg); background: linear-gradient(135deg, #e8fff4, #fff4e6); }
+.variant-playful .masc .card:nth-child(3) { transform: rotate(-.5deg); background: linear-gradient(135deg, #f0e8ff, #ffe8cc); }
+.variant-playful .masc .card:nth-child(4) { transform: rotate(2deg); background: linear-gradient(135deg, #e8f4ff, #fff0e8); }
+.variant-playful .masc .card:hover { transform: rotate(0deg) scale(1.04) translateY(-6px); }
+.variant-playful .btn {
+  border-radius: 999px; border: 3px solid #fff;
+  box-shadow: 0 6px 0 rgba(255,107,94,.35);
+  animation: playful-bounce 3s ease-in-out infinite;
+}
+@keyframes playful-bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.variant-playful .btn:hover { animation: none; transform: translateY(-4px); box-shadow: 0 10px 0 rgba(255,107,94,.3); }
+.variant-playful .ticker { border-radius: 24px; border: 3px dashed var(--honey); }
+.variant-playful nav { background: rgba(255,255,255,.7); backdrop-filter: blur(8px); }
+.variant-playful .emoji-sticker::after {
+  content: "✨"; position: absolute; font-size: 1.5rem;
+}
+.variant-playful .eyebrow::after {
+  content: " 🎀"; font-size: .9em;
+}
+.variant-playful h2::after {
+  content: " ✨"; opacity: .6; font-size: .75em;
+}
+.variant-playful .hero-reverse .ba:hover {
+  transform: rotate(0deg) scale(1.02);
+  box-shadow: 0 16px 0 color-mix(in srgb, var(--coral) 20%, transparent), 0 28px 50px rgba(255,107,94,.2);
+}
+.variant-playful .inten .reply { font-size: 1.35rem; }
+.variant-playful .feat .f {
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.variant-playful .feat .f:nth-child(odd) { transform: rotate(-.8deg); }
+.variant-playful .feat .f:nth-child(even) { transform: rotate(.6deg); }
+.variant-playful .feat .f:hover { transform: rotate(0) scale(1.03); }
+.variant-playful .band { border-radius: 32px; border: 4px solid #fff; }
+.variant-playful .steps .s {
+  background: linear-gradient(135deg, #fff8f0, #fff);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.variant-playful .steps .s:hover { transform: scale(1.03) rotate(-1deg); }
+.variant-playful footer .hand { animation: playful-wiggle 2.5s ease-in-out infinite; }
+@keyframes playful-wiggle {
+  0%,100% { transform: rotate(-2deg); }
+  50% { transform: rotate(3deg); }
+}
+.variant-playful .wx { border-radius: 24px; border: 3px dashed var(--mint); }

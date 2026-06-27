@@ -1,0 +1,59 @@
+/* Partagé — reveal au scroll, accessibilité, polish transversal */
+.reveal-target {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .65s cubic-bezier(.22, 1, .36, 1), transform .65s cubic-bezier(.22, 1, .36, 1);
+}
+.reveal-target.is-visible { opacity: 1; transform: none; }
+.reveal-target:nth-child(2) { transition-delay: .06s; }
+.reveal-target:nth-child(3) { transition-delay: .12s; }
+
+.variant .hero .ba,
+.variant .hero .hero-copy { transition: opacity .8s ease, transform .8s cubic-bezier(.22, 1, .36, 1); }
+.variant .hero .ba.reveal-target,
+.variant .hero .hero-copy.reveal-target { transform: translateY(16px); }
+
+.variant-story .scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60;
+  background: color-mix(in srgb, var(--line) 40%, transparent);
+  pointer-events: none;
+}
+.variant-story .scroll-progress > i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--coral), var(--honey));
+  transition: width .12s linear;
+}
+
+.variant :focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+}
+.variant .btn:focus-visible { outline-color: var(--honey); }
+
+.variant #install {
+  position: relative;
+}
+.variant #install::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 50% 100%, color-mix(in srgb, var(--honey) 12%, transparent), transparent 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-target,
+  .variant .hero .ba.reveal-target,
+  .variant .hero .hero-copy.reveal-target {
+    opacity: 1; transform: none; transition: none;
+  }
+  .variant-story .scroll-progress > i { transition: none; }
+  .variant-classic .hero::after,
+  .variant-playful .variant-bg::before,
+  .variant-playful .variant-bg::after,
+  .variant-glass .variant-bg::before,
+  .variant-glass .variant-bg::after,
+  .variant-retro .btn,
+  .variant-playful .btn,
+  .variant-terminal .term-win::after,
+  .variant-terminal .badge .pip {
+    animation: none !important;
+  }
+}

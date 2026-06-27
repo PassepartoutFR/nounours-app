@@ -229,9 +229,11 @@ function page(v) {
   <link href="https://fonts.googleapis.com/css2?${ff}&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/landing-base.css" />
   <link rel="stylesheet" href="/variants/themes/${v.theme}" />
+  <link rel="stylesheet" href="/variants/themes/shared-enhancements.css" />
   <script>if(/^\\/variants\\/v\\d+\\.html$/.test(location.pathname))history.replaceState(null,"","/"+location.search+location.hash);</script>
 </head>
 <body class="variant variant-${v.slug}">
+<div class="variant-bg" aria-hidden="true"></div>
 ${NAV}
 ${hero(v.layout)}
 <main class="landing-main">
