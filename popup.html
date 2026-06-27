@@ -84,6 +84,16 @@
     .badge.earned { background: #fff0df; border-color: #f3d9b8; }
     .badge.locked { filter: grayscale(1); opacity: .35; }
 
+    /* stats par langue */
+    .langstats-block { padding: 4px 14px 10px; }
+    .langstats-block h4 { margin: 0 0 7px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #a47b53; }
+    .langstats { display: flex; flex-direction: column; gap: 5px; }
+    .langstat { display: grid; grid-template-columns: 54px 1fr 32px; gap: 6px; align-items: center; font-size: 11px; color: #8a5a2b; }
+    .langstat .bar { height: 6px; background: #f1ddc7; border-radius: 6px; overflow: hidden; }
+    .langstat .bar > i { display: block; height: 100%; background: linear-gradient(90deg, #9ed4b8, #7BD3B0); width: 0%; transition: width .25s ease; }
+    .langstat .n { text-align: right; color: #a47b53; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .langstats-empty { font-size: 11px; color: #a47b53; line-height: 1.35; }
+
     /* classement */
     .board .note { color: #a47b53; font-size: 11px; margin-bottom: 7px; }
     .board .join { display: flex; gap: 6px; }
@@ -215,6 +225,11 @@
     <h4>🏅 Succès <span class="muted" id="badgeCount"></span></h4>
     <div class="badges" id="badges"></div>
     <button class="linkbtn" id="cardBtn" style="margin-top:8px;">🖼️ Ma carte à partager</button>
+  </div>
+
+  <div class="langstats-block">
+    <h4>🌍 Par langue</h4>
+    <div class="langstats" id="langStats" aria-live="polite"></div>
   </div>
 
   <button class="reset" id="reset">Remettre le compteur à zéro</button>

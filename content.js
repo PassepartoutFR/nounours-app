@@ -162,6 +162,7 @@
   // ---------------------------------------------------------------------------
   let pending = 0;
   const pendingLangs = new Set(); // langues croisées (badges)
+  const pendingLangCounts = {}; // compteur par langue (stats popup, 100 % local)
   let pendingLegendary = 0; // Nounours Légendaires vus (badges)
   let booted = false; // confettis seulement sur les ajouts EN DIRECT, pas au boot
 
@@ -220,6 +221,7 @@
     node.parentNode.replaceChild(span, node);
     pending++;
     pendingLangs.add(lang);
+    pendingLangCounts[lang] = (pendingLangCounts[lang] || 0) + 1;
     if (legendary) pendingLegendary++;
     // Cœurs sur TOUT endroit filtre — mais pas en mode surlignage (on n'altère rien).
     if (state.celebrate && !highlight) sprinkleHearts(span);
@@ -318,6 +320,8 @@
     const delta = pending;
     pending = 0;
     const langsDelta = [...pendingLangs]; pendingLangs.clear();
+    const langCountsDelta = Object.assign({}, pendingLangCounts);
+    for (const k of Object.keys(pendingLangCounts)) delete pendingLangCounts[k];
     const legDelta = pendingLegendary; pendingLegendary = 0;
     chrome.storage.local.get(STORAGE_KEY, (res) => {
       const st = Object.assign({}, DEFAULTS, res[STORAGE_KEY]);
@@ -328,6 +332,7 @@
       const langs = new Set(st.langs || []);
       langsDelta.forEach((l) => langs.add(l));
       st.langs = [...langs];
+      st.langCounts = CORE.bumpLangCounts(st.langCounts, langCountsDelta);
       st.legendary = (st.legendary || 0) + legDelta;
       // série quotidienne (jour UTC) — +1 si jours consécutifs
       st.streak = CORE.updateStreak(st.streak, new Date().toISOString().slice(0, 10));

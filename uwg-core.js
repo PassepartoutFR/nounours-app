@@ -28,6 +28,16 @@
     normBase(s).replace(/([a-zà-ÿ])\1{2,}/giu, "$1");
 
   const LANGS = ["fr", "en", "es", "it", "de", "pt", "nl", "pl"];
+  const LANG_META = {
+    fr: { flag: "🇫🇷", label: "FR" },
+    en: { flag: "🇬🇧", label: "EN" },
+    es: { flag: "🇪🇸", label: "ES" },
+    it: { flag: "🇮🇹", label: "IT" },
+    de: { flag: "🇩🇪", label: "DE" },
+    pt: { flag: "🇵🇹", label: "PT" },
+    nl: { flag: "🇳🇱", label: "NL" },
+    pl: { flag: "🇵🇱", label: "PL" }
+  };
 
   // --- lexiques "mechants" par langue : TROIS niveaux (cf. .wf_lexicons.json) --
   // strong[]   : insultes nominatives / slurs / incitations au suicide -> flag sur PRÉSENCE.
@@ -601,6 +611,33 @@
     return { days: 1, last: today };
   }
 
+  // --- stats par langue (100 % local, popup) ---------------------------------
+  function bumpLangCounts(counts, delta) {
+    const out = Object.assign({}, counts || {});
+    for (const [lang, n] of Object.entries(delta || {})) {
+      const lg = String(lang).slice(0, 2).toLowerCase();
+      if (!LANGS.includes(lg)) continue;
+      const add = Math.max(0, Math.floor(Number(n) || 0));
+      if (add) out[lg] = (out[lg] || 0) + add;
+    }
+    return out;
+  }
+
+  function langStatsList(counts, total) {
+    const entries = LANGS
+      .map((lg) => ({ lang: lg, count: (counts && counts[lg]) || 0 }))
+      .filter((e) => e.count > 0)
+      .sort((a, b) => b.count - a.count || LANGS.indexOf(a.lang) - LANGS.indexOf(b.lang));
+    const sum = entries.reduce((s, e) => s + e.count, 0);
+    const base = (total > 0 ? total : sum) || 1;
+    return entries.map((e) => ({
+      lang: e.lang,
+      count: e.count,
+      pct: Math.round((e.count / base) * 100),
+      meta: LANG_META[e.lang] || { flag: "🏳️", label: e.lang.toUpperCase() }
+    }));
+  }
+
   // --- detection --------------------------------------------------------------
   const escapeRe = (w) => norm(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   // Mots ajoutes a distance (Feature #2). DATA-ONLY : jamais evalues. On garde les
@@ -1011,6 +1048,7 @@
     LANGS, THEMES, LEVELS, HINT,
     norm, detect, aiCandidate, reply, levelFor, themeEmoji, isLegendary,
     BADGES, earnedBadges, updateStreak,
+    LANG_META, bumpLangCounts, langStatsList,
     applyOverrides, clearOverrides
   };
 
