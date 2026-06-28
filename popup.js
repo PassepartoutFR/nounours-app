@@ -3,7 +3,7 @@ const STORAGE_KEY = "uwg_state";
 const DEFAULTS = {
   enabled: true, total: 0, theme: "nounours", intensity: "medium",
   celebrate: true, mirror: true, highlightOnly: false, remoteLists: false,
-  sensitivity: "precise", aiMode: false, aiThreshold: 0.9
+  sensitivity: "precise"
 };
 const CORE = window.UWGCore;
 
@@ -13,15 +13,9 @@ const celebrate = $("celebrate");
 const mirror = $("mirror");
 const highlightOnly = $("highlightOnly");
 const remoteLists = $("remoteLists");
-const aiMode = $("aiMode");
 const sensitivity = $("sensitivity");
 const intensityBox = $("intensity");
 const themesBox = $("themes");
-// IA locale — éléments d'OBSERVABILITÉ (état + bouton de test + résultat)
-const aiStatusEl = $("aiStatus");
-const aiTestRow = $("aiTestRow");
-const aiTestBtn = $("aiTestBtn");
-const aiTestResult = $("aiTestResult");
 
 // construit les boutons de theme depuis le noyau
 for (const t of CORE.THEMES) {
@@ -45,14 +39,7 @@ function render(st) {
   mirror.checked = !!st.mirror;
   highlightOnly.checked = !!st.highlightOnly;
   remoteLists.checked = !!st.remoteLists;
-  aiMode.checked = !!st.aiMode;
   sensitivity.value = st.sensitivity === "large" ? "large" : "precise";
-
-  // Observabilité IA : la ligne d'état + le bouton de test ne sont visibles que si l'IA
-  // est activée. On (re)lit l'état courant à chaque rendu (et storage.onChanged le tient
-  // à jour en direct pour les transitions loading -> ready|error pendant l'ouverture).
-  setAiUiVisible(!!st.aiMode);
-  refreshAiStatus();
 
   themesBox.querySelectorAll(".theme").forEach((el) => {
     el.classList.toggle("active", el.dataset.v === st.theme);
@@ -132,96 +119,6 @@ function load() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// IA locale — OBSERVABILITÉ (état live + bouton de test)
-// ---------------------------------------------------------------------------
-// Source de vérité : chrome.storage.local.uwg_ai_status (écrite par offscreen.js / le SW).
-//   "loading" -> téléchargement/chargement ; "ready" -> modèle prêt ; "error: …" -> panne ;
-//   "off"/absente -> IA désactivée. Tout est fail-safe : une erreur ici ne casse jamais le popup.
-const AI_STATUS_KEY = "uwg_ai_status";
-
-function setAiUiVisible(on) {
-  try {
-    if (aiStatusEl) aiStatusEl.style.display = on ? "block" : "none";
-    if (aiTestRow) aiTestRow.style.display = on ? "block" : "none";
-  } catch (_) {}
-}
-
-// Traduit une valeur de uwg_ai_status en texte (et marque le warning visuel sur erreur).
-function renderAiStatus(value) {
-  if (!aiStatusEl) return;
-  aiStatusEl.classList.remove("warn");
-  const v = typeof value === "string" ? value : "";
-  if (v === "loading") {
-    aiStatusEl.textContent = "⏳ Téléchargement / chargement du modèle… (~25 Mo la 1ʳᵉ fois)";
-  } else if (v === "ready") {
-    aiStatusEl.textContent = "✅ Modèle prêt — l'IA est active";
-  } else if (v.indexOf("error:") === 0) {
-    aiStatusEl.classList.add("warn");
-    aiStatusEl.textContent = "⚠️ " + v.slice("error:".length).trim();
-  } else {
-    // "off" / absente / inconnue : rien à montrer quand l'IA est activée mais pas encore lancée
-    aiStatusEl.textContent = "désactivée";
-  }
-}
-
-function refreshAiStatus() {
-  try {
-    chrome.storage.local.get(AI_STATUS_KEY, (r) => {
-      try { renderAiStatus(r && r[AI_STATUS_KEY]); } catch (_) {}
-    });
-  } catch (_) {}
-}
-
-// Live : quand le SW/offscreen écrit uwg_ai_status pendant que le popup est ouvert, on
-// rafraîchit la ligne d'état immédiatement (transitions loading -> ready|error visibles).
-try {
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local" && changes[AI_STATUS_KEY]) {
-      try { renderAiStatus(changes[AI_STATUS_KEY].newValue); } catch (_) {}
-    }
-  });
-} catch (_) {}
-
-// Bouton « 🧪 Tester l'IA » : preuve vivante que l'IA tourne. On classe un texte de test
-// connu pour être toxique et on affiche le score renvoyé. Entièrement gardé (fail-safe).
-if (aiTestBtn) {
-  aiTestBtn.addEventListener("click", () => {
-    const TEST_TEXT = "What a stupid moro";
-    const THRESHOLD = 0.9; // même seuil que le chemin « cas gris » (DEFAULTS.aiThreshold)
-    if (aiTestResult) { aiTestResult.classList.remove("warn"); aiTestResult.textContent = "⏳ test en cours — chargement du modèle (~25 Mo) si besoin, patiente…"; }
-    try {
-      chrome.runtime.sendMessage({ type: "uwg-ai-test", text: TEST_TEXT }, (resp) => {
-        if (!aiTestResult) return;
-        try {
-          if (chrome.runtime.lastError) {
-            aiTestResult.classList.add("warn");
-            aiTestResult.textContent = "⚠️ erreur: " + chrome.runtime.lastError.message;
-            return;
-          }
-          if (!resp || resp.error || typeof resp.score !== "number") {
-            aiTestResult.classList.add("warn");
-            const why = (resp && resp.error) ? resp.error : "réponse invalide";
-            aiTestResult.textContent = "⚠️ erreur: " + why;
-            return;
-          }
-          const s = resp.score;
-          const verdict = s >= THRESHOLD ? "🧸 serait câliné" : "laissé tel quel";
-          aiTestResult.textContent = "« " + TEST_TEXT + " » → score " + s.toFixed(2) + " → " + verdict;
-        } catch (_) {
-          aiTestResult.classList.add("warn");
-          aiTestResult.textContent = "⚠️ erreur inattendue";
-        }
-      });
-    } catch (e) {
-      if (aiTestResult) {
-        aiTestResult.classList.add("warn");
-        aiTestResult.textContent = "⚠️ erreur: " + ((e && e.message) || e);
-      }
-    }
-  });
-}
-
 toggle.addEventListener("change", () => patch({ enabled: toggle.checked }));
 celebrate.addEventListener("change", () => patch({ celebrate: celebrate.checked }));
 mirror.addEventListener("change", () => patch({ mirror: mirror.checked }));
@@ -229,9 +126,6 @@ highlightOnly.addEventListener("change", () => patch({ highlightOnly: highlightO
 // Feature #2 — opt-in listes en ligne (défaut OFF). Activer => le service worker
 // récupérera /lists au prochain cycle ; désactiver => zéro appel réseau pour les listes.
 remoteLists.addEventListener("change", () => patch({ remoteLists: remoteLists.checked }));
-// IA locale (opt-in, défaut OFF) : adoucit aussi les insultes voilées (cas gris) via un
-// petit modèle 100 % local. OFF => zéro document offscreen, zéro modèle, aucun changement.
-aiMode.addEventListener("change", () => patch({ aiMode: aiMode.checked }));
 // Sensibilité de détection : "precise" (défaut, 0 FP) | "large" (mots durs isolés adoucis).
 sensitivity.addEventListener("change", () => patch({ sensitivity: sensitivity.value }));
 

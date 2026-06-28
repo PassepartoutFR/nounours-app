@@ -4,6 +4,17 @@
 
 Versions notables. SemVer ; format inspiré de *Keep a Changelog*.
 
+## [0.8.0] — 2026-06-26 (première version publique stable)
+
+### Modifié
+- 🧠 **IA locale retirée (temporairement)** : la couche IA expérimentale est mise de
+  côté pour la 1ʳᵉ version publique stable du Chrome Web Store (son intégration MV3
+  gardait un dernier bug de relais). Résultat : extension **minimale et propre** —
+  **aucune** permission `offscreen`, **aucun** hôte distant, **aucune** lib ML, pas
+  d'eval/sandbox. L'IA reviendra, corrigée, plus tard. Tout le reste est inchangé
+  (détection Précise/Large, classement, miroir gentil, surlignage, badges/séries,
+  notification de mise à jour…).
+
 ## [0.7.9] — 2026-06-26
 
 ### Corrigé

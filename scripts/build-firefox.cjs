@@ -17,9 +17,8 @@ const GECKO_MIN = "121.0";
 const FILES = [
   "manifest.json", "background.js", "content.js", "content.css", "mirror.js",
   "popup.html", "popup.js", "scoreboard.js", "uwg-core.js",
-  "offscreen.html", "offscreen.js", "sandbox.html", "sandbox.js",
 ];
-const DIRS = ["icons", "vendor"];
+const DIRS = ["icons"];
 
 function copyDir(src, dest) {
   fs.mkdirSync(dest, { recursive: true });

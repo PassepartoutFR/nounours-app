@@ -10,9 +10,7 @@ const OUT = join(ROOT, "dist", "firefox");
 const REQUIRED_FILES = [
   "manifest.json", "background.js", "content.js", "content.css", "mirror.js",
   "popup.html", "popup.js", "scoreboard.js", "uwg-core.js",
-  "offscreen.html", "offscreen.js", "sandbox.html", "sandbox.js",
   "icons/icon16.png", "icons/icon48.png", "icons/icon128.png",
-  "vendor/tf.min.js", "vendor/toxicity.min.js",
 ];
 
 export async function runFirefoxBuildTests(ok) {
@@ -22,8 +20,8 @@ export async function runFirefoxBuildTests(ok) {
   ok(m.browser_specific_settings?.gecko?.id === "nounours@nounours.app", "firefox : gecko id");
   ok(m.browser_specific_settings?.gecko?.strict_min_version === "121.0", "firefox : gecko min 121.0");
   ok(!m.browser_specific_settings?.gecko?.id.includes(" "), "firefox : gecko id sans espace");
-  ok(m.sandbox?.pages?.includes("sandbox.html"), "firefox : sandbox.html déclaré");
-  ok(m.permissions?.includes("offscreen"), "firefox : permission offscreen");
+  ok(!m.permissions?.includes("offscreen"), "firefox : pas de permission offscreen");
+  ok(!m.sandbox, "firefox : pas de bloc sandbox");
 
   for (const f of REQUIRED_FILES) {
     ok(existsSync(join(OUT, f)), "firefox : présent " + f);
@@ -37,6 +35,9 @@ export async function runFirefoxBuildTests(ok) {
   const built = new Set(
     REQUIRED_FILES.map((f) => f.split("/")[0]).filter((x, i, a) => a.indexOf(x) === i)
   );
-  ok(built.has("vendor") && built.has("icons"), "firefox : dossiers vendor + icons copiés");
-  ok(readdirSync(join(OUT, "vendor")).length >= 2, "firefox : vendor peuplé");
+  ok(built.has("icons"), "firefox : dossier icons copié");
+  ok(readdirSync(join(OUT, "icons")).length >= 3, "firefox : icons peuplé");
+  // l'IA est retirée de cette release : aucun vendor/ ML ni fichier offscreen/sandbox.
+  ok(!existsSync(join(OUT, "vendor")), "firefox : pas de dossier vendor (IA retirée)");
+  ok(!existsSync(join(OUT, "offscreen.js")) && !existsSync(join(OUT, "sandbox.js")), "firefox : pas de fichiers IA (offscreen/sandbox)");
 }

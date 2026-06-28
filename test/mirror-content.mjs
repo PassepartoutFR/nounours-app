@@ -38,7 +38,6 @@ function bootContent(dom, core, cfg = {}) {
     highlightOnly: false,
     remoteLists: false,
     sensitivity: "precise",
-    aiMode: false,
   }, cfg);
   const w = Object.assign(dom.window, { UWGCore: core, document: dom.document });
   runScript(contentSrc, {

@@ -4,6 +4,16 @@
 
 Notable versions. SemVer; format inspired by *Keep a Changelog*.
 
+## [0.8.0] — 2026-06-26 (first stable public release)
+
+### Changed
+- 🧠 **Local AI removed (temporarily)**: the experimental AI layer is set aside for
+  the first stable Chrome Web Store release (its MV3 integration still had one relay
+  bug). The result is a **minimal, clean** extension — **no** `offscreen` permission,
+  **no** remote hosts, **no** ML libraries, no eval/sandbox. The AI will return,
+  fixed, later. Everything else is unchanged (Precise/Broad detection, leaderboard,
+  kind mirror, highlight mode, badges/streaks, update notification…).
+
 ## [0.7.9] — 2026-06-26
 
 ### Fixed

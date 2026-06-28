@@ -44,9 +44,7 @@
     celebrate: true,
     highlightOnly: false,
     remoteLists: false, // opt-in listes en ligne : 100% LOCAL PAR DÉFAUT (OFF)
-    sensitivity: "precise", // détection : "precise" (défaut, 0 FP) | "large" (mots durs isolés)
-    aiMode: false,      // opt-in IA locale (cas gris) : 100% LOCAL, défaut OFF
-    aiThreshold: 0.9    // score de toxicité minimal pour adoucir un cas gris
+    sensitivity: "precise" // détection : "precise" (défaut, 0 FP) | "large" (mots durs isolés)
   };
 
   const PAGE_LANG = (
@@ -185,8 +183,7 @@
     e.stopPropagation();
   }
 
-  // Remplace un nœud texte par une mascotte. Chemin de rendu PARTAGÉ par la liste de
-  // mots ET par l'IA locale (cas gris) — strictement le code existant, extrait tel quel.
+  // Remplace un nœud texte par une mascotte (chemin liste de mots).
   // Renvoie true si le remplacement a eu lieu (nœud encore en place + non déjà traité).
   function applyMascot(node, text, lang) {
     // garde : le nœud doit être encore dans le DOM et pas déjà remplacé par nous.
@@ -234,71 +231,9 @@
     const text = node.nodeValue;
     if (!text || text.trim().length < 2) return;
     const lang = CORE.detect(text, PAGE_LANG, { aggressive: state.sensitivity === "large" });
-    if (!lang) {
-      // CHEMIN IA LOCALE (OPT-IN) — n'intervient QUE quand la liste de mots n'a rien
-      // flaggé (lang===null), pour arbitrer le « cas gris » (insulte voilée). Strictement
-      // additif : si aiMode est OFF, rien de tout ceci ne s'exécute (comportement actuel).
-      if (state.aiMode && !shouldSkip(node)) maybeAiProcess(node, text);
-      return;
-    }
+    if (!lang) return;
     if (shouldSkip(node)) return;
     applyMascot(node, text, lang); // le chemin liste flushe via walk()/observer (inchangé)
-  }
-
-  // ---------------------------------------------------------------------------
-  // Chemin IA locale (cas gris) — OPT-IN, ASYNCHRONE, FAIL-SAFE
-  // ---------------------------------------------------------------------------
-  // On n'interroge le modèle QUE sur les textes qui (1) contiennent déjà un mot
-  // insultant-ish dans une langue candidate mais sans cible claire (CORE.aiCandidate)
-  // et (2) ont une longueur raisonnable. On borne le nombre d'appels par page, on met
-  // en cache localement (pour ne jamais re-demander), et AUCUNE erreur IA ne peut
-  // affecter le rendu : en cas de souci, le nœud reste tel quel.
-  const AI_MAX_CALLS = 120;   // plafond d'appels IA par page (perf + coût CPU)
-  const AI_MIN_LEN = 6;       // ignore le texte trop court (peu d'info)
-  const AI_MAX_LEN = 400;     // ignore le texte trop long (coûteux + rarement un commentaire)
-  let aiCalls = 0;            // compteur d'appels IA pour cette page
-  const aiSeen = new Map();   // cache local : texte normalisé -> score connu (anti-redemande)
-
-  function aiKey(t) { return (CORE.norm ? CORE.norm(t) : String(t).toLowerCase()).slice(0, AI_MAX_LEN); }
-
-  function maybeAiProcess(node, text) {
-    try {
-      const trimmed = text.trim();
-      if (trimmed.length < AI_MIN_LEN || trimmed.length > AI_MAX_LEN) return;
-      if (aiCalls >= AI_MAX_CALLS) return; // plafond atteint : on s'arrête (fail-safe perf)
-      // borne : seulement les vrais « cas gris » (mot insultant présent, mais detect=null).
-      if (!CORE.aiCandidate(text, PAGE_LANG, { pageLang: PAGE_LANG })) return;
-
-      const key = aiKey(text);
-      if (aiSeen.has(key)) {
-        applyIfToxic(node, text, aiSeen.get(key)); // déjà connu : on réutilise (0 appel)
-        return;
-      }
-      // marque AVANT l'appel pour éviter les demandes simultanées du même texte sur la page
-      aiSeen.set(key, -1); // -1 = en cours / inconnu
-      aiCalls++;
-      chrome.runtime.sendMessage({ type: "uwg-ai-score", text }, (resp) => {
-        // lastError = service worker endormi / erreur : fail-safe, on ne touche à rien.
-        if (chrome.runtime.lastError) { aiSeen.set(key, 0); return; }
-        const score = (resp && typeof resp.score === "number") ? resp.score : 0;
-        aiSeen.set(key, score);
-        applyIfToxic(node, text, score);
-      });
-    } catch (_) { /* fail-safe : toute erreur IA n'affecte jamais le rendu */ }
-  }
-
-  // Applique la mascotte SI le score dépasse le seuil ET que le nœud est toujours en
-  // place et non déjà traité (course possible : DOM modifié pendant l'attente async).
-  function applyIfToxic(node, text, score) {
-    try {
-      if (typeof score !== "number" || score < (state.aiThreshold || 0.9)) return;
-      if (!node || !node.parentNode) return;                  // nœud retiré entre-temps
-      if (node.nodeType !== Node.TEXT_NODE) return;            // déjà remplacé
-      if (node.nodeValue !== text) return;                    // contenu changé entre-temps
-      if (shouldSkip(node)) return;                            // est devenu non-traitable
-      const lang = PAGE_LANG && CORE.LANGS.includes(PAGE_LANG) ? PAGE_LANG : "en"; // meilleure estimation
-      if (applyMascot(node, text, lang)) scheduleFlush();
-    } catch (_) { /* fail-safe : jamais d'impact sur la page */ }
   }
 
   function walk(root) {
