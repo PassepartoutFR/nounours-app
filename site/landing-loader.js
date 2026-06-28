@@ -11,7 +11,7 @@
     ? String(Math.max(1, Math.min(10, +force)))
     : pick();
 
-  var ASSET_V = "20260627b";
+  var ASSET_V = "20260628a";
 
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
